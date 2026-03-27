@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aidevelo
+  namespace: aidevelo
+spec:
+  selector:
+    app: aidevelo
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3100

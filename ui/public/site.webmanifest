@@ -1,0 +1,30 @@
+{
+  "id": "/",
+  "name": "Aidevelo",
+  "short_name": "Aidevelo",
+  "description": "AI-powered project management and agent coordination platform",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#18181b",
+  "background_color": "#18181b",
+  "icons": [
+    {
+      "src": "/AID-thumbnail-white.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/AID-thumbnail-white.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/AID-thumbnail-white.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

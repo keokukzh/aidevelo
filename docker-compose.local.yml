@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: aidevelo
+      POSTGRES_PASSWORD: aidevelo
+      POSTGRES_DB: aidevelo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aidevelo -d aidevelo"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:${AIDEVELO_DB_PORT:-5432}:5432"
+    volumes:
+      - ./data/docker-aidevelo-local/postgres:/var/lib/postgresql/data
+
+  aidevelo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${AIDEVELO_PORT:-3100}:3100"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3100"
+      SERVE_UI: "true"
+      AIDEVELO_HOME: "/aidevelo"
+      DATABASE_URL: "postgres://aidevelo:aidevelo@db:5432/aidevelo"
+      AIDEVELO_DEPLOYMENT_MODE: "authenticated"
+      AIDEVELO_DEPLOYMENT_EXPOSURE: "private"
+      AIDEVELO_AUTH_ALLOW_LOCAL_IMPLICIT_BOARD: "true"
+      AIDEVELO_PUBLIC_URL: "${AIDEVELO_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:?BETTER_AUTH_SECRET must be set}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      MINIMAX_API_KEY: "${MINIMAX_API_KEY:-}"
+      MINIMAX_ANTHROPIC_BASE_URL: "${MINIMAX_ANTHROPIC_BASE_URL:-}"
+      AIDEVELO_AGENT_JWT_SECRET: "${AIDEVELO_AGENT_JWT_SECRET:-}"
+    volumes:
+      - ./data/docker-aidevelo-local/app:/aidevelo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3100/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s

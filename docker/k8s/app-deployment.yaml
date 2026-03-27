@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aidevelo
+  namespace: aidevelo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aidevelo
+  template:
+    metadata:
+      labels:
+        app: aidevelo
+    spec:
+      containers:
+        - name: aidevelo
+          image: aideveloai-server:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3100
+              name: http
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          envFrom:
+            - configMapRef:
+                name: aidevelo-config
+            - secretRef:
+                name: aidevelo-app-secrets
+          volumeMounts:
+            - name: aidevelo-data
+              mountPath: /aidevelo
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+      volumes:
+        - name: aidevelo-data
+          persistentVolumeClaim:
+            claimName: aidevelo-app-data

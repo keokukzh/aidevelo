@@ -1,0 +1,2 @@
+ALTER TABLE "companies" ADD COLUMN "runtime_mode" text DEFAULT 'legacy_configurable' NOT NULL;--> statement-breakpoint
+ALTER TABLE "companies" ADD COLUMN "managed_runtime_config" jsonb DEFAULT '{}'::jsonb NOT NULL;--> statement-breakpoint

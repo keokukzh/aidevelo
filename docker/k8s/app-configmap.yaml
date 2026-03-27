@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aidevelo-config
+  namespace: aidevelo
+data:
+  HOST: "0.0.0.0"
+  PORT: "3100"
+  SERVE_UI: "true"
+  AIDEVELO_HOME: "/aidevelo"
+  AIDEVELO_DEPLOYMENT_MODE: "authenticated"
+  AIDEVELO_DEPLOYMENT_EXPOSURE: "private"
+  AIDEVELO_PUBLIC_URL: "https://aidevelo.example.com"
+  DATABASE_URL: "postgres://aidevelo:aidevelo@aidevelo-postgres:5432/aidevelo"
