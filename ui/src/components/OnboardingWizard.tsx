@@ -718,14 +718,20 @@ export function OnboardingWizard() {
             RemoveScroll which blocks wheel events on our custom (non-DialogContent)
             scroll container. A plain div preserves the background without scroll-locking. */}
         <div className="fixed inset-0 z-50 bg-background" />
-        <div className="fixed inset-0 z-50 flex" onKeyDown={handleKeyDown}>
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={`onboarding-step-${step}-heading`}
+          className="fixed inset-0 z-50 flex"
+          onKeyDown={handleKeyDown}
+        >
           {/* Close button */}
           <button
             onClick={handleClose}
-            className="absolute top-4 left-4 z-10 rounded-sm p-1.5 text-muted-foreground/60 hover:text-foreground transition-colors"
+            className="absolute top-4 left-4 z-10 rounded-sm min-w-[44px] min-h-[44px] flex items-center justify-center text-muted-foreground/60 hover:text-foreground transition-colors"
+            aria-label="Close onboarding wizard"
           >
             <X className="h-5 w-5" />
-            <span className="sr-only">Close</span>
           </button>
 
           {/* Left half — form */}
@@ -751,16 +757,16 @@ export function OnboardingWizard() {
                 saturation={1}
               />
             </div>
-            <div className="relative z-10 w-full flex justify-center px-8 pt-[161px] pb-0 mt-0 mb-0 text-center">
+            <div className="relative z-10 w-full flex justify-center px-8 pt-16 md:pt-[161px] pb-0 mt-0 mb-0 text-center">
               <img
                 src="/brands/mainlogonobackwhite.png"
                 alt="AIDevelo.ai"
-                className="w-[250px] max-w-[340px] pt-0 h-auto select-none pointer-events-none"
+                className="w-[200px] md:w-[250px] max-w-[340px] pt-0 h-auto select-none pointer-events-none"
               />
             </div>
-            <div className="relative z-10 w-full max-w-md mx-auto mt-[100px] mb-[100px] px-8 pt-[41px] pb-12 shrink-0">
+            <div className="relative z-10 w-full max-w-md mx-auto mt-8 md:mt-[100px] mb-12 md:mb-[100px] px-6 md:px-8 pt-6 md:pt-[41px] pb-12 shrink-0">
               {/* Progress tabs */}
-              <div className="flex items-center gap-0 mb-8 border-b border-border">
+              <div role="tablist" aria-label="Onboarding steps" className="flex items-center gap-0 mb-8 border-b border-border">
                 {(
                   [
                     { step: 1 as Step, label: "Company", icon: Building2 },
@@ -772,9 +778,12 @@ export function OnboardingWizard() {
                   <button
                     key={s}
                     type="button"
+                    role="tab"
+                    aria-selected={s === step}
+                    aria-controls={`onboarding-step-${s}`}
                     onClick={() => setStep(s)}
                     className={cn(
-                      "flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 -mb-px transition-colors cursor-pointer",
+                      "flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer",
                       s === step
                         ? "border-foreground text-foreground"
                         : "border-transparent text-muted-foreground hover:text-foreground/70 hover:border-border"
@@ -788,42 +797,47 @@ export function OnboardingWizard() {
 
               {/* Step content */}
               {step === 1 && (
-                <div className="space-y-5">
+                <div id="onboarding-step-1" role="tabpanel" aria-labelledby="onboarding-step-1-heading" className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
                       <Building2 className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Name your company</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 id="onboarding-step-1-heading" className="font-medium text-base">Name your company</h2>
+                      <p className="text-sm text-muted-foreground">
                         This is the organization your agents will work for.
                       </p>
                     </div>
                   </div>
                   <div className="mt-3 group">
                     <label
+                      htmlFor="onboarding-company-name"
                       className={cn(
-                        "text-xs mb-1 block transition-colors duration-150",
+                        "text-sm mb-1 block transition-colors duration-150",
                         companyName.trim()
                           ? "text-foreground"
                           : "text-muted-foreground group-focus-within:text-foreground"
                       )}
                     >
-                      Company name
+                      Company name <span className="text-destructive">*</span>
                     </label>
                     <input
+                      id="onboarding-company-name"
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground/50 placeholder:transition-opacity placeholder:duration-200 transition-colors"
                       placeholder="Acme Corp"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       autoFocus
                       autoComplete="organization"
+                      required
+                      aria-required="true"
                     />
                   </div>
                   <div className="group">
                     <label
+                      htmlFor="onboarding-company-goal"
                       className={cn(
-                        "text-xs mb-1 block transition-colors duration-150",
+                        "text-sm mb-1 block transition-colors duration-150",
                         companyGoal.trim()
                           ? "text-foreground"
                           : "text-muted-foreground group-focus-within:text-foreground"
@@ -832,6 +846,7 @@ export function OnboardingWizard() {
                       Mission / goal (optional)
                     </label>
                     <textarea
+                      id="onboarding-company-goal"
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground/50 placeholder:transition-opacity placeholder:duration-200 resize-none min-h-[60px] transition-colors"
                       placeholder="What is this company trying to achieve?"
                       value={companyGoal}
@@ -843,28 +858,31 @@ export function OnboardingWizard() {
               )}
 
               {step === 2 && (
-                <div className="space-y-5">
+                <div id="onboarding-step-2" role="tabpanel" aria-labelledby="onboarding-step-2-heading" className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
                       <Bot className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Create your first agent</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 id="onboarding-step-2-heading" className="font-medium text-base">Create your first agent</h2>
+                      <p className="text-sm text-muted-foreground">
                         Aidevelo sets up a budget-first orchestration flow: keep everyday work on the primary route, use fallback only when required, and reduce token spend automatically during early, low-usage operation.
                       </p>
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Agent name
+                    <label htmlFor="onboarding-agent-name" className="text-sm text-muted-foreground mb-1 block">
+                      Agent name <span className="text-destructive">*</span>
                     </label>
                     <input
+                      id="onboarding-agent-name"
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
                       placeholder="CEO"
                       value={agentName}
                       onChange={(e) => setAgentName(e.target.value)}
                       autoFocus
+                      required
+                      aria-required="true"
                     />
                   </div>
 
@@ -1049,7 +1067,7 @@ export function OnboardingWizard() {
                     <>
                       {/* Adapter type radio cards */}
                       <div>
-                        <label className="text-xs text-muted-foreground mb-2 block">
+                        <label className="text-sm text-muted-foreground mb-2 block">
                           Adapter type
                         </label>
                         <div className="grid grid-cols-2 gap-2">
@@ -1206,7 +1224,7 @@ export function OnboardingWizard() {
                         adapterType === "cursor") && (
                         <div className="space-y-3">
                           <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">
+                            <label className="text-sm text-muted-foreground mb-1 block">
                               Model
                             </label>
                             <Popover
@@ -1426,12 +1444,13 @@ export function OnboardingWizard() {
                   {(adapterType === "http" ||
                     adapterType === "openclaw_gateway") && (
                     <div>
-                      <label className="text-xs text-muted-foreground mb-1 block">
+                      <label htmlFor="onboarding-adapter-url" className="text-sm text-muted-foreground mb-1 block">
                         {adapterType === "openclaw_gateway"
                           ? "Gateway URL"
                           : "Webhook URL"}
                       </label>
                       <input
+                        id="onboarding-adapter-url"
                         className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
                         placeholder={
                           adapterType === "openclaw_gateway"
@@ -1449,36 +1468,40 @@ export function OnboardingWizard() {
               )}
 
               {step === 3 && (
-                <div className="space-y-5">
+                <div id="onboarding-step-3" role="tabpanel" aria-labelledby="onboarding-step-3-heading" className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
                       <ListTodo className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Give it something to do</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 id="onboarding-step-3-heading" className="font-medium text-base">Give it something to do</h2>
+                      <p className="text-sm text-muted-foreground">
                         Give your agent a small task to start with — a bug fix,
                         a research question, writing a script.
                       </p>
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
-                      Task title
+                    <label htmlFor="onboarding-task-title" className="text-sm text-muted-foreground mb-1 block">
+                      Task title <span className="text-destructive">*</span>
                     </label>
                     <input
+                      id="onboarding-task-title"
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
                       placeholder="e.g. Research competitor pricing"
                       value={taskTitle}
                       onChange={(e) => setTaskTitle(e.target.value)}
                       autoFocus
+                      required
+                      aria-required="true"
                     />
                   </div>
                   <div>
-                    <label className="text-xs text-muted-foreground mb-1 block">
+                    <label htmlFor="onboarding-task-description" className="text-sm text-muted-foreground mb-1 block">
                       Description (optional)
                     </label>
                     <textarea
+                      id="onboarding-task-description"
                       ref={textareaRef}
                       className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 resize-none min-h-[120px] max-h-[300px] overflow-y-auto"
                       placeholder="Add more detail about what the agent should do..."
@@ -1490,14 +1513,14 @@ export function OnboardingWizard() {
               )}
 
               {step === 4 && (
-                <div className="space-y-5">
+                <div id="onboarding-step-4" role="tabpanel" aria-labelledby="onboarding-step-4-heading" className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
                     <div className="bg-muted/50 p-2">
                       <Rocket className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-medium">Ready to launch</h3>
-                      <p className="text-xs text-muted-foreground">
+                      <h2 id="onboarding-step-4-heading" className="font-medium text-base">Ready to launch</h2>
+                      <p className="text-sm text-muted-foreground">
                         Everything is set up. Launching now will create the
                         starter task, wake the agent, and open the issue.
                       </p>
@@ -1543,11 +1566,11 @@ export function OnboardingWizard() {
               )}
 
               {/* Error */}
-              {error && (
-                <div className="mt-3">
-                  <p className="text-xs text-destructive">{error}</p>
-                </div>
-              )}
+              <div role="alert" aria-live="assertive" className="mt-3">
+                {error && (
+                  <p className="text-sm text-destructive">{error}</p>
+                )}
+              </div>
 
               {/* Footer navigation */}
               <div className="flex items-center justify-between mt-8">
@@ -1621,6 +1644,12 @@ export function OnboardingWizard() {
                   )}
                 </div>
               </div>
+              <p className="mt-3 text-xs text-muted-foreground/60 text-right hidden md:block">
+                <kbd className="rounded border border-border px-1 py-0.5 text-[10px] font-mono">
+                  {typeof navigator !== "undefined" && /Mac|iPhone/.test(navigator.userAgent) ? "⌘" : "Ctrl"}+Enter
+                </kbd>{" "}
+                to continue
+              </p>
             </div>
           </div>
 

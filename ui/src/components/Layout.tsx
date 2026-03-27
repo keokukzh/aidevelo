@@ -300,7 +300,10 @@ export function Layout() {
               <CompanyRail />
               {isInstanceSettingsRoute ? <InstanceSidebar /> : <Sidebar />}
             </div>
-            <div className="border-t border-r border-border px-3 py-2 bg-background">
+            <div
+              className="border border-border bg-[rgba(3,3,3,1)] px-3 py-2"
+              style={{ boxSizing: "content-box", opacity: 1, borderRadius: 15, borderTopLeftRadius: 15, borderTopRightRadius: 15, borderBottomRightRadius: 15, borderBottomLeftRadius: 15, color: "rgba(240, 196, 36, 1)", borderImage: "none" }}
+            >
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
                   <Link
@@ -361,7 +364,10 @@ export function Layout() {
                 {isInstanceSettingsRoute ? <InstanceSidebar /> : <Sidebar />}
               </div>
             </div>
-            <div className="border-t border-r border-border px-3 py-2">
+            <div
+              className="border border-border bg-[rgba(3,3,3,1)] px-3 py-2"
+              style={{ boxSizing: "content-box", opacity: 1, borderRadius: 15, borderTopLeftRadius: 15, borderTopRightRadius: 15, borderBottomRightRadius: 15, borderBottomLeftRadius: 15, color: "rgba(240, 196, 36, 1)", borderImage: "none" }}
+            >
               <div className="flex items-center gap-1">
                 <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
                   <Link
