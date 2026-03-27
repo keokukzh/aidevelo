@@ -154,3 +154,29 @@ A change is done when all are true:
 - When creating a CEO agent, provision the default agent workspace under `workspaces/<agentId>/` with PARA directories (`life/projects`, `life/areas/*`, `life/resources`, `life/archives`) plus `memory/`, seed `MEMORY.md`, and write `HEARTBEAT.md`, `SOUL.md`, and `TOOLS.md` at the workspace root.
 - For CEO agents running `opencode_local`, inline required `$AGENT_HOME/HEARTBEAT.md` / `SOUL.md` / `TOOLS.md` contents into the prompt and explicitly forbid `read`/`glob` tool calls to prevent `external_directory` permission rejections.
 - Company deletion must delete dependent tables in foreign-key-safe order (e.g. delete `company_skills`, then `cost_events`/`finance_events`, then `heartbeat_runs`) to prevent 500s from FK constraint violations.
+
+## Cursor Cloud specific instructions
+
+### Services
+
+| Service | Port | Start command |
+|---------|------|---------------|
+| API + UI (dev middleware) | 3100 | `pnpm dev` from repo root |
+
+The single `pnpm dev` command starts everything needed: embedded PostgreSQL (auto-provisioned, no `DATABASE_URL` required), Express API server, and Vite dev middleware for the UI — all served on `http://localhost:3100`.
+
+### Key commands
+
+See `CLAUDE.md` for the canonical quick-start. Summary of verification commands:
+
+- **Lint/Typecheck**: `pnpm -r typecheck` (pre-existing TS errors in `server/` due to Express `req.actor` typing — these do not block dev mode which uses `tsx`)
+- **Tests**: `pnpm test:run` (Vitest)
+- **Build**: `pnpm build` (same TS errors will cause server build to fail; other packages build fine)
+- **Health check**: `curl http://localhost:3100/api/health`
+
+### Gotchas
+
+- The server uses `tsx` at runtime (not compiled JS), so TypeScript build errors in `server/` do not prevent the dev server from running.
+- Embedded PostgreSQL data lives at `~/.aidevelo/instances/default/db`. To reset: `rm -rf ~/.aidevelo/instances/default/db` then restart.
+- `pnpm dev` runs in watch mode by default and auto-applies pending migrations.
+- No `.env` file is needed for local development — the server defaults to `local_trusted` mode with embedded Postgres and local disk storage.
