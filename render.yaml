@@ -1,0 +1,66 @@
+services:
+  - name: aidevelo-api
+    region: oregon
+    runtime: node
+    nodeVersion: "20"
+    buildCommand: npm exec -- pnpm@9.15.4 -- build
+    startCommand: npx tsx server/src/index.ts
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_SECRET
+        sync: false
+      - key: AUTH_SECRET
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        sync: false
+      - key: RENDER_API_KEY
+        sync: false
+      - key: CLOUDFLARE_ACCOUNT_ID
+        sync: false
+      - key: R2_ACCESS_KEY_ID
+        sync: false
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        sync: false
+      - key: R2_S3_ENDPOINT
+        sync: false
+      - key: ANTHROPIC_BASE_URL
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: AIDEVELO_MIGRATION_AUTO_APPLY
+        value: "true"
+      - key: AIDEVELO_MIGRATION_PROMPT
+        value: "never"
+      - key: AIDEVELO_API_URL
+        value: "https://api.aidevelo.ai"
+      - key: AIDEVELO_APP_URL
+        value: "https://aidevelo.ai"
+
+  - name: aidevelo-worker
+    region: oregon
+    runtime: node
+    nodeVersion: "20"
+    buildCommand: npm exec -- pnpm@9.15.4 -- build
+    startCommand: node server/dist/worker/index.js
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          name: aidevelo-api
+          envVarKey: DATABASE_URL
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3001"
