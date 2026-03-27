@@ -9,6 +9,7 @@ import { httpLogger, errorHandler } from "./middleware/index.js";
 import { actorMiddleware } from "./middleware/auth.js";
 import { boardMutationGuard } from "./middleware/board-mutation-guard.js";
 import { privateHostnameGuard, resolvePrivateHostnameAllowSet } from "./middleware/private-hostname-guard.js";
+import { quotaMiddleware } from "./middleware/quota.js";
 import { healthRoutes } from "./routes/health.js";
 import { companyRoutes } from "./routes/companies.js";
 import { companySkillRoutes } from "./routes/company-skills.js";
@@ -29,6 +30,8 @@ import { llmRoutes } from "./routes/llms.js";
 import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { pluginRoutes } from "./routes/plugins.js";
+import { billingRoutes } from "./routes/billing.js";
+import { webhookRoutes } from "./routes/webhooks.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { workerJobRoutes } from "./routes/worker-jobs.js";
 import { applyUiBranding } from "./ui-branding.js";
@@ -126,7 +129,11 @@ export async function createApp(
   if (opts.betterAuthHandler) {
     app.all("/api/auth/*authPath", opts.betterAuthHandler);
   }
+  app.use(quotaMiddleware(db));
   app.use(llmRoutes(db));
+
+  // Stripe webhook — needs raw body, bypasses actor middleware
+  app.use("/api", webhookRoutes(db));
 
   // Mount API routes
   const api = Router();
@@ -156,6 +163,7 @@ export async function createApp(
   api.use(dashboardRoutes(db));
   api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
+  api.use(billingRoutes(db));
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);
