@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "API Server",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "server/src/index.ts"],
+      "port": 3100
+    },
+    {
+      "name": "UI Dev Server",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["pnpm", "--filter", "@aideveloai/ui", "exec", "vite"],
+      "port": 5173
+    }
+  ]
+}
