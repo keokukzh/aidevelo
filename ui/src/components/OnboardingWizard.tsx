@@ -731,7 +731,7 @@ export function OnboardingWizard() {
           {/* Left half — form */}
           <div
             className={cn(
-              "relative isolate w-full flex flex-col overflow-y-auto transition-[width] duration-500 ease-in-out",
+              "relative isolate w-full flex flex-col overflow-y-auto transition-[width] duration-300 ease-in-out",
               step === 1 ? "md:w-1/2" : "md:w-full"
             )}
           >
@@ -803,7 +803,7 @@ export function OnboardingWizard() {
                   <div className="mt-3 group">
                     <label
                       className={cn(
-                        "text-xs mb-1 block transition-colors",
+                        "text-xs mb-1 block transition-colors duration-150",
                         companyName.trim()
                           ? "text-foreground"
                           : "text-muted-foreground group-focus-within:text-foreground"
@@ -812,17 +812,18 @@ export function OnboardingWizard() {
                       Company name
                     </label>
                     <input
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+                      className="w-full rounded-md border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground/50 placeholder:transition-opacity placeholder:duration-200 transition-colors"
                       placeholder="Acme Corp"
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       autoFocus
+                      autoComplete="organization"
                     />
                   </div>
                   <div className="group">
                     <label
                       className={cn(
-                        "text-xs mb-1 block transition-colors",
+                        "text-xs mb-1 block transition-colors duration-150",
                         companyGoal.trim()
                           ? "text-foreground"
                           : "text-muted-foreground group-focus-within:text-foreground"
@@ -831,10 +832,11 @@ export function OnboardingWizard() {
                       Mission / goal (optional)
                     </label>
                     <textarea
-                      className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50 resize-none min-h-[60px]"
+                      className="w-full rounded-md border border-border bg-transparent px-3 py-2.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 placeholder:text-muted-foreground/50 placeholder:transition-opacity placeholder:duration-200 resize-none min-h-[60px] transition-colors"
                       placeholder="What is this company trying to achieve?"
                       value={companyGoal}
                       onChange={(e) => setCompanyGoal(e.target.value)}
+                      autoComplete="off"
                     />
                   </div>
                 </div>
