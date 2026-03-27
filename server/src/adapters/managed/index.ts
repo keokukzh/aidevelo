@@ -1,3 +1,4 @@
+import type { Db } from "@aideveloai/db";
 import type {
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
@@ -24,9 +25,24 @@ import {
   getQuotaWindows as codexGetQuotaWindows,
 } from "@aideveloai/adapter-codex-local/server";
 import { models as codexModels } from "@aideveloai/adapter-codex-local";
+import { classifyTask } from "../../services/task-classifier.js";
+import { createModelRouter, isProviderError } from "../../services/model-router.js";
+import type { ModelId } from "../../services/model-router.js";
 
 const MANAGED_CLAUDE_DELEGATE_ADAPTER = "claude_local";
 const MANAGED_CODEX_DELEGATE_ADAPTER = "codex_local";
+
+// Singleton model router keyed by db instance
+const modelRouters = new WeakMap<Db, ReturnType<typeof createModelRouter>>();
+
+function getOrCreateModelRouter(db: Db) {
+  let router = modelRouters.get(db);
+  if (!router) {
+    router = createModelRouter(db);
+    modelRouters.set(db, router);
+  }
+  return router;
+}
 
 /**
  * With MINIMAX_API_KEY, default to Claude Code + MiniMax Anthropic-compatible API (token plan).
@@ -143,21 +159,72 @@ function buildDelegateConfig(config: Record<string, unknown>, delegateAdapter: s
   return next;
 }
 
+function injectModelOverride(config: Record<string, unknown>, modelId: ModelId) {
+  const env = toRecord(config.env);
+  env["AIDEVELO_MODEL_OVERRIDE"] = modelId;
+  config.env = env;
+}
+
 async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
-  const delegateAdapter = resolveManagedDelegateAdapter(ctx.config);
-  const delegateConfig = buildDelegateConfig(ctx.config, delegateAdapter);
-  const executor = delegateAdapter === MANAGED_CODEX_DELEGATE_ADAPTER ? codexExecute : claudeExecute;
-  const result = await executor({
-    ...ctx,
-    config: delegateConfig,
-  });
+  const db = ctx.config.db as Db | undefined;
+  if (!db) {
+    // Fallback: direct execution without routing
+    const delegateAdapter = resolveManagedDelegateAdapter(ctx.config);
+    const delegateConfig = buildDelegateConfig(ctx.config, delegateAdapter);
+    const executor = delegateAdapter === MANAGED_CODEX_DELEGATE_ADAPTER ? codexExecute : claudeExecute;
+    const result = await executor({ ...ctx, config: delegateConfig });
+    return {
+      ...result,
+      provider: result.provider ?? "managed_service",
+      summary: result.summary ?? "Managed service routed execution through the local company-managed runtime.",
+    };
+  }
+
+  const router = getOrCreateModelRouter(db);
+  const complexity = classifyTask(ctx);
+
+  let selectedModel = await router.selectModel(complexity, ctx.agent.companyId);
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (!selectedModel) break;
+
+    const delegateAdapter = resolveManagedDelegateAdapter(ctx.config);
+    const delegateConfig = buildDelegateConfig(ctx.config, delegateAdapter);
+    injectModelOverride(delegateConfig, selectedModel.id);
+
+    const executor = delegateAdapter === MANAGED_CODEX_DELEGATE_ADAPTER ? codexExecute : claudeExecute;
+
+    try {
+      const result = await executor({ ...ctx, config: delegateConfig });
+
+      if (isProviderError(result)) {
+        router.recordFailure(selectedModel.id, result.errorMessage ?? result);
+        const nextTier = router.getNextTier(selectedModel.id);
+        selectedModel = nextTier ? { id: nextTier, complexity } : null;
+        continue;
+      }
+
+      router.recordSuccess(selectedModel.id);
+      return {
+        ...result,
+        provider: result.provider ?? "managed_service",
+        model: selectedModel.id,
+        summary: result.summary ?? "Managed service routed execution through the local company-managed runtime.",
+      };
+    } catch (error) {
+      // selectedModel is guaranteed non-null here (checked at loop start)
+      router.recordFailure(selectedModel!.id, error);
+      const nextTier = router.getNextTier(selectedModel!.id);
+      selectedModel = nextTier ? { id: nextTier, complexity } : null;
+    }
+  }
 
   return {
-    ...result,
-    provider: result.provider ?? "managed_service",
-    summary:
-      result.summary ??
-      "Managed service routed execution through the local company-managed runtime.",
+    exitCode: null,
+    signal: null,
+    timedOut: false,
+    errorMessage: "All model tiers exhausted",
+    provider: "managed_service",
   };
 }
 

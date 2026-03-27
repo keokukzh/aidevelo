@@ -317,17 +317,6 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  onClick={toggleTheme}
-                  aria-label={`Switch to ${nextTheme} mode`}
-                  title={`Switch to ${nextTheme} mode`}
-                >
-                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -348,6 +337,17 @@ export function Layout() {
                     <TooltipContent>v{health.version}</TooltipContent>
                   </Tooltip>
                 )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground shrink-0"
+                  onClick={toggleTheme}
+                  aria-label={`Switch to ${nextTheme} mode`}
+                  title={`Switch to ${nextTheme} mode`}
+                >
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
           </div>
@@ -381,17 +381,6 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  onClick={toggleTheme}
-                  aria-label={`Switch to ${nextTheme} mode`}
-                  title={`Switch to ${nextTheme} mode`}
-                >
-                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -412,6 +401,17 @@ export function Layout() {
                     <TooltipContent>v{health.version}</TooltipContent>
                   </Tooltip>
                 )}
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  className="text-muted-foreground shrink-0"
+                  onClick={toggleTheme}
+                  aria-label={`Switch to ${nextTheme} mode`}
+                  title={`Switch to ${nextTheme} mode`}
+                >
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
               </div>
             </div>
           </div>

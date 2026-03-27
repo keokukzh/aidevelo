@@ -202,9 +202,13 @@ function applyMinimaxClaudeTokenPlanEnv(env: Record<string, string>, minimaxApiK
     env.CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC = "1";
   }
 
-  const model = hasNonEmptyEnvValue(env, "ANTHROPIC_MODEL")
-    ? env.ANTHROPIC_MODEL.trim()
-    : MINIMAX_CLAUDE_DEFAULT_MODEL;
+  // AIDEVELO_MODEL_OVERRIDE set by managed adapter routing layer takes precedence
+  const modelOverride = env["AIDEVELO_MODEL_OVERRIDE"];
+  const model = modelOverride
+    ? modelOverride.trim()
+    : hasNonEmptyEnvValue(env, "ANTHROPIC_MODEL")
+      ? env.ANTHROPIC_MODEL.trim()
+      : MINIMAX_CLAUDE_DEFAULT_MODEL;
   env.ANTHROPIC_MODEL = model;
   if (!hasNonEmptyEnvValue(env, "ANTHROPIC_SMALL_FAST_MODEL")) env.ANTHROPIC_SMALL_FAST_MODEL = model;
   if (!hasNonEmptyEnvValue(env, "ANTHROPIC_DEFAULT_SONNET_MODEL")) env.ANTHROPIC_DEFAULT_SONNET_MODEL = model;

@@ -2387,11 +2387,13 @@ export function heartbeatService(db: Db) {
           "local agent jwt secret missing or invalid; running without injected AIDEVELO_API_KEY",
         );
       }
+      // Inject db so the managed adapter can use model routing services
+      const runtimeConfigWithDb = { ...runtimeConfig, db };
       const adapterResult = await adapter.execute({
         runId: run.id,
         agent,
         runtime: runtimeForAdapter,
-        config: runtimeConfig,
+        config: runtimeConfigWithDb,
         context,
         onLog,
         onMeta: onAdapterMeta,
