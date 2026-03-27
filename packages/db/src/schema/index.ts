@@ -53,3 +53,5 @@ export { pluginEntities } from "./plugin_entities.js";
 export { pluginJobs, pluginJobRuns } from "./plugin_jobs.js";
 export { pluginWebhookDeliveries } from "./plugin_webhooks.js";
 export { pluginLogs } from "./plugin_logs.js";
+export { backgroundJobs } from "./background-jobs.js";
+export type { BackgroundJob, NewBackgroundJob } from "./background-jobs.js";
