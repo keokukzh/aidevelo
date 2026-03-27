@@ -26,7 +26,15 @@ Before making changes, read in this order:
 - `ui/`: React + Vite board UI
 - `packages/db/`: Drizzle schema, migrations, DB clients
 - `packages/shared/`: shared types, constants, validators, API path constants
+- `packages/adapters/`: Agent adapter packages (claude-local, codex-local, opencode-local, cursor-local, pi-local, gemini-local)
 - `doc/`: operational and product docs
+
+### Smart Model Routing
+
+The managed adapter routes MiniMax API calls across 3 model tiers (M2.7 → M2.5 → M2.1) using:
+- **Task classifier** (`server/src/services/task-classifier.ts`): scores tasks 0-100 to pick complexity
+- **Model router** (`server/src/services/model-router.ts`): circuit breaker + budget gate + tier selection
+- **Config injection** (`AIDEVELO_MODEL_OVERRIDE`): passed via delegate config env to claude-local adapter
 
 ## 4. Dev Setup (Auto DB)
 
