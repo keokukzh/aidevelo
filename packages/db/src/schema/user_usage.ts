@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, integer, uniqueIndex } from "drizzle-orm/pg-core";
 import { authUsers } from "./auth.js";
 
 /**
@@ -9,7 +9,7 @@ import { authUsers } from "./auth.js";
 export const userUsage = pgTable(
   "user_usage",
   {
-    id: text("id").primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: text("user_id").notNull().references(() => authUsers.id),
     /** Aligned 5-hour window start timestamp */
     windowStart: timestamp("window_start", { withTimezone: true }).notNull(),

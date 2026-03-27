@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, index } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, index } from "drizzle-orm/pg-core";
 import { authUsers } from "./auth.js";
 
 /**
@@ -9,7 +9,7 @@ import { authUsers } from "./auth.js";
 export const userApiKeys = pgTable(
   "user_api_keys",
   {
-    id: text("id").primaryKey().defaultRandom(),
+    id: uuid("id").primaryKey().defaultRandom(),
     userId: text("user_id").notNull().references(() => authUsers.id),
     /** SHA-256 hash of the plaintext key */
     keyHash: text("key_hash").notNull(),
