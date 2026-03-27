@@ -34,8 +34,10 @@ aidevelo/
 ├── server/src/           # Express API (port 3100)
 ├── ui/src/              # React frontend (port 5173)
 ├── packages/db/src/     # Drizzle schema
-├── server/src/routes/   # API endpoints
-├── .env                 # Local env vars (PORT=3100, SERVE_UI=false)
+├── server/src/routes/    # API endpoints
+├── server/src/services/  # Business logic services
+├── server/src/worker/    # Background worker process
+└── .env                 # Local env vars (PORT=3100, SERVE_UI=false)
 ```
 
 ## Critical Rules
@@ -45,6 +47,51 @@ aidevelo/
 3. **RLS is enforced** — All queries respect tenant isolation
 4. **pnpm workspace** — Use `npm exec -- pnpm@9.15.4 -- <command>` (not plain pnpm)
 5. **embedded Postgres** — Runs on dynamic port (54329) when no DATABASE_URL
+6. **createDb() requires URL** — Use `createDb(getDatabaseUrl())`, not empty
+
+## Service Pattern
+
+Services follow `function serviceName(db: Db)` returning an object with methods:
+
+```typescript
+export function jobQueueService(db: Db) {
+  return {
+    enqueue: async (...) => { ... },
+    getJob: async (...) => { ... },
+  };
+}
+```
+
+## Handler Pattern
+
+Background worker handlers export:
+
+```typescript
+export const handler = {
+  execute: async (payload) => Promise<{ success: boolean; skipped?: boolean }>,
+  getTimeoutMs: () => number,
+};
+```
+
+## Key Commands
+
+```bash
+# TypeScript check
+cd server && npm exec -- tsc --noEmit
+
+# Run migration
+cd packages/db && npm exec -- tsx src/migrate.ts
+
+# Build all packages
+npm exec -- pnpm@9.15.4 -- build
+```
+
+## Background Worker
+
+- Worker process at `server/src/worker/index.ts`
+- Job queue via `background_jobs` table with `FOR UPDATE SKIP LOCKED`
+- Handlers in `server/src/worker/handlers/`
+- Job status API at `GET/POST /api/companies/:id/jobs/:jobId`
 
 ## API Endpoints
 
