@@ -2557,8 +2557,8 @@ function AgentSkillsTab({
   }, [skillSnapshot?.mode]);
   const unsupportedSkillMessage = useMemo(() => {
     if (skillSnapshot?.mode !== "unsupported") return null;
-    if (agent.adapterType === "openclaw_gateway") {
-      return "Aidevelo cannot manage OpenClaw skills here. Visit your OpenClaw instance to manage this agent's skills.";
+    if (agent.adapterType === "aidevelo_gateway") {
+      return "Aidevelo cannot manage aidevelo skills here. Visit your aidevelo instance to manage this agent's skills.";
     }
     return "Aidevelo cannot manage skills for this adapter yet. Manage them in the adapter directly.";
   }, [agent.adapterType, skillSnapshot?.mode]);

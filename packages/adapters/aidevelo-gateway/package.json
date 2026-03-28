@@ -1,5 +1,5 @@
 {
-  "name": "@aideveloai/adapter-openclaw-gateway",
+  "name": "@aideveloai/adapter-aidevelo-gateway",
   "version": "0.3.1",
   "license": "MIT",
   "homepage": "https://github.com/aideveloai/aidevelo",
@@ -9,7 +9,7 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/aideveloai/aidevelo",
-    "directory": "packages/adapters/openclaw-gateway"
+    "directory": "packages/adapters/aidevelo-gateway"
   },
   "type": "module",
   "exports": {

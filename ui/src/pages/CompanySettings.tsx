@@ -92,7 +92,7 @@ export function CompanySettings() {
 
   const inviteMutation = useMutation({
     mutationFn: () =>
-      accessApi.createOpenClawInvitePrompt(selectedCompanyId!),
+      accessApi.createaideveloInvitePrompt(selectedCompanyId!),
     onSuccess: async (invite) => {
       setInviteError(null);
       const base = window.location.origin.replace(/\/+$/, "");
@@ -435,9 +435,9 @@ export function CompanySettings() {
         <div className="space-y-3 rounded-md border border-border px-4 py-4">
           <div className="flex items-center gap-1.5">
             <span className="text-xs text-muted-foreground">
-              Generate an OpenClaw agent invite snippet.
+              Generate an aidevelo agent invite snippet.
             </span>
-            <HintIcon text="Creates a short-lived OpenClaw agent invite and renders a copy-ready prompt." />
+            <HintIcon text="Creates a short-lived aidevelo agent invite and renders a copy-ready prompt." />
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -447,7 +447,7 @@ export function CompanySettings() {
             >
               {inviteMutation.isPending
                 ? "Generating..."
-                : "Generate OpenClaw Invite Prompt"}
+                : "Generate aidevelo Invite Prompt"}
             </Button>
           </div>
           {inviteError && (
@@ -457,7 +457,7 @@ export function CompanySettings() {
             <div className="rounded-md border border-border bg-muted/30 p-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="text-xs text-muted-foreground">
-                  OpenClaw Invite Prompt
+                  aidevelo Invite Prompt
                 </div>
                 {snippetCopied && (
                   <span
@@ -746,17 +746,17 @@ Verify the hostname works from your runtime with: GET <base-url>/api/health
 
 ${connectivityBlock}
 
-For your "agentName", just use your own agent name (OpenClaw or whatever your name is) and send it directly.
+For your "agentName", just use your own agent name (aidevelo or whatever your name is) and send it directly.
 You also need to send a gateway URL that Aidevelo can access. Check your config and include that URL.${resolutionLine}
 
 ---
 
-This onboarding flow is for OpenClaw Gateway.
+This onboarding flow is for Aidevelo Gateway.
 When you submit the join request, use:
-- \`adapterType: "openclaw_gateway"\`
+- \`adapterType: "aidevelo_gateway"\`
 - \`agentDefaultsPayload.url\` as your \`ws://\` or \`wss://\` gateway URL
-- \`agentDefaultsPayload.headers["x-openclaw-token"]\` with your gateway token
-- (legacy accepted) \`agentDefaultsPayload.headers["x-openclaw-auth"]\`
+- \`agentDefaultsPayload.headers["x-aidevelo-token"]\` with your gateway token
+- (legacy accepted) \`agentDefaultsPayload.headers["x-aidevelo-auth"]\`
 - Keep device auth enabled (recommended). If \`devicePrivateKeyPem\` is omitted, Aidevelo will generate and persist one during join so pairing approvals remain stable.
 - Only use \`disableDeviceAuth=true\` for special environments where pairing cannot be completed.
 

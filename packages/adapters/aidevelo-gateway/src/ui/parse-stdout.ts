@@ -1,5 +1,5 @@
 import type { TranscriptEntry } from "@aideveloai/adapter-utils";
-import { normalizeOpenClawGatewayStreamLine } from "../shared/stream.js";
+import { normalizeaideveloGatewayStreamLine } from "../shared/stream.js";
 
 function safeJsonParse(text: string): unknown {
   try {
@@ -19,7 +19,7 @@ function asString(value: unknown): string {
 }
 
 function parseAgentEventLine(line: string, ts: string): TranscriptEntry[] {
-  const match = line.match(/^\[openclaw-gateway:event\]\s+run=([^\s]+)\s+stream=([^\s]+)\s+data=(.*)$/s);
+  const match = line.match(/^\[aidevelo-gateway:event\]\s+run=([^\s]+)\s+stream=([^\s]+)\s+data=(.*)$/s);
   if (!match) return [{ kind: "stdout", ts, text: line }];
 
   const stream = asString(match[2]).toLowerCase();
@@ -54,8 +54,8 @@ function parseAgentEventLine(line: string, ts: string): TranscriptEntry[] {
   return [];
 }
 
-export function parseOpenClawGatewayStdoutLine(line: string, ts: string): TranscriptEntry[] {
-  const normalized = normalizeOpenClawGatewayStreamLine(line);
+export function parseAideveloGatewayStdoutLine(line: string, ts: string): TranscriptEntry[] {
+  const normalized = normalizeaideveloGatewayStreamLine(line);
   if (normalized.stream === "stderr") {
     return [{ kind: "stderr", ts, text: normalized.line }];
   }
@@ -63,12 +63,12 @@ export function parseOpenClawGatewayStdoutLine(line: string, ts: string): Transc
   const trimmed = normalized.line.trim();
   if (!trimmed) return [];
 
-  if (trimmed.startsWith("[openclaw-gateway:event]")) {
+  if (trimmed.startsWith("[aidevelo-gateway:event]")) {
     return parseAgentEventLine(trimmed, ts);
   }
 
-  if (trimmed.startsWith("[openclaw-gateway]")) {
-    return [{ kind: "system", ts, text: trimmed.replace(/^\[openclaw-gateway\]\s*/, "") }];
+  if (trimmed.startsWith("[aidevelo-gateway]")) {
+    return [{ kind: "system", ts, text: trimmed.replace(/^\[aidevelo-gateway\]\s*/, "") }];
   }
 
   return [{ kind: "stdout", ts, text: normalized.line }];

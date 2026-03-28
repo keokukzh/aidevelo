@@ -86,14 +86,14 @@ export const accessApi = {
   ) =>
     api.post<CompanyInviteCreated>(`/companies/${companyId}/invites`, input),
 
-  createOpenClawInvitePrompt: (
+  createaideveloInvitePrompt: (
     companyId: string,
     input: {
       agentMessage?: string | null;
     } = {},
   ) =>
     api.post<CompanyInviteCreated>(
-      `/companies/${companyId}/openclaw/invite-prompt`,
+      `/companies/${companyId}/aidevelo/invite-prompt`,
       input,
     ),
 

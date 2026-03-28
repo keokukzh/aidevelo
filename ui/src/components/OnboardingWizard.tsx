@@ -71,7 +71,7 @@ type AdapterType =
   | "pi_local"
   | "cursor"
   | "http"
-  | "openclaw_gateway";
+  | "aidevelo_gateway";
 
 const DEFAULT_TASK_TITLE = "Validate the opportunity and open the first revenue path";
 
@@ -1161,12 +1161,12 @@ export function OnboardingWizard() {
                                 desc: "Local Cursor agent"
                               },
                               {
-                                value: "openclaw_gateway" as const,
-                                label: "OpenClaw Gateway",
+                                value: "aidevelo_gateway" as const,
+                                label: "Aidevelo Gateway",
                                 icon: Bot,
-                                desc: "Invoke OpenClaw via gateway protocol",
+                                desc: "Invoke aidevelo via gateway protocol",
                                 comingSoon: true,
-                                disabledLabel: "Configure OpenClaw within the App"
+                                disabledLabel: "Configure aidevelo within the App"
                               }
                             ].map((opt) => (
                               <button
@@ -1442,10 +1442,10 @@ export function OnboardingWizard() {
                   )}
 
                   {(adapterType === "http" ||
-                    adapterType === "openclaw_gateway") && (
+                    adapterType === "aidevelo_gateway") && (
                     <div>
                       <label htmlFor="onboarding-adapter-url" className="text-sm text-muted-foreground mb-1 block">
-                        {adapterType === "openclaw_gateway"
+                        {adapterType === "aidevelo_gateway"
                           ? "Gateway URL"
                           : "Webhook URL"}
                       </label>
@@ -1453,7 +1453,7 @@ export function OnboardingWizard() {
                         id="onboarding-adapter-url"
                         className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm font-mono outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
                         placeholder={
-                          adapterType === "openclaw_gateway"
+                          adapterType === "aidevelo_gateway"
                             ? "ws://127.0.0.1:18789"
                             : "https://..."
                         }

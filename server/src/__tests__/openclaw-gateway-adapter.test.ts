@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { createServer } from "node:http";
 import { WebSocketServer } from "ws";
-import { execute, testEnvironment } from "@aideveloai/adapter-openclaw-gateway/server";
+import { execute, testEnvironment } from "@aideveloai/adapter-aidevelo-gateway/server";
 import {
-  buildOpenClawGatewayConfig,
-  parseOpenClawGatewayStdoutLine,
-} from "@aideveloai/adapter-openclaw-gateway/ui";
+  buildAideveloGatewayConfig,
+  parseAideveloGatewayStdoutLine,
+} from "@aideveloai/adapter-aidevelo-gateway/ui";
 import type { AdapterExecutionContext } from "@aideveloai/adapter-utils";
 
 function buildContext(
@@ -17,8 +17,8 @@ function buildContext(
     agent: {
       id: "agent-123",
       companyId: "company-123",
-      name: "OpenClaw Gateway Agent",
-      adapterType: "openclaw_gateway",
+      name: "Aidevelo Gateway Agent",
+      adapterType: "aidevelo_gateway",
       adapterConfig: {},
     },
     runtime: {
@@ -378,13 +378,13 @@ afterEach(() => {
   // no global mocks
 });
 
-describe("openclaw gateway ui stdout parser", () => {
+describe("aidevelo gateway ui stdout parser", () => {
   it("parses assistant deltas from gateway event lines", () => {
     const ts = "2026-03-06T15:00:00.000Z";
     const line =
-      '[openclaw-gateway:event] run=run-1 stream=assistant data={"delta":"hello"}';
+      '[aidevelo-gateway:event] run=run-1 stream=assistant data={"delta":"hello"}';
 
-    expect(parseOpenClawGatewayStdoutLine(line, ts)).toEqual([
+    expect(parseAideveloGatewayStdoutLine(line, ts)).toEqual([
       {
         kind: "assistant",
         ts,
@@ -395,7 +395,7 @@ describe("openclaw gateway ui stdout parser", () => {
   });
 });
 
-describe("openclaw gateway adapter execute", () => {
+describe("aidevelo gateway adapter execute", () => {
   it("runs connect -> agent -> agent.wait and forwards wake payload", async () => {
     const gateway = await createMockGatewayServer();
     const logs: string[] = [];
@@ -406,7 +406,7 @@ describe("openclaw gateway adapter execute", () => {
           {
             url: gateway.url,
             headers: {
-              "x-openclaw-token": "gateway-token",
+              "x-aidevelo-token": "gateway-token",
             },
             payloadTemplate: {
               message: "wake now",
@@ -447,7 +447,7 @@ describe("openclaw gateway adapter execute", () => {
       expect(result.exitCode).toBe(0);
       expect(result.timedOut).toBe(false);
       expect(result.summary).toContain("chachacha");
-      expect(result.provider).toBe("openclaw");
+      expect(result.provider).toBe("aidevelo");
 
       const payload = gateway.getAgentPayload();
       expect(payload).toBeTruthy();
@@ -457,7 +457,7 @@ describe("openclaw gateway adapter execute", () => {
       expect(String(payload?.message ?? "")).toContain("AIDEVELO_RUN_ID=run-123");
       expect(String(payload?.message ?? "")).toContain("AIDEVELO_TASK_ID=task-123");
 
-      expect(logs.some((entry) => entry.includes("[openclaw-gateway:event] run=run-123 stream=assistant"))).toBe(true);
+      expect(logs.some((entry) => entry.includes("[aidevelo-gateway:event] run=run-123 stream=assistant"))).toBe(true);
     } finally {
       await gateway.close();
     }
@@ -466,7 +466,7 @@ describe("openclaw gateway adapter execute", () => {
   it("fails fast when url is missing", async () => {
     const result = await execute(buildContext({}));
     expect(result.exitCode).toBe(1);
-    expect(result.errorCode).toBe("openclaw_gateway_url_missing");
+    expect(result.errorCode).toBe("aidevelo_gateway_url_missing");
   });
 
   it("returns adapter-managed runtime services from gateway result meta", async () => {
@@ -495,7 +495,7 @@ describe("openclaw gateway adapter execute", () => {
         buildContext({
           url: gateway.url,
           headers: {
-            "x-openclaw-token": "gateway-token",
+            "x-aidevelo-token": "gateway-token",
           },
           waitTimeoutMs: 2000,
         }),
@@ -527,7 +527,7 @@ describe("openclaw gateway adapter execute", () => {
           {
             url: gateway.url,
             headers: {
-              "x-openclaw-token": "gateway-token",
+              "x-aidevelo-token": "gateway-token",
             },
             payloadTemplate: {
               message: "wake now",
@@ -555,10 +555,10 @@ describe("openclaw gateway adapter execute", () => {
   });
 });
 
-describe("openclaw gateway ui build config", () => {
+describe("aidevelo gateway ui build config", () => {
   it("parses payload template and runtime services json", () => {
-    const config = buildOpenClawGatewayConfig({
-      adapterType: "openclaw_gateway",
+    const config = buildAideveloGatewayConfig({
+      adapterType: "aidevelo_gateway",
       cwd: "",
       promptTemplate: "",
       model: "",
@@ -611,15 +611,15 @@ describe("openclaw gateway ui build config", () => {
   });
 });
 
-describe("openclaw gateway testEnvironment", () => {
+describe("aidevelo gateway testEnvironment", () => {
   it("reports missing url as failure", async () => {
     const result = await testEnvironment({
       companyId: "company-123",
-      adapterType: "openclaw_gateway",
+      adapterType: "aidevelo_gateway",
       config: {},
     });
 
     expect(result.status).toBe("fail");
-    expect(result.checks.some((check) => check.code === "openclaw_gateway_url_missing")).toBe(true);
+    expect(result.checks.some((check) => check.code === "aidevelo_gateway_url_missing")).toBe(true);
   });
 });

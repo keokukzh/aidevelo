@@ -15,12 +15,12 @@ export const createCompanyInviteSchema = z.object({
 
 export type CreateCompanyInvite = z.infer<typeof createCompanyInviteSchema>;
 
-export const createOpenClawInvitePromptSchema = z.object({
+export const createAideveloGatewayInvitePromptSchema = z.object({
   agentMessage: z.string().max(4000).optional().nullable(),
 });
 
-export type CreateOpenClawInvitePrompt = z.infer<
-  typeof createOpenClawInvitePromptSchema
+export type CreateAideveloGatewayInvitePrompt = z.infer<
+  typeof createAideveloGatewayInvitePromptSchema
 >;
 
 export const acceptInviteSchema = z.object({
@@ -29,7 +29,7 @@ export const acceptInviteSchema = z.object({
   adapterType: z.enum(AGENT_ADAPTER_TYPES).optional(),
   capabilities: z.string().max(4000).optional().nullable(),
   agentDefaultsPayload: z.record(z.string(), z.unknown()).optional().nullable(),
-  // OpenClaw join compatibility fields accepted at top level.
+  // Aidevelo Gateway join compatibility fields accepted at top level.
   responsesWebhookUrl: z.string().max(4000).optional().nullable(),
   responsesWebhookMethod: z.string().max(32).optional().nullable(),
   responsesWebhookHeaders: z.record(z.string(), z.unknown()).optional().nullable(),

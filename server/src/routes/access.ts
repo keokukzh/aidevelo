@@ -21,7 +21,7 @@ import {
   acceptInviteSchema,
   claimJoinRequestApiKeySchema,
   createCompanyInviteSchema,
-  createOpenClawInvitePromptSchema,
+  createAideveloGatewayInvitePromptSchema,
   listJoinRequestsQuerySchema,
   updateMemberPermissionsSchema,
   updateUserCompanyAccessSchema,
@@ -417,10 +417,10 @@ export function buildJoinDefaultsPayloadForAccept(input: {
   adapterType: string | null;
   defaultsPayload: unknown;
   aideveloApiUrl?: unknown;
-  inboundOpenClawAuthHeader?: string | null;
-  inboundOpenClawTokenHeader?: string | null;
+  inboundaideveloAuthHeader?: string | null;
+  inboundaideveloTokenHeader?: string | null;
 }): unknown {
-  if (input.adapterType !== "openclaw_gateway") {
+  if (input.adapterType !== "aidevelo_gateway") {
     return input.defaultsPayload;
   }
 
@@ -434,23 +434,23 @@ export function buildJoinDefaultsPayloadForAccept(input: {
   }
   const mergedHeaders = normalizeHeaderMap(merged.headers) ?? {};
 
-  const inboundOpenClawAuthHeader = nonEmptyTrimmedString(
-    input.inboundOpenClawAuthHeader
+  const inboundaideveloAuthHeader = nonEmptyTrimmedString(
+    input.inboundaideveloAuthHeader
   );
-  const inboundOpenClawTokenHeader = nonEmptyTrimmedString(
-    input.inboundOpenClawTokenHeader
+  const inboundaideveloTokenHeader = nonEmptyTrimmedString(
+    input.inboundaideveloTokenHeader
   );
   if (
-    inboundOpenClawTokenHeader &&
-    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-openclaw-token")
+    inboundaideveloTokenHeader &&
+    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-aidevelo-token")
   ) {
-    mergedHeaders["x-openclaw-token"] = inboundOpenClawTokenHeader;
+    mergedHeaders["x-aidevelo-token"] = inboundaideveloTokenHeader;
   }
   if (
-    inboundOpenClawAuthHeader &&
-    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-openclaw-auth")
+    inboundaideveloAuthHeader &&
+    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-aidevelo-auth")
   ) {
-    mergedHeaders["x-openclaw-auth"] = inboundOpenClawAuthHeader;
+    mergedHeaders["x-aidevelo-auth"] = inboundaideveloAuthHeader;
   }
 
   if (Object.keys(mergedHeaders).length > 0) {
@@ -460,16 +460,16 @@ export function buildJoinDefaultsPayloadForAccept(input: {
   }
 
   const discoveredToken =
-    headerMapGetIgnoreCase(mergedHeaders, "x-openclaw-token") ??
-    headerMapGetIgnoreCase(mergedHeaders, "x-openclaw-auth") ??
+    headerMapGetIgnoreCase(mergedHeaders, "x-aidevelo-token") ??
+    headerMapGetIgnoreCase(mergedHeaders, "x-aidevelo-auth") ??
     tokenFromAuthorizationHeader(
       headerMapGetIgnoreCase(mergedHeaders, "authorization")
     );
   if (
     discoveredToken &&
-    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-openclaw-token")
+    !headerMapHasKeyIgnoreCase(mergedHeaders, "x-aidevelo-token")
   ) {
-    mergedHeaders["x-openclaw-token"] = discoveredToken;
+    mergedHeaders["x-aidevelo-token"] = discoveredToken;
   }
 
   return Object.keys(merged).length > 0 ? merged : null;
@@ -515,7 +515,7 @@ export function mergeJoinDefaultsPayloadForReplay(
   return merged;
 }
 
-export function canReplayOpenClawGatewayInviteAccept(input: {
+export function canReplayAideveloGatewayInviteAccept(input: {
   requestType: "human" | "agent";
   adapterType: string | null;
   existingJoinRequest: Pick<
@@ -525,7 +525,7 @@ export function canReplayOpenClawGatewayInviteAccept(input: {
 }): boolean {
   if (
     input.requestType !== "agent" ||
-    input.adapterType !== "openclaw_gateway"
+    input.adapterType !== "aidevelo_gateway"
   ) {
     return false;
   }
@@ -534,7 +534,7 @@ export function canReplayOpenClawGatewayInviteAccept(input: {
   }
   if (
     input.existingJoinRequest.requestType !== "agent" ||
-    input.existingJoinRequest.adapterType !== "openclaw_gateway"
+    input.existingJoinRequest.adapterType !== "aidevelo_gateway"
   ) {
     return false;
   }
@@ -556,14 +556,14 @@ function summarizeSecretForLog(
   };
 }
 
-function summarizeOpenClawGatewayDefaultsForLog(defaultsPayload: unknown) {
+function summarizeaideveloGatewayDefaultsForLog(defaultsPayload: unknown) {
   const defaults = isPlainObject(defaultsPayload)
     ? (defaultsPayload as Record<string, unknown>)
     : null;
   const headers = defaults ? normalizeHeaderMap(defaults.headers) : undefined;
   const gatewayTokenValue = headers
-    ? headerMapGetIgnoreCase(headers, "x-openclaw-token") ??
-      headerMapGetIgnoreCase(headers, "x-openclaw-auth") ??
+    ? headerMapGetIgnoreCase(headers, "x-aidevelo-token") ??
+      headerMapGetIgnoreCase(headers, "x-aidevelo-auth") ??
       tokenFromAuthorizationHeader(
         headerMapGetIgnoreCase(headers, "authorization")
       )
@@ -603,7 +603,7 @@ export function normalizeAgentDefaultsForJoin(input: {
 }) {
   const fatalErrors: string[] = [];
   const diagnostics: JoinDiagnostic[] = [];
-  if (input.adapterType !== "openclaw_gateway") {
+  if (input.adapterType !== "aidevelo_gateway") {
     const normalized = isPlainObject(input.defaultsPayload)
       ? (input.defaultsPayload as Record<string, unknown>)
       : null;
@@ -612,15 +612,15 @@ export function normalizeAgentDefaultsForJoin(input: {
 
   if (!isPlainObject(input.defaultsPayload)) {
     diagnostics.push({
-      code: "openclaw_gateway_defaults_missing",
+      code: "aidevelo_gateway_defaults_missing",
       level: "warn",
       message:
-        "No OpenClaw gateway config was provided in agentDefaultsPayload.",
+        "No aidevelo gateway config was provided in agentDefaultsPayload.",
       hint:
-        "Include agentDefaultsPayload.url and headers.x-openclaw-token for OpenClaw gateway joins."
+        "Include agentDefaultsPayload.url and headers.x-aidevelo-token for aidevelo gateway joins."
     });
     fatalErrors.push(
-      "agentDefaultsPayload is required for adapterType=openclaw_gateway"
+      "agentDefaultsPayload is required for adapterType=aidevelo_gateway"
     );
     return {
       normalized: null as Record<string, unknown> | null,
@@ -636,9 +636,9 @@ export function normalizeAgentDefaultsForJoin(input: {
   const rawGatewayUrl = nonEmptyTrimmedString(defaults.url);
   if (!rawGatewayUrl) {
     diagnostics.push({
-      code: "openclaw_gateway_url_missing",
+      code: "aidevelo_gateway_url_missing",
       level: "warn",
-      message: "OpenClaw gateway URL is missing.",
+      message: "aidevelo gateway URL is missing.",
       hint: "Set agentDefaultsPayload.url to ws:// or wss:// gateway URL."
     });
     fatalErrors.push("agentDefaultsPayload.url is required");
@@ -647,26 +647,26 @@ export function normalizeAgentDefaultsForJoin(input: {
       gatewayUrl = new URL(rawGatewayUrl);
       if (gatewayUrl.protocol !== "ws:" && gatewayUrl.protocol !== "wss:") {
         diagnostics.push({
-          code: "openclaw_gateway_url_protocol",
+          code: "aidevelo_gateway_url_protocol",
           level: "warn",
-          message: `OpenClaw gateway URL must use ws:// or wss:// (got ${gatewayUrl.protocol}).`
+          message: `aidevelo gateway URL must use ws:// or wss:// (got ${gatewayUrl.protocol}).`
         });
         fatalErrors.push(
-          "agentDefaultsPayload.url must use ws:// or wss:// for openclaw_gateway"
+          "agentDefaultsPayload.url must use ws:// or wss:// for aidevelo_gateway"
         );
       } else {
         normalized.url = gatewayUrl.toString();
         diagnostics.push({
-          code: "openclaw_gateway_url_configured",
+          code: "aidevelo_gateway_url_configured",
           level: "info",
           message: `Gateway endpoint set to ${gatewayUrl.toString()}`
         });
       }
     } catch {
       diagnostics.push({
-        code: "openclaw_gateway_url_invalid",
+        code: "aidevelo_gateway_url_invalid",
         level: "warn",
-        message: `Invalid OpenClaw gateway URL: ${rawGatewayUrl}`
+        message: `Invalid aidevelo gateway URL: ${rawGatewayUrl}`
       });
       fatalErrors.push("agentDefaultsPayload.url is not a valid URL");
     }
@@ -674,11 +674,11 @@ export function normalizeAgentDefaultsForJoin(input: {
 
   const headers = normalizeHeaderMap(defaults.headers) ?? {};
   const gatewayToken =
-    headerMapGetIgnoreCase(headers, "x-openclaw-token") ??
-    headerMapGetIgnoreCase(headers, "x-openclaw-auth") ??
+    headerMapGetIgnoreCase(headers, "x-aidevelo-token") ??
+    headerMapGetIgnoreCase(headers, "x-aidevelo-auth") ??
     tokenFromAuthorizationHeader(headerMapGetIgnoreCase(headers, "authorization"));
-  if (gatewayToken && !headerMapHasKeyIgnoreCase(headers, "x-openclaw-token")) {
-    headers["x-openclaw-token"] = gatewayToken;
+  if (gatewayToken && !headerMapHasKeyIgnoreCase(headers, "x-aidevelo-token")) {
+    headers["x-aidevelo-token"] = gatewayToken;
   }
   if (Object.keys(headers).length > 0) {
     normalized.headers = headers;
@@ -686,29 +686,29 @@ export function normalizeAgentDefaultsForJoin(input: {
 
   if (!gatewayToken) {
     diagnostics.push({
-      code: "openclaw_gateway_auth_header_missing",
+      code: "aidevelo_gateway_auth_header_missing",
       level: "warn",
       message: "Gateway auth token is missing from agent defaults.",
       hint:
-        "Set agentDefaultsPayload.headers.x-openclaw-token (or legacy x-openclaw-auth)."
+        "Set agentDefaultsPayload.headers.x-aidevelo-token (or legacy x-aidevelo-auth)."
     });
     fatalErrors.push(
-      "agentDefaultsPayload.headers.x-openclaw-token (or x-openclaw-auth) is required"
+      "agentDefaultsPayload.headers.x-aidevelo-token (or x-aidevelo-auth) is required"
     );
   } else if (gatewayToken.trim().length < 16) {
     diagnostics.push({
-      code: "openclaw_gateway_auth_header_too_short",
+      code: "aidevelo_gateway_auth_header_too_short",
       level: "warn",
       message: `Gateway auth token appears too short (${gatewayToken.trim().length} chars).`,
       hint:
-        "Use the full gateway auth token from ~/.openclaw/openclaw.json (typically long random string)."
+        "Use the full gateway auth token from ~/.aidevelo/aidevelo.json (typically long random string)."
     });
     fatalErrors.push(
-      "agentDefaultsPayload.headers.x-openclaw-token is too short; expected a full gateway token"
+      "agentDefaultsPayload.headers.x-aidevelo-token is too short; expected a full gateway token"
     );
   } else {
     diagnostics.push({
-      code: "openclaw_gateway_auth_header_configured",
+      code: "aidevelo_gateway_auth_header_configured",
       level: "info",
       message: "Gateway auth token configured."
     });
@@ -730,7 +730,7 @@ export function normalizeAgentDefaultsForJoin(input: {
   if (configuredDevicePrivateKeyPem) {
     normalized.devicePrivateKeyPem = configuredDevicePrivateKeyPem;
     diagnostics.push({
-      code: "openclaw_gateway_device_key_configured",
+      code: "aidevelo_gateway_device_key_configured",
       level: "info",
       message:
         "Gateway device key configured. Pairing approvals should persist for this agent."
@@ -739,14 +739,14 @@ export function normalizeAgentDefaultsForJoin(input: {
     try {
       normalized.devicePrivateKeyPem = generateEd25519PrivateKeyPem();
       diagnostics.push({
-        code: "openclaw_gateway_device_key_generated",
+        code: "aidevelo_gateway_device_key_generated",
         level: "info",
         message:
           "Generated persistent gateway device key for this join. Pairing approvals should persist for this agent."
       });
     } catch (err) {
       diagnostics.push({
-        code: "openclaw_gateway_device_key_generate_failed",
+        code: "aidevelo_gateway_device_key_generate_failed",
         level: "warn",
         message: `Failed to generate gateway device key: ${
           err instanceof Error ? err.message : String(err)
@@ -822,21 +822,21 @@ export function normalizeAgentDefaultsForJoin(input: {
         parsedAideveloApiUrl.protocol !== "https:"
       ) {
         diagnostics.push({
-          code: "openclaw_gateway_aidevelo_api_url_protocol",
+          code: "aidevelo_gateway_aidevelo_api_url_protocol",
           level: "warn",
           message: `aideveloApiUrl must use http:// or https:// (got ${parsedAideveloApiUrl.protocol}).`
         });
       } else {
         normalized.aideveloApiUrl = parsedAideveloApiUrl.toString();
         diagnostics.push({
-          code: "openclaw_gateway_aidevelo_api_url_configured",
+          code: "aidevelo_gateway_aidevelo_api_url_configured",
           level: "info",
           message: `aideveloApiUrl set to ${parsedAideveloApiUrl.toString()}`
         });
       }
     } catch {
       diagnostics.push({
-        code: "openclaw_gateway_aidevelo_api_url_invalid",
+        code: "aidevelo_gateway_aidevelo_api_url_invalid",
         level: "warn",
         message: `Invalid aideveloApiUrl: ${rawAideveloApiUrl}`
       });
@@ -901,10 +901,10 @@ function buildOnboardingDiscoveryDiagnostics(input: {
 
   if (apiHost && isLoopbackHost(apiHost)) {
     diagnostics.push({
-      code: "openclaw_onboarding_api_loopback",
+      code: "aidevelo_onboarding_api_loopback",
       level: "warn",
       message:
-        "Onboarding URL resolves to loopback hostname. Remote OpenClaw agents cannot reach localhost on your Aidevelo host.",
+        "Onboarding URL resolves to loopback hostname. Remote aidevelo agents cannot reach localhost on your Aidevelo host.",
       hint: "Use a reachable hostname/IP (for example Tailscale hostname, Docker host alias, or public domain)."
     });
   }
@@ -915,7 +915,7 @@ function buildOnboardingDiscoveryDiagnostics(input: {
     (!bindHost || isLoopbackHost(bindHost))
   ) {
     diagnostics.push({
-      code: "openclaw_onboarding_private_loopback_bind",
+      code: "aidevelo_onboarding_private_loopback_bind",
       level: "warn",
       message: "Aidevelo is bound to loopback in authenticated/private mode.",
       hint: "Run with a reachable bind host or use pnpm dev --tailscale-auth for private-network onboarding."
@@ -931,7 +931,7 @@ function buildOnboardingDiscoveryDiagnostics(input: {
     !allowSet.has(apiHost)
   ) {
     diagnostics.push({
-      code: "openclaw_onboarding_private_host_not_allowed",
+      code: "aidevelo_onboarding_private_host_not_allowed",
       level: "warn",
       message: `Onboarding host "${apiHost}" is not in allowed hostnames for authenticated/private mode.`,
       hint: `Run pnpm aideveloai allowed-hostname ${apiHost}`
@@ -1020,16 +1020,16 @@ function buildInviteOnboardingManifest(
     invite: toInviteSummaryResponse(req, token, invite),
     onboarding: {
       instructions:
-        "Join as an OpenClaw Gateway agent, save your one-time claim secret, wait for board approval, then claim your API key. Save the claim response token to ~/.openclaw/workspace/aidevelo-claimed-api-key.json and load AIDEVELO_API_KEY from that file before starting heartbeat loops. You MUST submit adapterType='openclaw_gateway', set agentDefaultsPayload.url to your ws:// or wss:// OpenClaw gateway endpoint, and include agentDefaultsPayload.headers.x-openclaw-token (or legacy x-openclaw-auth).",
+        "Join as an Aidevelo Gateway agent, save your one-time claim secret, wait for board approval, then claim your API key. Save the claim response token to ~/.aidevelo/workspace/aidevelo-claimed-api-key.json and load AIDEVELO_API_KEY from that file before starting heartbeat loops. You MUST submit adapterType='aidevelo_gateway', set agentDefaultsPayload.url to your ws:// or wss:// aidevelo gateway endpoint, and include agentDefaultsPayload.headers.x-aidevelo-token (or legacy x-aidevelo-auth).",
       inviteMessage: extractInviteMessage(invite),
-      recommendedAdapterType: "openclaw_gateway",
+      recommendedAdapterType: "aidevelo_gateway",
       requiredFields: {
         requestType: "agent",
         agentName: "Display name for this agent",
-        adapterType: "Use 'openclaw_gateway' for OpenClaw Gateway agents",
+        adapterType: "Use 'aidevelo_gateway' for Aidevelo Gateway agents",
         capabilities: "Optional capability summary",
         agentDefaultsPayload:
-          "Adapter config for OpenClaw gateway. MUST include url (ws:// or wss://) and headers.x-openclaw-token (or legacy x-openclaw-auth). Optional fields: aideveloApiUrl, waitTimeoutMs, sessionKeyStrategy, sessionKey, role, scopes, disableDeviceAuth, devicePrivateKeyPem."
+          "Adapter config for aidevelo gateway. MUST include url (ws:// or wss://) and headers.x-aidevelo-token (or legacy x-aidevelo-auth). Optional fields: aideveloApiUrl, waitTimeoutMs, sessionKeyStrategy, sessionKey, role, scopes, disableDeviceAuth, devicePrivateKeyPem."
       },
       registrationEndpoint: {
         method: "POST",
@@ -1054,8 +1054,8 @@ function buildInviteOnboardingManifest(
         guidance:
           opts.deploymentMode === "authenticated" &&
           opts.deploymentExposure === "private"
-            ? "If OpenClaw runs on another machine, ensure the Aidevelo hostname is reachable and allowed via `pnpm aideveloai allowed-hostname <host>`."
-            : "Ensure OpenClaw can reach this Aidevelo API base URL for invite, claim, and skill bootstrap calls."
+            ? "If aidevelo runs on another machine, ensure the Aidevelo hostname is reachable and allowed via `pnpm aideveloai allowed-hostname <host>`."
+            : "Ensure aidevelo can reach this Aidevelo API base URL for invite, claim, and skill bootstrap calls."
       },
       textInstructions: {
         path: onboardingTextPath,
@@ -1066,7 +1066,7 @@ function buildInviteOnboardingManifest(
         name: "aidevelo",
         path: skillPath,
         url: skillUrl,
-        installPath: "~/.openclaw/skills/aidevelo/SKILL.md"
+        installPath: "~/.aidevelo/skills/aidevelo/SKILL.md"
       }
     }
   };
@@ -1116,7 +1116,7 @@ export function buildInviteOnboardingTextDocument(
   };
 
   appendBlock(`
-    # Aidevelo OpenClaw Gateway Onboarding
+    # Aidevelo Aidevelo Gateway Onboarding
 
     This document is meant to be readable by both humans and agents.
 
@@ -1136,13 +1136,13 @@ export function buildInviteOnboardingTextDocument(
   appendBlock(`
     ## Step 0
 
-    Get the OpenClaw gateway auth token (THIS MUST BE SENT)
+    Get the aidevelo gateway auth token (THIS MUST BE SENT)
     Token lives in:
 
-    ~/.openclaw/openclaw.json -> gateway.auth.token
+    ~/.aidevelo/aidevelo.json -> gateway.auth.token
     Extract:
 
-    TOKEN="$(node -p 'require(process.env.HOME+\"/.openclaw/openclaw.json\").gateway.auth.token')"
+    TOKEN="$(node -p 'require(process.env.HOME+\"/.aidevelo/aidevelo.json\").gateway.auth.token')"
     test -n "$TOKEN" || (echo "Missing TOKEN" && exit 1)
     test "\${#TOKEN}" -ge 16 || (echo "Gateway token unexpectedly short (\${#TOKEN})" && exit 1)
 
@@ -1156,13 +1156,13 @@ export function buildInviteOnboardingTextDocument(
       if (!token) process.exit(2);
       const body = {
         requestType: "agent",
-        agentName: "OpenClaw",
-        adapterType: "openclaw_gateway",
-        capabilities: "OpenClaw agent adapter",
+        agentName: "aidevelo",
+        adapterType: "aidevelo_gateway",
+        capabilities: "aidevelo agent adapter",
         agentDefaultsPayload: {
           url: "ws://127.0.0.1:18789",
           aideveloApiUrl: "http://host.docker.internal:3100",
-          headers: { "x-openclaw-token": token },
+          headers: { "x-aidevelo-token": token },
           waitTimeoutMs: 120000,
           sessionKeyStrategy: "issue",
           role: "operator",
@@ -1177,25 +1177,25 @@ export function buildInviteOnboardingTextDocument(
     onboarding.registrationEndpoint.url
   }
 
-    IMPORTANT: You MUST include agentDefaultsPayload.headers.x-openclaw-token with your gateway token.
-    Legacy x-openclaw-auth is also accepted, but x-openclaw-token is preferred.
-    Use adapterType "openclaw_gateway" and a ws:// or wss:// gateway URL.
+    IMPORTANT: You MUST include agentDefaultsPayload.headers.x-aidevelo-token with your gateway token.
+    Legacy x-aidevelo-auth is also accepted, but x-aidevelo-token is preferred.
+    Use adapterType "aidevelo_gateway" and a ws:// or wss:// gateway URL.
     Pairing mode requirement:
     - Keep device auth enabled (recommended). If devicePrivateKeyPem is omitted, Aidevelo generates and persists one during join so pairing approvals are stable.
     - You may set disableDeviceAuth=true only for special environments that cannot support pairing.
-    - First run may return "pairing required" once; approve the pending pairing request in OpenClaw, then retry.
+    - First run may return "pairing required" once; approve the pending pairing request in aidevelo, then retry.
     Do NOT use /v1/responses or /hooks/* in this gateway join flow.
 
     Body (JSON):
     {
       "requestType": "agent",
-      "agentName": "My OpenClaw Agent",
-      "adapterType": "openclaw_gateway",
+      "agentName": "My aidevelo Agent",
+      "adapterType": "aidevelo_gateway",
       "capabilities": "Optional summary",
       "agentDefaultsPayload": {
-        "url": "wss://your-openclaw-gateway.example",
+        "url": "wss://your-aidevelo-gateway.example",
         "aideveloApiUrl": "https://aidevelo-hostname-your-agent-can-reach:3100",
-        "headers": { "x-openclaw-token": "replace-me" },
+        "headers": { "x-aidevelo-token": "replace-me" },
         "waitTimeoutMs": 120000,
         "sessionKeyStrategy": "issue",
         "role": "operator",
@@ -1223,11 +1223,11 @@ export function buildInviteOnboardingTextDocument(
 
     On successful claim, save the full JSON response to:
 
-    - ~/.openclaw/workspace/aidevelo-claimed-api-key.json
-    chmod 600 ~/.openclaw/workspace/aidevelo-claimed-api-key.json
+    - ~/.aidevelo/workspace/aidevelo-claimed-api-key.json
+    chmod 600 ~/.aidevelo/workspace/aidevelo-claimed-api-key.json
 
     And set the AIDEVELO_API_KEY and AIDEVELO_API_URL in your environment variables as specified here:
-    https://docs.openclaw.ai/help/environment
+    https://docs.aidevelo.ai/help/environment
 
     e.g. 
 
@@ -1245,7 +1245,7 @@ export function buildInviteOnboardingTextDocument(
     - claim secrets are single-use
     - claim fails before board approval
 
-    ## Step 4: Install Aidevelo skill in OpenClaw
+    ## Step 4: Install Aidevelo skill in aidevelo
     GET ${onboarding.skill.url}
     Install path: ${onboarding.skill.installPath}
 
@@ -1257,7 +1257,7 @@ export function buildInviteOnboardingTextDocument(
     ## Connectivity guidance
     ${
       onboarding.connectivity?.guidance ??
-      "Ensure Aidevelo is reachable from your OpenClaw runtime."
+      "Ensure Aidevelo is reachable from your aidevelo runtime."
     }
   `);
 
@@ -1621,7 +1621,7 @@ export function accessRoutes(
     if (!allowed) throw forbidden("Permission denied");
   }
 
-  async function assertCanGenerateOpenClawInvitePrompt(
+  async function assertCanGenerateAideveloGatewayInvitePrompt(
     req: Request,
     companyId: string
   ) {
@@ -1633,7 +1633,7 @@ export function accessRoutes(
         throw forbidden("Agent key cannot access another company");
       }
       if (actorAgent.role !== "ceo") {
-        throw forbidden("Only CEO agents can generate OpenClaw invite prompts");
+        throw forbidden("Only CEO agents can generate aidevelo invite prompts");
       }
       return;
     }
@@ -1768,11 +1768,11 @@ export function accessRoutes(
   );
 
   router.post(
-    "/companies/:companyId/openclaw/invite-prompt",
-    validate(createOpenClawInvitePromptSchema),
+    "/companies/:companyId/aidevelo/invite-prompt",
+    validate(createAideveloGatewayInvitePromptSchema),
     async (req, res) => {
       const companyId = req.params.companyId as string;
-      await assertCanGenerateOpenClawInvitePrompt(req, companyId);
+      await assertCanGenerateAideveloGatewayInvitePrompt(req, companyId);
       const { token, created, normalizedAgentMessage } =
         await createCompanyInviteForCompany({
           req,
@@ -1789,7 +1789,7 @@ export function accessRoutes(
           req.actor.type === "agent"
             ? req.actor.agentId ?? "unknown-agent"
             : req.actor.userId ?? "board",
-        action: "invite.openclaw_prompt_created",
+        action: "invite.aideveloGateway_prompt_created",
         entityType: "invite",
         entityId: created.id,
         details: {
@@ -1997,7 +1997,7 @@ export function accessRoutes(
       const adapterType = req.body.adapterType ?? null;
       if (
         inviteAlreadyAccepted &&
-        !canReplayOpenClawGatewayInviteAccept({
+        !canReplayAideveloGatewayInviteAccept({
           requestType,
           adapterType,
           existingJoinRequest: existingJoinRequestForInvite
@@ -2025,8 +2025,8 @@ export function accessRoutes(
               adapterType,
               defaultsPayload: replayMergedDefaults,
               aideveloApiUrl: req.body.aideveloApiUrl ?? null,
-              inboundOpenClawAuthHeader: req.header("x-openclaw-auth") ?? null,
-              inboundOpenClawTokenHeader: req.header("x-openclaw-token") ?? null
+              inboundaideveloAuthHeader: req.header("x-aidevelo-auth") ?? null,
+              inboundaideveloTokenHeader: req.header("x-aidevelo-token") ?? null
             })
           : null;
 
@@ -2050,7 +2050,7 @@ export function accessRoutes(
         throw badRequest(joinDefaults.fatalErrors.join("; "));
       }
 
-      if (requestType === "agent" && adapterType === "openclaw_gateway") {
+      if (requestType === "agent" && adapterType === "aidevelo_gateway") {
         logger.info(
           {
             inviteId: invite.id,
@@ -2058,11 +2058,11 @@ export function accessRoutes(
               code: diag.code,
               level: diag.level
             })),
-            normalizedAgentDefaults: summarizeOpenClawGatewayDefaultsForLog(
+            normalizedAgentDefaults: summarizeaideveloGatewayDefaultsForLog(
               joinDefaults.normalized
             )
           },
-          "invite accept normalized OpenClaw gateway defaults"
+          "invite accept normalized aidevelo gateway defaults"
         );
       }
 
@@ -2151,7 +2151,7 @@ export function accessRoutes(
       if (
         inviteAlreadyAccepted &&
         requestType === "agent" &&
-        adapterType === "openclaw_gateway" &&
+        adapterType === "aidevelo_gateway" &&
         created.status === "approved" &&
         created.createdAgentId
       ) {
@@ -2187,11 +2187,11 @@ export function accessRoutes(
         });
       }
 
-      if (requestType === "agent" && adapterType === "openclaw_gateway") {
-        const expectedDefaults = summarizeOpenClawGatewayDefaultsForLog(
+      if (requestType === "agent" && adapterType === "aidevelo_gateway") {
+        const expectedDefaults = summarizeaideveloGatewayDefaultsForLog(
           joinDefaults.normalized
         );
-        const persistedDefaults = summarizeOpenClawGatewayDefaultsForLog(
+        const persistedDefaults = summarizeaideveloGatewayDefaultsForLog(
           created.agentDefaultsPayload
         );
         const missingPersistedFields: string[] = [];
@@ -2205,7 +2205,7 @@ export function accessRoutes(
           missingPersistedFields.push("aideveloApiUrl");
         }
         if (expectedDefaults.gatewayToken && !persistedDefaults.gatewayToken) {
-          missingPersistedFields.push("headers.x-openclaw-token");
+          missingPersistedFields.push("headers.x-aidevelo-token");
         }
         if (
           expectedDefaults.devicePrivateKeyPem &&
@@ -2234,7 +2234,7 @@ export function accessRoutes(
               hint: diag.hint ?? null
             }))
           },
-          "invite accept persisted OpenClaw gateway join request"
+          "invite accept persisted aidevelo gateway join request"
         );
 
         if (missingPersistedFields.length > 0) {
@@ -2244,7 +2244,7 @@ export function accessRoutes(
               joinRequestId: created.id,
               missingPersistedFields
             },
-            "invite accept detected missing persisted OpenClaw gateway defaults"
+            "invite accept detected missing persisted aidevelo gateway defaults"
           );
         }
       }

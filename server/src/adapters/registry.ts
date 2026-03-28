@@ -46,13 +46,13 @@ import {
   agentConfigurationDoc as openCodeAgentConfigurationDoc,
 } from "@aideveloai/adapter-opencode-local";
 import {
-  execute as openclawGatewayExecute,
-  testEnvironment as openclawGatewayTestEnvironment,
-} from "@aideveloai/adapter-openclaw-gateway/server";
+  execute as aideveloGatewayExecute,
+  testEnvironment as aideveloGatewayTestEnvironment,
+} from "@aideveloai/adapter-aidevelo-gateway/server";
 import {
-  agentConfigurationDoc as openclawGatewayAgentConfigurationDoc,
-  models as openclawGatewayModels,
-} from "@aideveloai/adapter-openclaw-gateway";
+  agentConfigurationDoc as aideveloGatewayAgentConfigurationDoc,
+  models as aideveloGatewayModels,
+} from "@aideveloai/adapter-aidevelo-gateway";
 import { listCodexModels } from "./codex-models.js";
 import { listCursorModels } from "./cursor-models.js";
 import {
@@ -135,13 +135,13 @@ const geminiLocalAdapter: ServerAdapterModule = {
   agentConfigurationDoc: geminiAgentConfigurationDoc,
 };
 
-const openclawGatewayAdapter: ServerAdapterModule = {
-  type: "openclaw_gateway",
-  execute: openclawGatewayExecute,
-  testEnvironment: openclawGatewayTestEnvironment,
-  models: openclawGatewayModels,
+const aideveloGatewayAdapter: ServerAdapterModule = {
+  type: "aidevelo_gateway",
+  execute: aideveloGatewayExecute,
+  testEnvironment: aideveloGatewayTestEnvironment,
+  models: aideveloGatewayModels,
   supportsLocalAgentJwt: false,
-  agentConfigurationDoc: openclawGatewayAgentConfigurationDoc,
+  agentConfigurationDoc: aideveloGatewayAgentConfigurationDoc,
 };
 
 const openCodeLocalAdapter: ServerAdapterModule = {
@@ -190,7 +190,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     piLocalAdapter,
     cursorLocalAdapter,
     geminiLocalAdapter,
-    openclawGatewayAdapter,
+    aideveloGatewayAdapter,
     hermesLocalAdapter,
     managedServiceAdapter,
     processAdapter,

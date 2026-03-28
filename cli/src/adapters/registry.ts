@@ -5,7 +5,7 @@ import { printCursorStreamEvent } from "@aideveloai/adapter-cursor-local/cli";
 import { printGeminiStreamEvent } from "@aideveloai/adapter-gemini-local/cli";
 import { printOpenCodeStreamEvent } from "@aideveloai/adapter-opencode-local/cli";
 import { printPiStreamEvent } from "@aideveloai/adapter-pi-local/cli";
-import { printOpenClawGatewayStreamEvent } from "@aideveloai/adapter-openclaw-gateway/cli";
+import { printAideveloGatewayStreamEvent } from "@aideveloai/adapter-aidevelo-gateway/cli";
 import { processCLIAdapter } from "./process/index.js";
 import { httpCLIAdapter } from "./http/index.js";
 
@@ -39,9 +39,9 @@ const geminiLocalCLIAdapter: CLIAdapterModule = {
   formatStdoutEvent: printGeminiStreamEvent,
 };
 
-const openclawGatewayCLIAdapter: CLIAdapterModule = {
-  type: "openclaw_gateway",
-  formatStdoutEvent: printOpenClawGatewayStreamEvent,
+const aideveloGatewayCLIAdapter: CLIAdapterModule = {
+  type: "aidevelo_gateway",
+  formatStdoutEvent: printAideveloGatewayStreamEvent,
 };
 
 const adaptersByType = new Map<string, CLIAdapterModule>(
@@ -52,7 +52,7 @@ const adaptersByType = new Map<string, CLIAdapterModule>(
     piLocalCLIAdapter,
     cursorLocalCLIAdapter,
     geminiLocalCLIAdapter,
-    openclawGatewayCLIAdapter,
+    aideveloGatewayCLIAdapter,
     processCLIAdapter,
     httpCLIAdapter,
   ].map((a) => [a.type, a]),

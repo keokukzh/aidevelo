@@ -12,7 +12,7 @@ function parseJsonObject(text: string): Record<string, unknown> | null {
   }
 }
 
-export function buildOpenClawGatewayConfig(v: CreateConfigValues): Record<string, unknown> {
+export function buildAideveloGatewayConfig(v: CreateConfigValues): Record<string, unknown> {
   const ac: Record<string, unknown> = {};
   if (v.url) ac.url = v.url;
   ac.timeoutSec = 120;

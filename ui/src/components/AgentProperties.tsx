@@ -19,7 +19,7 @@ const adapterLabels: Record<string, string> = {
   codex_local: "Codex (local)",
   gemini_local: "Gemini CLI (local)",
   opencode_local: "OpenCode (local)",
-  openclaw_gateway: "OpenClaw Gateway",
+  aidevelo_gateway: "Aidevelo Gateway",
   cursor: "Cursor (local)",
   process: "Process",
   http: "HTTP",

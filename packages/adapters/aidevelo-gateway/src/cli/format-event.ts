@@ -1,6 +1,6 @@
 import pc from "picocolors";
 
-export function printOpenClawGatewayStreamEvent(raw: string, debug: boolean): void {
+export function printAideveloGatewayStreamEvent(raw: string, debug: boolean): void {
   const line = raw.trim();
   if (!line) return;
 
@@ -9,12 +9,12 @@ export function printOpenClawGatewayStreamEvent(raw: string, debug: boolean): vo
     return;
   }
 
-  if (line.startsWith("[openclaw-gateway:event]")) {
+  if (line.startsWith("[aidevelo-gateway:event]")) {
     console.log(pc.cyan(line));
     return;
   }
 
-  if (line.startsWith("[openclaw-gateway]")) {
+  if (line.startsWith("[aidevelo-gateway]")) {
     console.log(pc.blue(line));
     return;
   }

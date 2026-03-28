@@ -37,7 +37,7 @@ describe("buildInviteOnboardingTextDocument", () => {
       allowedHostnames: [],
     });
 
-    expect(text).toContain("Aidevelo OpenClaw Gateway Onboarding");
+    expect(text).toContain("Aidevelo Aidevelo Gateway Onboarding");
     expect(text).toContain("/api/invites/token-123/accept");
     expect(text).toContain("/api/join-requests/{requestId}/claim-api-key");
     expect(text).toContain("/api/invites/token-123/onboarding.txt");
@@ -45,11 +45,11 @@ describe("buildInviteOnboardingTextDocument", () => {
     expect(text).toContain("http://localhost:3100");
     expect(text).toContain("host.docker.internal");
     expect(text).toContain("aideveloApiUrl");
-    expect(text).toContain("adapterType \"openclaw_gateway\"");
-    expect(text).toContain("headers.x-openclaw-token");
+    expect(text).toContain("adapterType \"aidevelo_gateway\"");
+    expect(text).toContain("headers.x-aidevelo-token");
     expect(text).toContain("Do NOT use /v1/responses or /hooks/*");
     expect(text).toContain("set the first reachable candidate as agentDefaultsPayload.aideveloApiUrl");
-    expect(text).toContain("~/.openclaw/workspace/aidevelo-claimed-api-key.json");
+    expect(text).toContain("~/.aidevelo/workspace/aidevelo-claimed-api-key.json");
     expect(text).toContain("AIDEVELO_API_KEY");
     expect(text).toContain("saved token field");
     expect(text).toContain("Gateway token unexpectedly short");

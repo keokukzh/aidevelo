@@ -56,7 +56,7 @@ function parseScopes(value: unknown): string {
   return typeof value === "string" ? value : "";
 }
 
-export function OpenClawGatewayConfigFields({
+export function aideveloGatewayConfigFields({
   isCreate,
   values,
   set,
@@ -71,21 +71,21 @@ export function OpenClawGatewayConfigFields({
   const effectiveHeaders =
     (eff("adapterConfig", "headers", configuredHeaders) as Record<string, unknown>) ?? {};
 
-  const effectiveGatewayToken = typeof effectiveHeaders["x-openclaw-token"] === "string"
-    ? String(effectiveHeaders["x-openclaw-token"])
-    : typeof effectiveHeaders["x-openclaw-auth"] === "string"
-      ? String(effectiveHeaders["x-openclaw-auth"])
+  const effectiveGatewayToken = typeof effectiveHeaders["x-aidevelo-token"] === "string"
+    ? String(effectiveHeaders["x-aidevelo-token"])
+    : typeof effectiveHeaders["x-aidevelo-auth"] === "string"
+      ? String(effectiveHeaders["x-aidevelo-auth"])
       : "";
 
   const commitGatewayToken = (rawValue: string) => {
     const nextValue = rawValue.trim();
     const nextHeaders: Record<string, unknown> = { ...effectiveHeaders };
     if (nextValue) {
-      nextHeaders["x-openclaw-token"] = nextValue;
-      delete nextHeaders["x-openclaw-auth"];
+      nextHeaders["x-aidevelo-token"] = nextValue;
+      delete nextHeaders["x-aidevelo-auth"];
     } else {
-      delete nextHeaders["x-openclaw-token"];
-      delete nextHeaders["x-openclaw-auth"];
+      delete nextHeaders["x-aidevelo-token"];
+      delete nextHeaders["x-aidevelo-auth"];
     }
     mark("adapterConfig", "headers", Object.keys(nextHeaders).length > 0 ? nextHeaders : undefined);
   };
@@ -175,10 +175,10 @@ export function OpenClawGatewayConfigFields({
           )}
 
           <SecretField
-            label="Gateway auth token (x-openclaw-token)"
+            label="Gateway auth token (x-aidevelo-token)"
             value={effectiveGatewayToken}
             onCommit={commitGatewayToken}
-            placeholder="OpenClaw gateway token"
+            placeholder="aidevelo gateway token"
           />
 
           <Field label="Role">

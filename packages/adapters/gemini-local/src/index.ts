@@ -21,7 +21,7 @@ Use when:
 - You want Aidevelo skills injected locally without polluting the global environment
 
 Don't use when:
-- You need webhook-style external invocation (use http or openclaw_gateway)
+- You need webhook-style external invocation (use http or aidevelo_gateway)
 - You only need a one-shot script without an AI coding agent loop (use process)
 - Gemini CLI is not installed on the machine that runs Aidevelo
 

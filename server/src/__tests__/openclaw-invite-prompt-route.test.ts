@@ -76,7 +76,7 @@ function createApp(actor: Record<string, unknown>, db: Record<string, unknown>) 
   return app;
 }
 
-describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
+describe("POST /companies/:companyId/aidevelo/invite-prompt", () => {
   beforeEach(() => {
     mockAccessService.canUser.mockResolvedValue(false);
     mockAgentService.getById.mockReset();
@@ -101,7 +101,7 @@ describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
     );
 
     const res = await request(app)
-      .post("/api/companies/company-1/openclaw/invite-prompt")
+      .post("/api/companies/company-1/aidevelo/invite-prompt")
       .send({});
 
     expect(res.status).toBe(403);
@@ -126,8 +126,8 @@ describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
     );
 
     const res = await request(app)
-      .post("/api/companies/company-1/openclaw/invite-prompt")
-      .send({ agentMessage: "Join and configure OpenClaw gateway." });
+      .post("/api/companies/company-1/aidevelo/invite-prompt")
+      .send({ agentMessage: "Join and configure aidevelo gateway." });
 
     expect(res.status).toBe(201);
     expect(res.body.allowedJoinTypes).toBe("agent");
@@ -150,7 +150,7 @@ describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
     );
 
     const res = await request(app)
-      .post("/api/companies/company-1/openclaw/invite-prompt")
+      .post("/api/companies/company-1/aidevelo/invite-prompt")
       .send({});
 
     expect(res.status).toBe(201);
@@ -172,7 +172,7 @@ describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
     );
 
     const res = await request(app)
-      .post("/api/companies/company-1/openclaw/invite-prompt")
+      .post("/api/companies/company-1/aidevelo/invite-prompt")
       .send({});
 
     expect(res.status).toBe(403);

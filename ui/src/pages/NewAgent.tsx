@@ -41,7 +41,7 @@ const SUPPORTED_ADVANCED_ADAPTER_TYPES = new Set<CreateConfigValues["adapterType
   "opencode_local",
   "pi_local",
   "cursor",
-  "openclaw_gateway",
+  "aidevelo_gateway",
 ]);
 
 function createValuesForAdapterType(

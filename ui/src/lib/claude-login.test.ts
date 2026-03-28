@@ -9,7 +9,7 @@ describe("supportsClaudeLoginAdapter", () => {
 
   it("rejects non-Claude adapters", () => {
     expect(supportsClaudeLoginAdapter("codex_local")).toBe(false);
-    expect(supportsClaudeLoginAdapter("openclaw_gateway")).toBe(false);
+    expect(supportsClaudeLoginAdapter("aidevelo_gateway")).toBe(false);
     expect(supportsClaudeLoginAdapter(null)).toBe(false);
   });
 });

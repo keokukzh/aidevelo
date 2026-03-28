@@ -1,23 +1,23 @@
-export const type = "openclaw_gateway";
-export const label = "OpenClaw Gateway";
+export const type = "aidevelo_gateway";
+export const label = "Aidevelo Gateway";
 
 export const models: { id: string; label: string }[] = [];
 
-export const agentConfigurationDoc = `# openclaw_gateway agent configuration
+export const agentConfigurationDoc = `# aidevelo_gateway agent configuration
 
-Adapter: openclaw_gateway
+Adapter: aidevelo_gateway
 
 Use when:
-- You want Aidevelo to invoke OpenClaw over the Gateway WebSocket protocol.
+- You want Aidevelo to invoke aidevelo over the Gateway WebSocket protocol.
 - You want native gateway auth/connect semantics instead of HTTP /v1/responses or /hooks/*.
 
 Don't use when:
-- You only expose OpenClaw HTTP endpoints.
+- You only expose aidevelo HTTP endpoints.
 - Your deployment does not permit outbound WebSocket access from the Aidevelo server.
 
 Core fields:
-- url (string, required): OpenClaw gateway WebSocket URL (ws:// or wss://)
-- headers (object, optional): handshake headers; supports x-openclaw-token / x-openclaw-auth
+- url (string, required): aidevelo gateway WebSocket URL (ws:// or wss://)
+- headers (object, optional): handshake headers; supports x-aidevelo-token / x-aidevelo-auth
 - authToken (string, optional): shared gateway token override
 - password (string, optional): gateway shared password, if configured
 

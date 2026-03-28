@@ -222,14 +222,14 @@ export {
 
 export {
   createCompanyInviteSchema,
-  createOpenClawInvitePromptSchema,
+  createAideveloGatewayInvitePromptSchema,
   acceptInviteSchema,
   listJoinRequestsQuerySchema,
   claimJoinRequestApiKeySchema,
   updateMemberPermissionsSchema,
   updateUserCompanyAccessSchema,
   type CreateCompanyInvite,
-  type CreateOpenClawInvitePrompt,
+  type CreateAideveloGatewayInvitePrompt,
   type AcceptInvite,
   type ListJoinRequestsQuery,
   type ClaimJoinRequestApiKey,

@@ -1,4 +1,4 @@
-export function normalizeOpenClawGatewayStreamLine(rawLine: string): {
+export function normalizeaideveloGatewayStreamLine(rawLine: string): {
   stream: "stdout" | "stderr" | null;
   line: string;
 } {

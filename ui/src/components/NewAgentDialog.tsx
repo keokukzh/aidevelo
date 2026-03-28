@@ -29,7 +29,7 @@ type AdvancedAdapterType =
   | "opencode_local"
   | "pi_local"
   | "cursor"
-  | "openclaw_gateway";
+  | "aidevelo_gateway";
 
 const ADVANCED_ADAPTER_OPTIONS: Array<{
   value: AdvancedAdapterType;
@@ -77,10 +77,10 @@ const ADVANCED_ADAPTER_OPTIONS: Array<{
     desc: "Local Cursor agent",
   },
   {
-    value: "openclaw_gateway",
-    label: "OpenClaw Gateway",
+    value: "aidevelo_gateway",
+    label: "Aidevelo Gateway",
     icon: Bot,
-    desc: "Invoke OpenClaw via gateway protocol",
+    desc: "Invoke aidevelo via gateway protocol",
   },
 ];
 
