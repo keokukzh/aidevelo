@@ -12,7 +12,7 @@
  */
 import { eq, and, gte } from "drizzle-orm";
 import type { Db } from "@aideveloai/db";
-import { userUsage, TIER_QUOTAS } from "@aideveloai/db/schema/user_usage.js";
+import { userUsage, TIER_QUOTAS } from "@aideveloai/db/schema/user_usage";
 
 const WINDOW_SIZE_MS = 5 * 60 * 60 * 1000; // 5 hours
 

@@ -3,7 +3,7 @@
 -- Subscriptions: links a user to their Stripe subscription
 CREATE TABLE "subscriptions" (
   "id" text PRIMARY KEY, -- Supabase auth user id
-  "user_id" text NOT NULL REFERENCES "auth_users"("id") ON DELETE CASCADE,
+  "user_id" text NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
   "stripe_subscription_id" text UNIQUE,
   "stripe_customer_id" text,
   "tier" text NOT NULL DEFAULT 'starter', -- 'starter' | 'pro'
@@ -21,7 +21,7 @@ CREATE INDEX "subscriptions_stripe_customer_idx" ON "subscriptions"("stripe_cust
 -- User usage: tracks per-user request counts within aligned 5-hour windows
 CREATE TABLE "user_usage" (
   "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
-  "user_id" text NOT NULL REFERENCES "auth_users"("id") ON DELETE CASCADE,
+  "user_id" text NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
   "window_start" timestamp with time zone NOT NULL, -- Aligned 5-hour boundary
   "request_count" integer NOT NULL DEFAULT 0,
   "created_at" timestamp with time zone NOT NULL DEFAULT NOW(),
@@ -33,7 +33,7 @@ CREATE UNIQUE INDEX "user_usage_user_window_idx" ON "user_usage"("user_id", "win
 -- User API keys: created after successful Stripe checkout
 CREATE TABLE "user_api_keys" (
   "id" text PRIMARY KEY DEFAULT gen_random_uuid(),
-  "user_id" text NOT NULL REFERENCES "auth_users"("id") ON DELETE CASCADE,
+  "user_id" text NOT NULL REFERENCES "user"("id") ON DELETE CASCADE,
   "key_hash" text NOT NULL, -- SHA-256 hash of plaintext key
   "name" text NOT NULL DEFAULT 'Default',
   "last_used_at" timestamp with time zone,
