@@ -206,15 +206,15 @@ export function issueRoutes(db: Db, storage: StorageService) {
     const unreadForUserFilterRaw = req.query.unreadForUserId as string | undefined;
     const assigneeUserId =
       assigneeUserFilterRaw === "me" && req.actor.type === "board"
-        ? req.actor.userId
+        ? req.actor.userId ?? undefined
         : assigneeUserFilterRaw;
     const touchedByUserId =
       touchedByUserFilterRaw === "me" && req.actor.type === "board"
-        ? req.actor.userId
+        ? req.actor.userId ?? undefined
         : touchedByUserFilterRaw;
     const unreadForUserId =
       unreadForUserFilterRaw === "me" && req.actor.type === "board"
-        ? req.actor.userId
+        ? req.actor.userId ?? undefined
         : unreadForUserFilterRaw;
 
     if (assigneeUserFilterRaw === "me" && (!assigneeUserId || req.actor.type !== "board")) {
@@ -232,7 +232,7 @@ export function issueRoutes(db: Db, storage: StorageService) {
 
     const result = await svc.list(companyId, {
       status: req.query.status as string | undefined,
-      assigneeAgentId: req.query.assigneeAgentId as string | undefined,
+      assigneeAgentId: (req.query.assigneeAgentId as string | undefined) ?? undefined,
       assigneeUserId,
       touchedByUserId,
       unreadForUserId,
@@ -1127,7 +1127,7 @@ export function issueRoutes(db: Db, storage: StorageService) {
 
     const released = await svc.release(
       id,
-      req.actor.type === "agent" ? req.actor.agentId : undefined,
+      req.actor.type === "agent" ? (req.actor.agentId ?? undefined) : undefined,
       actorRunId,
     );
     if (!released) {

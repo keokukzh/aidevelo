@@ -43,7 +43,7 @@ export function webhookRoutes(db: Db) {
     res.json({ received: true });
 
     try {
-      await handleStripeEvent(db, event);
+      await handleStripeEvent(db, event as unknown as { type: string; data: { object: Record<string, unknown> } });
     } catch (err) {
       logger.error({ err, eventType: event.type }, "Error handling Stripe webhook");
     }

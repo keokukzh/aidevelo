@@ -10,9 +10,9 @@
  * then flush to DB periodically. Falls back to DB-only when Redis
  * is not configured.
  */
-import { eq, and, gte } from "drizzle-orm";
+import { eq, and, gte, sql } from "drizzle-orm";
 import type { Db } from "@aideveloai/db";
-import { userUsage, TIER_QUOTAS } from "@aideveloai/db/schema/user_usage.js";
+import { userUsage, TIER_QUOTAS } from "@aideveloai/db";
 
 const WINDOW_SIZE_MS = 5 * 60 * 60 * 1000; // 5 hours
 
@@ -91,7 +91,7 @@ export async function recordRequest(
     .onConflictDoUpdate({
       target: [userUsage.userId, userUsage.windowStart],
       set: {
-        requestCount: userUsage.fields.requestCount + 1,
+        requestCount: sql`${userUsage.requestCount} + 1`,
         updatedAt: new Date(),
       },
     })
