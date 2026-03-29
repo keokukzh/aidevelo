@@ -30,6 +30,7 @@ import {
   routineService,
   workProductService,
 } from "../services/index.js";
+import { listRuntimeServicesForExecutionWorkspace } from "../services/workspace-runtime.js";
 import { logger } from "../middleware/logger.js";
 import { forbidden, HttpError, unauthorized } from "../errors.js";
 import { assertCompanyAccess, getActorInfo } from "./authz.js";
@@ -327,6 +328,9 @@ export function issueRoutes(db: Db, storage: StorageService) {
     const currentExecutionWorkspace = issue.executionWorkspaceId
       ? await executionWorkspacesSvc.getById(issue.executionWorkspaceId)
       : null;
+    const runtimeServices = issue.executionWorkspaceId
+      ? await listRuntimeServicesForExecutionWorkspace(db, issue.executionWorkspaceId)
+      : [];
     const workProducts = await workProductsSvc.listForIssue(issue.id);
     res.json({
       ...issue,
@@ -337,6 +341,7 @@ export function issueRoutes(db: Db, storage: StorageService) {
       goal: goal ?? null,
       mentionedProjects,
       currentExecutionWorkspace,
+      runtimeServices,
       workProducts,
     });
   });

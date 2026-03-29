@@ -5,6 +5,7 @@ import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import type { AdapterRuntimeServiceReport } from "@aideveloai/adapter-utils";
+import type { WorkspaceRuntimeService } from "@aideveloai/shared";
 import type { Db } from "@aideveloai/db";
 import { workspaceRuntimeServices } from "@aideveloai/db";
 import { and, desc, eq, inArray } from "drizzle-orm";
@@ -936,6 +937,38 @@ async function waitForReadiness(input: {
   throw new Error(`Readiness check failed for ${input.url}: ${lastError}`);
 }
 
+function toWorkspaceRuntimeServiceRow(row: typeof workspaceRuntimeServices.$inferSelect): WorkspaceRuntimeService {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    projectId: row.projectId,
+    projectWorkspaceId: row.projectWorkspaceId,
+    executionWorkspaceId: row.executionWorkspaceId,
+    issueId: row.issueId,
+    scopeType: row.scopeType as WorkspaceRuntimeService["scopeType"],
+    scopeId: row.scopeId,
+    serviceName: row.serviceName,
+    status: row.status as WorkspaceRuntimeService["status"],
+    lifecycle: row.lifecycle as WorkspaceRuntimeService["lifecycle"],
+    reuseKey: row.reuseKey,
+    command: row.command,
+    cwd: row.cwd,
+    port: row.port,
+    url: row.url,
+    provider: row.provider as WorkspaceRuntimeService["provider"],
+    providerRef: row.providerRef,
+    ownerAgentId: row.ownerAgentId,
+    startedByRunId: row.startedByRunId,
+    lastUsedAt: row.lastUsedAt,
+    startedAt: row.startedAt,
+    stoppedAt: row.stoppedAt,
+    stopPolicy: row.stopPolicy,
+    healthStatus: row.healthStatus as WorkspaceRuntimeService["healthStatus"],
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+  };
+}
+
 function toPersistedWorkspaceRuntimeService(record: RuntimeServiceRecord): typeof workspaceRuntimeServices.$inferInsert {
   return {
     id: record.id,
@@ -1394,6 +1427,18 @@ export async function stopRuntimeServicesForExecutionWorkspace(input: {
       executionWorkspaceId: input.executionWorkspaceId,
     });
   }
+}
+
+export async function listRuntimeServicesForExecutionWorkspace(
+  db: Db,
+  executionWorkspaceId: string,
+): Promise<WorkspaceRuntimeService[]> {
+  const rows = await db
+    .select()
+    .from(workspaceRuntimeServices)
+    .where(eq(workspaceRuntimeServices.executionWorkspaceId, executionWorkspaceId))
+    .orderBy(desc(workspaceRuntimeServices.startedAt));
+  return rows.map(toWorkspaceRuntimeServiceRow);
 }
 
 export async function listWorkspaceRuntimeServicesForProjectWorkspaces(

@@ -6,7 +6,7 @@ import { updateExecutionWorkspaceSchema } from "@aideveloai/shared";
 import { validate } from "../middleware/validate.js";
 import { executionWorkspaceService, jobQueueService, logActivity, workspaceOperationService } from "../services/index.js";
 import { parseProjectExecutionWorkspacePolicy } from "../services/execution-workspace-policy.js";
-import { stopRuntimeServicesForExecutionWorkspace } from "../services/workspace-runtime.js";
+import { listRuntimeServicesForExecutionWorkspace, stopRuntimeServicesForExecutionWorkspace } from "../services/workspace-runtime.js";
 import { assertCompanyAccess, getActorInfo } from "./authz.js";
 
 const TERMINAL_ISSUE_STATUSES = new Set(["done", "cancelled"]);
@@ -37,7 +37,8 @@ export function executionWorkspaceRoutes(db: Db) {
       return;
     }
     assertCompanyAccess(req, workspace.companyId);
-    res.json(workspace);
+    const runtimeServices = await listRuntimeServicesForExecutionWorkspace(db, id);
+    res.json({ ...workspace, runtimeServices });
   });
 
   router.patch("/execution-workspaces/:id", validate(updateExecutionWorkspaceSchema), async (req, res) => {
