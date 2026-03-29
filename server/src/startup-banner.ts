@@ -134,11 +134,11 @@ export function printStartupBanner(opts: StartupBannerOptions): void {
     : color("disabled", "yellow");
 
   const art = [
-    color("   AAAA   III  DDDD   EEEEEE  VV   VV  EEEEEE  LL   OOOO   ", "cyan"),
-    color("  A    A  III  D   D  EE       VV   VV  EE      LL  O    O  ", "cyan"),
-    color("  A    A  III  D    D EEEE      VV   VV  EEEE    LL  O    O  ", "cyan"),
-    color("  AAAAAA  III  D    D EE        VV   VV  EE      LL  O    O  ", "cyan"),
-    color("  A    A  III  DDDD   EEEEEE    VVVVVVV   EEEEEE  LLLLLL  OOOO   ", "cyan"),
+    color("   AAAA   III  DDDD   EEEEEE  VV   VV  EEEEEE  LL      OOOO   ", "cyan"),
+    color("  A    A  III  D   D  EE      VV   VV  EE      LL     O    O  ", "cyan"),
+    color("  A    A  III  D    D EEEE    VV   VV  EEEE    LL     O    O  ", "cyan"),
+    color("  AAAAAA  III  D    D EE       V   V   EE      LL     O    O  ", "cyan"),
+    color("  A    A  III  DDDD   EEEEEE    VVV    EEEEEE  LLLLLL  OOOO   ", "cyan"),
   ];
 
   const lines = [
