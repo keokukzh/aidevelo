@@ -3,6 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { Db } from "@aideveloai/db";
+import "./types/actor.js"; // activates Express.Request actor augmentation
 import type { DeploymentExposure, DeploymentMode } from "@aideveloai/shared";
 import type { StorageService } from "./storage/types.js";
 import { httpLogger, errorHandler } from "./middleware/index.js";
