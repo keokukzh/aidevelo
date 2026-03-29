@@ -44,14 +44,24 @@ function ChartLegend({ items }: { items: { color: string; label: string }[] }) {
   );
 }
 
-export function ChartCard({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+export function ChartCard({ title, subtitle, children, className }: { title: string; subtitle?: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className="border border-border rounded-lg p-4 space-y-3">
+    <div className={`border border-border rounded-lg p-4 space-y-3 shadow-sm bg-card ${className ?? ""}`}>
       <div>
         <h3 className="text-xs font-medium text-muted-foreground">{title}</h3>
         {subtitle && <span className="text-[10px] text-muted-foreground/60">{subtitle}</span>}
       </div>
       {children}
+    </div>
+  );
+}
+
+function ChartSkeleton({ height = "h-20" }: { height?: string }) {
+  return (
+    <div className={`w-full ${height} flex items-end gap-[3px]`}>
+      {Array.from({ length: 14 }).map((_, i) => (
+        <div key={i} className="flex-1 rounded-sm animate-pulse bg-muted/40" style={{ height: `${20 + Math.sin(i * 0.8) * 15 + 15}%` }} />
+      ))}
     </div>
   );
 }
@@ -75,7 +85,7 @@ export function RunActivityChart({ runs }: { runs: HeartbeatRun[] }) {
   const maxValue = Math.max(...Array.from(grouped.values()).map(v => v.succeeded + v.failed + v.other), 1);
   const hasData = Array.from(grouped.values()).some(v => v.succeeded + v.failed + v.other > 0);
 
-  if (!hasData) return <p className="text-xs text-muted-foreground">No runs yet</p>;
+  if (!hasData) return <ChartSkeleton />;
 
   return (
     <div>
@@ -88,9 +98,9 @@ export function RunActivityChart({ runs }: { runs: HeartbeatRun[] }) {
             <div key={day} className="flex-1 h-full flex flex-col justify-end" title={`${day}: ${total} runs`}>
               {total > 0 ? (
                 <div className="flex flex-col-reverse gap-px overflow-hidden" style={{ height: `${heightPct}%`, minHeight: 2 }}>
-                  {entry.succeeded > 0 && <div className="bg-emerald-500" style={{ flex: entry.succeeded }} />}
-                  {entry.failed > 0 && <div className="bg-red-500" style={{ flex: entry.failed }} />}
-                  {entry.other > 0 && <div className="bg-neutral-500" style={{ flex: entry.other }} />}
+                  {entry.succeeded > 0 && <div style={{ flex: entry.succeeded, backgroundColor: "var(--chart-success)" }} />}
+                  {entry.failed > 0 && <div style={{ flex: entry.failed, backgroundColor: "var(--chart-fail)" }} />}
+                  {entry.other > 0 && <div style={{ flex: entry.other, backgroundColor: "var(--chart-other)" }} />}
                 </div>
               ) : (
                 <div className="bg-muted/30 rounded-sm" style={{ height: 2 }} />
@@ -105,10 +115,10 @@ export function RunActivityChart({ runs }: { runs: HeartbeatRun[] }) {
 }
 
 const priorityColors: Record<string, string> = {
-  critical: "#ef4444",
-  high: "#f97316",
-  medium: "#eab308",
-  low: "#6b7280",
+  critical: "var(--chart-priority-critical)",
+  high: "var(--chart-priority-high)",
+  medium: "var(--chart-priority-medium)",
+  low: "var(--chart-priority-low)",
 };
 
 const priorityOrder = ["critical", "high", "medium", "low"] as const;
@@ -127,7 +137,7 @@ export function PriorityChart({ issues }: { issues: { priority: string; createdA
   const maxValue = Math.max(...Array.from(grouped.values()).map(v => Object.values(v).reduce((a, b) => a + b, 0)), 1);
   const hasData = Array.from(grouped.values()).some(v => Object.values(v).reduce((a, b) => a + b, 0) > 0);
 
-  if (!hasData) return <p className="text-xs text-muted-foreground">No issues</p>;
+  if (!hasData) return <ChartSkeleton />;
 
   return (
     <div>
@@ -158,13 +168,13 @@ export function PriorityChart({ issues }: { issues: { priority: string; createdA
 }
 
 const statusColors: Record<string, string> = {
-  todo: "#3b82f6",
-  in_progress: "#8b5cf6",
-  in_review: "#a855f7",
-  done: "#10b981",
-  blocked: "#ef4444",
-  cancelled: "#6b7280",
-  backlog: "#64748b",
+  todo: "var(--chart-status-todo)",
+  in_progress: "var(--chart-status-in-progress)",
+  in_review: "var(--chart-status-in-review)",
+  done: "var(--chart-status-done)",
+  blocked: "var(--chart-status-blocked)",
+  cancelled: "var(--chart-status-cancelled)",
+  backlog: "var(--chart-status-backlog)",
 };
 
 const statusLabels: Record<string, string> = {
@@ -194,7 +204,7 @@ export function IssueStatusChart({ issues }: { issues: { status: string; created
   const maxValue = Math.max(...Array.from(grouped.values()).map(v => Object.values(v).reduce((a, b) => a + b, 0)), 1);
   const hasData = allStatuses.size > 0;
 
-  if (!hasData) return <p className="text-xs text-muted-foreground">No issues</p>;
+  if (!hasData) return <ChartSkeleton />;
 
   return (
     <div>
@@ -219,7 +229,7 @@ export function IssueStatusChart({ issues }: { issues: { status: string; created
         })}
       </div>
       <DateLabels days={days} />
-      <ChartLegend items={statusOrder.map(s => ({ color: statusColors[s] ?? "#6b7280", label: statusLabels[s] ?? s }))} />
+      <ChartLegend items={statusOrder.map(s => ({ color: statusColors[s] ?? "var(--chart-status-cancelled)", label: statusLabels[s] ?? s }))} />
     </div>
   );
 }
@@ -237,7 +247,7 @@ export function SuccessRateChart({ runs }: { runs: HeartbeatRun[] }) {
   }
 
   const hasData = Array.from(grouped.values()).some(v => v.total > 0);
-  if (!hasData) return <p className="text-xs text-muted-foreground">No runs yet</p>;
+  if (!hasData) return <ChartSkeleton />;
 
   return (
     <div>
@@ -245,7 +255,7 @@ export function SuccessRateChart({ runs }: { runs: HeartbeatRun[] }) {
         {days.map(day => {
           const entry = grouped.get(day)!;
           const rate = entry.total > 0 ? entry.succeeded / entry.total : 0;
-          const color = entry.total === 0 ? undefined : rate >= 0.8 ? "#10b981" : rate >= 0.5 ? "#eab308" : "#ef4444";
+          const color = entry.total === 0 ? undefined : rate >= 0.8 ? "var(--chart-success)" : rate >= 0.5 ? "var(--chart-priority-medium)" : "var(--chart-fail)";
           return (
             <div key={day} className="flex-1 h-full flex flex-col justify-end" title={`${day}: ${entry.total > 0 ? Math.round(rate * 100) : 0}% (${entry.succeeded}/${entry.total})`}>
               {entry.total > 0 ? (

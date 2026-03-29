@@ -69,6 +69,25 @@
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
+
+  /* Semantic chart colors — success/fail/other for run activity */
+  --chart-success: oklch(0.627 0.194 149.214);
+  --chart-fail: oklch(0.577 0.245 27.325);
+  --chart-other: oklch(0.556 0 0);
+  /* Priority chart colors */
+  --chart-priority-critical: oklch(0.577 0.245 27.325);
+  --chart-priority-high: oklch(0.637 0.237 25.331);
+  --chart-priority-medium: oklch(0.769 0.188 70.08);
+  --chart-priority-low: oklch(0.556 0 0);
+  /* Status chart colors */
+  --chart-status-todo: oklch(0.488 0.243 264.376);
+  --chart-status-in-progress: oklch(0.558 0.225 306.047);
+  --chart-status-in-review: oklch(0.558 0.225 306.047);
+  --chart-status-done: oklch(0.627 0.194 149.214);
+  --chart-status-blocked: oklch(0.577 0.245 27.325);
+  --chart-status-cancelled: oklch(0.556 0 0);
+  --chart-status-backlog: oklch(0.7 0.1 0);
+
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -208,18 +227,11 @@
 @keyframes dashboard-activity-enter {
   0% {
     opacity: 0;
-    transform: translateY(-14px) scale(0.985);
-    filter: blur(4px);
-  }
-  62% {
-    opacity: 1;
-    transform: translateY(2px) scale(1.002);
-    filter: blur(0);
+    transform: translateY(-8px) scale(0.99);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -235,9 +247,8 @@
 }
 
 .activity-row-enter {
-  animation:
-    dashboard-activity-enter 520ms cubic-bezier(0.16, 1, 0.3, 1),
-    dashboard-activity-highlight 920ms cubic-bezier(0.16, 1, 0.3, 1);
+  animation: dashboard-activity-enter 280ms ease-out, dashboard-activity-highlight 300ms ease-out;
+  animation-fill-mode: both;
 }
 
 @media (prefers-reduced-motion: reduce) {
