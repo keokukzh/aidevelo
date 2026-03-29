@@ -12,6 +12,31 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
+// In-memory TTL cache for API key lookups — avoids DB hit on every request
+type CachedKey = typeof agentApiKeys.$inferSelect;
+const keyCache = new Map<string, { key: CachedKey; expiresAt: number }>();
+const KEY_CACHE_TTL_MS = 60_000; // 1 minute TTL
+
+async function getCachedApiKey(db: Db, tokenHash: string): Promise<CachedKey | null> {
+  const now = Date.now();
+  const cached = keyCache.get(tokenHash);
+  if (cached && cached.expiresAt > now) {
+    return cached.key;
+  }
+  keyCache.delete(tokenHash);
+
+  const key = await db
+    .select()
+    .from(agentApiKeys)
+    .where(and(eq(agentApiKeys.keyHash, tokenHash), isNull(agentApiKeys.revokedAt)))
+    .then((rows) => rows[0] ?? null);
+
+  if (key) {
+    keyCache.set(tokenHash, { key, expiresAt: now + KEY_CACHE_TTL_MS });
+  }
+  return key;
+}
+
 interface ActorMiddlewareOptions {
   deploymentMode: DeploymentMode;
   authAllowLocalImplicitBoard?: boolean;
@@ -94,11 +119,7 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
     }
 
     const tokenHash = hashToken(token);
-    const key = await db
-      .select()
-      .from(agentApiKeys)
-      .where(and(eq(agentApiKeys.keyHash, tokenHash), isNull(agentApiKeys.revokedAt)))
-      .then((rows) => rows[0] ?? null);
+    const key = await getCachedApiKey(db, tokenHash);
 
     if (!key) {
       const claims = verifyLocalAgentJwt(token);

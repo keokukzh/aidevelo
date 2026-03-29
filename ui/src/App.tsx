@@ -1,8 +1,9 @@
+import * as React from "react";
 import { Navigate, Outlet, Route, Routes, useLocation, useParams } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Layout } from "./components/Layout";
-import { OnboardingWizard } from "./components/OnboardingWizard";
+const OnboardingWizard = React.lazy(() => import("./components/OnboardingWizard").then((m) => ({ default: m.OnboardingWizard })));
 import { authApi } from "./api/auth";
 import { healthApi } from "./api/health";
 import { Dashboard } from "./pages/Dashboard";
@@ -33,7 +34,7 @@ import { InstanceSettings } from "./pages/InstanceSettings";
 import { InstanceExperimentalSettings } from "./pages/InstanceExperimentalSettings";
 import { PluginManager } from "./pages/PluginManager";
 import { PluginSettings } from "./pages/PluginSettings";
-import { PluginPage } from "./pages/PluginPage";
+const PluginPage = React.lazy(() => import("./pages/PluginPage"));
 import { RunTranscriptUxLab } from "./pages/RunTranscriptUxLab";
 import { OrgChart } from "./pages/OrgChart";
 import { NewAgent } from "./pages/NewAgent";
@@ -299,7 +300,8 @@ function NoCompaniesStartPage() {
 export function App() {
   return (
     <>
-      <Routes>
+      <React.Suspense fallback={null}>
+        <Routes>
         <Route path="auth" element={<AuthPage />} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />
@@ -342,7 +344,10 @@ export function App() {
           <Route path="*" element={<NotFoundPage scope="global" />} />
         </Route>
       </Routes>
-      <OnboardingWizard />
+      </React.Suspense>
+      <React.Suspense fallback={null}>
+        <OnboardingWizard />
+      </React.Suspense>
     </>
   );
 }

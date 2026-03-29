@@ -316,6 +316,27 @@
       "when": 1774274405142,
       "tag": "0044_mute_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1743292800000,
+      "tag": "0045_add_background_jobs",
+      "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1743292800000,
+      "tag": "0046_billing_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1743292800000,
+      "tag": "0047_fk_cascades",
+      "breakpoints": true
     }
   ]
 }

@@ -14,7 +14,7 @@ import type { RequestHandler } from "express";
 import type { Db } from "@aideveloai/db";
 import { eq } from "drizzle-orm";
 import { subscriptions } from "@aideveloai/db";
-import { hasRemainingQuota, recordRequest } from "../lib/usage.js";
+import { getRemainingQuota, recordRequest } from "../lib/usage.js";
 import { logger } from "./logger.js";
 
 export function quotaMiddleware(_db: Db): RequestHandler {
@@ -53,13 +53,18 @@ export function quotaMiddleware(_db: Db): RequestHandler {
       return;
     }
 
-    const quotaOk = await hasRemainingQuota(_db, req.actor.userId, sub.tier);
-    if (!quotaOk) {
-      const windowEnd = new Date(Date.now() + 5 * 60 * 60 * 1000);
+    const quotaInfo = await getRemainingQuota(_db, req.actor.userId, sub.tier);
+
+    // Set rate limit headers on every response
+    res.setHeader("X-RateLimit-Limit", quotaInfo.quota);
+    res.setHeader("X-RateLimit-Remaining", quotaInfo.remaining);
+    res.setHeader("X-RateLimit-Reset", Math.floor(quotaInfo.windowEnd.getTime() / 1000));
+
+    if (quotaInfo.remaining <= 0) {
       res.status(429).json({
         error: "Quota exceeded",
         message: `You have reached your ${sub.tier} plan limit (${sub.tier === "starter" ? 300 : 1000} requests per 5-hour window).`,
-        resetsAt: windowEnd.toISOString(),
+        resetsAt: quotaInfo.windowEnd.toISOString(),
       });
       return;
     }

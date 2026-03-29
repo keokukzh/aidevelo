@@ -1,4 +1,5 @@
 import express, { Router, type Request as ExpressRequest } from "express";
+import compression from "compression";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -89,7 +90,15 @@ export async function createApp(
       (req as unknown as { rawBody: Buffer }).rawBody = buf;
     },
   }));
+  app.use(compression());
   app.use(httpLogger);
+  // Propagate pino request ID as x-request-id header for client correlation
+  app.use((req, res, next) => {
+    if ((req as any).id) {
+      res.setHeader("x-request-id", (req as any).id);
+    }
+    next();
+  });
   const privateHostnameGateEnabled =
     opts.deploymentMode === "authenticated" && opts.deploymentExposure === "private";
   const privateHostnameAllowSet = resolvePrivateHostnameAllowSet({

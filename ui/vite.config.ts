@@ -10,6 +10,19 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Vendor chunk splitting for better caching and parallel loading
+        manualChunks: {
+          "vendor-react": ["react", "react-dom"],
+          "vendor-router": ["react-router-dom"],
+          "vendor-query": ["@tanstack/react-query"],
+          "vendor-mdx": ["@mdxeditor/editor"],
+        },
+      },
+    },
+  },
   server: {
     port: 5173,
     proxy: {
