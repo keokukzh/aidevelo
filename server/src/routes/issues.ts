@@ -24,6 +24,7 @@ import {
   heartbeatService,
   issueApprovalService,
   issueService,
+  jobQueueService,
   documentService,
   logActivity,
   projectService,
@@ -868,6 +869,19 @@ export function issueRoutes(db: Db, storage: StorageService) {
       res.status(404).json({ error: "Issue not found" });
       return;
     }
+
+    // Enqueue workspace cleanup if issue moved to done
+    if (existing.status !== "done" && issue.status === "done" && issue.executionWorkspaceId) {
+      await jobQueueService(db).enqueue("workspace_cleanup", issue.companyId, {
+        workspaceId: issue.executionWorkspaceId,
+        cleanupReason: "archive",
+        cleanupTrigger: "done",
+      }).catch((err) =>
+        logger.warn({ err, issueId: issue.id, executionWorkspaceId: issue.executionWorkspaceId },
+          "failed to enqueue workspace cleanup after issue done"),
+      );
+    }
+
     await routinesSvc.syncRunStatusForIssue(issue.id);
 
     if (actor.runId) {

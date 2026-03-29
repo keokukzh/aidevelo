@@ -59,6 +59,7 @@ export type {
   ProjectExecutionWorkspacePolicy,
   ProjectExecutionWorkspaceDefaultMode,
   IssueExecutionWorkspaceSettings,
+  CleanupPolicy,
 } from "./workspace-runtime.js";
 export type {
   WorkspaceOperation,

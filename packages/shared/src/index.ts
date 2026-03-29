@@ -212,6 +212,7 @@ export type {
   ExecutionWorkspaceStatus,
   ExecutionWorkspaceStrategy,
   ProjectExecutionWorkspacePolicy,
+  CleanupPolicy,
   ProjectExecutionWorkspaceDefaultMode,
   IssueExecutionWorkspaceSettings,
   IssueWorkProduct,

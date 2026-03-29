@@ -50,7 +50,14 @@ export interface ProjectExecutionWorkspacePolicy {
   branchPolicy?: Record<string, unknown> | null;
   pullRequestPolicy?: Record<string, unknown> | null;
   runtimePolicy?: Record<string, unknown> | null;
-  cleanupPolicy?: Record<string, unknown> | null;
+  cleanupPolicy?: CleanupPolicy | null;
+}
+
+export interface CleanupPolicy {
+  removeExecutionWorkspaceOnDone: boolean;
+  removeExecutionWorkspaceOnMerged: boolean;
+  deleteIssueBranchOnMerged: boolean;
+  retainFailedWorkspaceForInspection: boolean;
 }
 
 export interface IssueExecutionWorkspaceSettings {

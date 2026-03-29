@@ -1,7 +1,8 @@
 // server/src/worker/handlers/workspace-cleanup.ts
-import { createDb, executionWorkspaces, projectWorkspaces } from "@aideveloai/db";
+import { createDb, executionWorkspaces, projects, projectWorkspaces } from "@aideveloai/db";
 import { eq } from "drizzle-orm";
 import { cleanupExecutionWorkspaceArtifacts } from "../../services/workspace-runtime.js";
+import { parseProjectExecutionWorkspacePolicy } from "../../services/execution-workspace-policy.js";
 import type { WorkspaceCleanupPayload } from "../../services/job-queue.js";
 
 function getDatabaseUrl(): string {
@@ -14,7 +15,7 @@ function getDatabaseUrl(): string {
 
 export const workspaceCleanupHandler = {
   async execute(payload: unknown): Promise<{ success: boolean; skipped?: boolean }> {
-    const { workspaceId, cleanupReason } = payload as WorkspaceCleanupPayload;
+    const { workspaceId, cleanupReason, cleanupTrigger } = payload as WorkspaceCleanupPayload;
     const db = createDb(getDatabaseUrl());
 
     // Fetch workspace with related data
@@ -35,6 +36,19 @@ export const workspaceCleanupHandler = {
         .from(projectWorkspaces)
         .where(eq(projectWorkspaces.id, workspace.projectWorkspaceId));
       projectWorkspace = pw ?? null;
+    }
+
+    // Load project to get cleanup policy
+    let cleanupPolicy = null;
+    if (workspace.projectId) {
+      const [project] = await db
+        .select({ executionWorkspacePolicy: projects.executionWorkspacePolicy })
+        .from(projects)
+        .where(eq(projects.id, workspace.projectId));
+      if (project?.executionWorkspacePolicy) {
+        const parsed = parseProjectExecutionWorkspacePolicy(project.executionWorkspacePolicy);
+        cleanupPolicy = parsed?.cleanupPolicy ?? null;
+      }
     }
 
     // Execute cleanup
@@ -58,6 +72,8 @@ export const workspaceCleanupHandler = {
             cleanupCommand: projectWorkspace.cleanupCommand,
           }
         : null,
+      cleanupPolicy,
+      cleanupTrigger: cleanupTrigger ?? cleanupReason === "archive" ? "manual" : cleanupReason as "manual",
     });
 
     return { success: true };

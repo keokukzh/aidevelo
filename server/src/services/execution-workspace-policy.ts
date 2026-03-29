@@ -1,4 +1,5 @@
 import type {
+  CleanupPolicy,
   ExecutionWorkspaceMode,
   ExecutionWorkspaceStrategy,
   IssueExecutionWorkspaceSettings,
@@ -8,6 +9,36 @@ import type {
 import { asString, parseObject } from "../adapters/utils.js";
 
 type ParsedExecutionWorkspaceMode = Exclude<ExecutionWorkspaceMode, "inherit" | "reuse_existing">;
+
+const DEFAULT_CLEANUP_POLICY: CleanupPolicy = {
+  removeExecutionWorkspaceOnDone: false,
+  removeExecutionWorkspaceOnMerged: false,
+  deleteIssueBranchOnMerged: false,
+  retainFailedWorkspaceForInspection: true,
+};
+
+export function parseCleanupPolicy(raw: unknown): CleanupPolicy {
+  const parsed = parseObject(raw);
+  if (Object.keys(parsed).length === 0) return DEFAULT_CLEANUP_POLICY;
+  return {
+    removeExecutionWorkspaceOnDone:
+      typeof parsed.removeExecutionWorkspaceOnDone === "boolean"
+        ? parsed.removeExecutionWorkspaceOnDone
+        : DEFAULT_CLEANUP_POLICY.removeExecutionWorkspaceOnDone,
+    removeExecutionWorkspaceOnMerged:
+      typeof parsed.removeExecutionWorkspaceOnMerged === "boolean"
+        ? parsed.removeExecutionWorkspaceOnMerged
+        : DEFAULT_CLEANUP_POLICY.removeExecutionWorkspaceOnMerged,
+    deleteIssueBranchOnMerged:
+      typeof parsed.deleteIssueBranchOnMerged === "boolean"
+        ? parsed.deleteIssueBranchOnMerged
+        : DEFAULT_CLEANUP_POLICY.deleteIssueBranchOnMerged,
+    retainFailedWorkspaceForInspection:
+      typeof parsed.retainFailedWorkspaceForInspection === "boolean"
+        ? parsed.retainFailedWorkspaceForInspection
+        : DEFAULT_CLEANUP_POLICY.retainFailedWorkspaceForInspection,
+  };
+}
 
 function cloneRecord(value: Record<string, unknown> | null | undefined): Record<string, unknown> | null {
   if (!value) return null;
@@ -71,9 +102,7 @@ export function parseProjectExecutionWorkspacePolicy(raw: unknown): ProjectExecu
     ...(parsed.runtimePolicy && typeof parsed.runtimePolicy === "object" && !Array.isArray(parsed.runtimePolicy)
       ? { runtimePolicy: { ...(parsed.runtimePolicy as Record<string, unknown>) } }
       : {}),
-    ...(parsed.cleanupPolicy && typeof parsed.cleanupPolicy === "object" && !Array.isArray(parsed.cleanupPolicy)
-      ? { cleanupPolicy: { ...(parsed.cleanupPolicy as Record<string, unknown>) } }
-      : {}),
+    ...(parsed.cleanupPolicy ? { cleanupPolicy: parseCleanupPolicy(parsed.cleanupPolicy) } : {}),
   };
 }
 

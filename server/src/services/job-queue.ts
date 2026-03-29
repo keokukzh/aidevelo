@@ -8,6 +8,7 @@ export type JobType = "workspace_cleanup" | "routine_dispatch" | "heartbeat_tick
 export interface WorkspaceCleanupPayload {
   workspaceId: string;
   cleanupReason: "archive" | "delete" | "idle_timeout" | "manual";
+  cleanupTrigger?: "done" | "merged" | "failed" | "manual" | "idle_timeout";
   force?: boolean;
 }
 

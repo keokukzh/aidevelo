@@ -5,7 +5,7 @@ import { createHash, randomUUID } from "node:crypto";
 import path from "node:path";
 import { setTimeout as delay } from "node:timers/promises";
 import type { AdapterRuntimeServiceReport } from "@aideveloai/adapter-utils";
-import type { WorkspaceRuntimeService } from "@aideveloai/shared";
+import type { CleanupPolicy, WorkspaceRuntimeService } from "@aideveloai/shared";
 import type { Db } from "@aideveloai/db";
 import { workspaceRuntimeServices } from "@aideveloai/db";
 import { and, desc, eq, inArray } from "drizzle-orm";
@@ -704,6 +704,8 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
     cleanupCommand: string | null;
   } | null;
   teardownCommand?: string | null;
+  cleanupPolicy?: CleanupPolicy | null;
+  cleanupTrigger?: "done" | "merged" | "failed" | "manual" | "idle_timeout";
   recorder?: WorkspaceOperationRecorder | null;
 }) {
   const warnings: string[] = [];
@@ -713,6 +715,21 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
     projectWorkspaceCwd: input.projectWorkspace?.cwd ?? null,
   });
   const createdByRuntime = input.workspace.metadata?.createdByRuntime === true;
+  const trigger = input.cleanupTrigger ?? "manual";
+  const policy = input.cleanupPolicy ?? null;
+
+  // Determine whether to remove the workspace and delete the branch based on policy
+  const unconditional = trigger === "manual" || trigger === "idle_timeout" || !policy;
+  const shouldRemoveWorkspace = unconditional || (trigger === "done" && policy.removeExecutionWorkspaceOnDone)
+    || (trigger === "merged" && policy.removeExecutionWorkspaceOnMerged);
+  const shouldDeleteBranch = unconditional
+    || (trigger === "merged" && policy.deleteIssueBranchOnMerged);
+
+  // Retain failed workspace if policy says so and this is a failed workspace
+  if (trigger === "failed" && policy?.retainFailedWorkspaceForInspection) {
+    return { warnings };
+  }
+
   const cleanupCommands = [
     input.projectWorkspace?.cleanupCommand ?? null,
     input.teardownCommand ?? null,
@@ -747,7 +764,7 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
       input.projectWorkspace?.cwd ?? null,
     );
     const worktreeExists = await directoryExists(workspacePath);
-    if (worktreeExists) {
+    if (worktreeExists && shouldRemoveWorkspace) {
       if (!repoRoot) {
         warnings.push(`Could not resolve git repo root for "${workspacePath}".`);
       } else {
@@ -761,6 +778,7 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
               workspacePath,
               branchName: input.workspace.branchName,
               cleanupAction: "worktree_remove",
+              triggeredBy: trigger,
             },
             successMessage: `Removed git worktree ${workspacePath}\n`,
             failureLabel: `git worktree remove ${workspacePath}`,
@@ -770,7 +788,7 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
         }
       }
     }
-    if (createdByRuntime && input.workspace.branchName) {
+    if (shouldDeleteBranch && input.workspace.branchName) {
       if (!repoRoot) {
         warnings.push(`Could not resolve git repo root to delete branch "${input.workspace.branchName}".`);
       } else {
@@ -784,6 +802,7 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
               workspacePath,
               branchName: input.workspace.branchName,
               cleanupAction: "branch_delete",
+              triggeredBy: trigger,
             },
             successMessage: `Deleted branch ${input.workspace.branchName}\n`,
             failureLabel: `git branch -d ${input.workspace.branchName}`,
@@ -794,7 +813,7 @@ export async function cleanupExecutionWorkspaceArtifacts(input: {
         }
       }
     }
-  } else if (input.workspace.providerType === "local_fs" && createdByRuntime && workspacePath) {
+  } else if (input.workspace.providerType === "local_fs" && shouldRemoveWorkspace && workspacePath) {
     const projectWorkspaceCwd = input.projectWorkspace?.cwd ? path.resolve(input.projectWorkspace.cwd) : null;
     const resolvedWorkspacePath = path.resolve(workspacePath);
     const containsProjectWorkspace = projectWorkspaceCwd
