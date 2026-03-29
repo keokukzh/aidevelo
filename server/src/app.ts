@@ -1,4 +1,5 @@
 import express, { Router, type Request as ExpressRequest } from "express";
+import compression from "compression";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -83,6 +84,7 @@ export async function createApp(
 ) {
   const app = express();
 
+  app.use(compression({ threshold: 1024 }));
   app.use(express.json({
     verify: (req, _res, buf) => {
       (req as unknown as { rawBody: Buffer }).rawBody = buf;
