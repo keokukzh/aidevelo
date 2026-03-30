@@ -75,7 +75,7 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
       let isPatrol = prevIsPatrolling;
 
       if (currentAnimState === "idle" && !prevIsPatrolling) {
-        if (prev?.idleStartTime === undefined) {
+        if (patrolTimerRef.current.get(agent.id) === undefined) {
           patrolTimerRef.current.set(agent.id, now);
         }
         const idleTime = now - (patrolTimerRef.current.get(agent.id) ?? now);
@@ -85,6 +85,9 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
       } else if (currentAnimState !== "idle") {
         patrolTimerRef.current.set(agent.id, 0);
         isPatrol = false;
+      } else if (prev?.idleStartTime !== undefined && prevIsPatrolling) {
+        // Agent was patrolling and came back to idle - reset the timer
+        patrolTimerRef.current.set(agent.id, now);
       }
 
       if (prevState !== undefined && (prevState !== agent.state || prevDeskIndex !== agent.deskIndex)) {

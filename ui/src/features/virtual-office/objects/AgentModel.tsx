@@ -277,20 +277,24 @@ function AgentFace({ state }: { state: string }) {
 }
 
 function AwayZZZ({ color }: { color: string }) {
-  const [zzz, setZzz] = useState([{ char: "Z", y: 1.3, opacity: 0.8 }]);
+  const zzzRef = useRef([
+    { char: "Z", y: 1.3, opacity: 0.8 },
+    { char: "z", y: 1.5, opacity: 0.5 },
+    { char: "z", y: 1.7, opacity: 0.2 },
+  ]);
 
   useFrame(() => {
     const t = Date.now() * 0.001;
-    setZzz([
+    zzzRef.current = [
       { char: "Z", y: 1.3 + Math.sin(t * 1.5) * 0.05, opacity: 0.8 },
       { char: "z", y: 1.5 + Math.sin(t * 1.5 + 0.5) * 0.08, opacity: 0.5 },
       { char: "z", y: 1.7 + Math.sin(t * 1.5 + 1) * 0.1, opacity: 0.2 },
-    ]);
+    ];
   });
 
   return (
     <group position={[0.3, 0, 0]}>
-      {zzz.map((z, i) => (
+      {zzzRef.current.map((z, i) => (
         <Html key={i} position={[i * 0.12, z.y, 0]} center>
           <div style={{
             color,
@@ -389,6 +393,7 @@ export function AgentModel({
       groupRef.current.position.y = bob;
 
       idlePathRef.current.t += delta * 0.8;
+      walkProgressRef.current = idlePathRef.current.t;
       if (idlePathRef.current.t >= 1) {
         idlePathRef.current.t = 0;
         idlePathRef.current.index = nextIdx;
@@ -409,6 +414,7 @@ export function AgentModel({
       groupRef.current.position.y = bob;
 
       idlePathRef.current.t += delta * 0.15;
+      walkProgressRef.current = idlePathRef.current.t;
       if (idlePathRef.current.t >= 1) {
         idlePathRef.current.t = 0;
         idlePathRef.current.index = nextIdx;

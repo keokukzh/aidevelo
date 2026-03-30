@@ -66,16 +66,31 @@ $serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c","cd /d `"$
 
 # Wait for server to start
 Write-Host "  Server starting (PID: $($serverProcess.Id))..." -ForegroundColor Cyan
-Start-Sleep -Seconds 10
 
-# Check if server is running
-$healthCheck = try {
-    Invoke-WebRequest -Uri "http://localhost:$ServerPort/api/health" -UseBasicParsing -ErrorAction Stop
-} catch {
-    $null
+# Poll health endpoint until ready or timeout
+$maxAttempts = 15
+$attempt = 0
+$serverReady = $false
+
+while ($attempt -lt $maxAttempts) {
+    Start-Sleep -Seconds 2
+    $attempt++
+
+    $healthCheck = try {
+        Invoke-WebRequest -Uri "http://localhost:$ServerPort/api/health" -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+    } catch {
+        $null
+    }
+
+    if ($healthCheck -and $healthCheck.StatusCode -eq 200) {
+        $serverReady = $true
+        break
+    }
+
+    Write-Host "  Waiting for server... (attempt $attempt/$maxAttempts)" -ForegroundColor DarkGray
 }
 
-if ($healthCheck -and $healthCheck.StatusCode -eq 200) {
+if ($serverReady) {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Green
     Write-Host "  AIDEVELO is RUNNING!" -ForegroundColor Green
@@ -87,7 +102,12 @@ if ($healthCheck -and $healthCheck.StatusCode -eq 200) {
     Write-Host ""
 } else {
     Write-Host ""
-    Write-Host "  Server may still be starting..." -ForegroundColor Yellow
-    Write-Host "  Check: http://localhost:$ServerPort/api/health" -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host "  SERVER STARTUP FAILED!" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Red
     Write-Host ""
+    Write-Host "  Could not connect to http://localhost:$ServerPort/api/health" -ForegroundColor Yellow
+    Write-Host "  Please check server logs for errors." -ForegroundColor Yellow
+    Write-Host ""
+    exit 1
 }
