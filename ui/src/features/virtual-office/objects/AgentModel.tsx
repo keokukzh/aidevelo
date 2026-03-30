@@ -1,4 +1,4 @@
-import { useRef, useCallback, useMemo } from "react";
+import { useRef, useCallback, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Html } from "@react-three/drei";
 import * as THREE from "three";
@@ -95,42 +95,64 @@ function AgentShadow() {
   );
 }
 
-function TypingArms({ state }: { state: string }) {
+function AgentArms({ state, walkProgress }: { state: string; walkProgress: number }) {
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     const isTyping = state === "sitting" || state === "working";
-    const oscillate = isTyping ? Math.sin(Date.now() * 0.008) * 0.03 : 0;
+    const isWalking = state === "walking" || state === "patrol";
 
-    if (leftArmRef.current) {
-      leftArmRef.current.rotation.x = isTyping ? -0.5 + oscillate : -0.2;
-      leftArmRef.current.position.z = isTyping ? 0.35 + oscillate : 0.25;
-    }
-    if (rightArmRef.current) {
-      rightArmRef.current.rotation.x = isTyping ? -0.5 - oscillate : -0.2;
-      rightArmRef.current.position.z = isTyping ? 0.35 - oscillate : 0.25;
+    if (isWalking) {
+      const swing = Math.sin(walkProgress * Math.PI * 6) * 0.4;
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = swing;
+        leftArmRef.current.position.z = 0.15 + Math.abs(swing) * 0.1;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = -swing;
+        rightArmRef.current.position.z = 0.15 + Math.abs(swing) * 0.1;
+      }
+    } else if (isTyping) {
+      const oscillate = Math.sin(Date.now() * 0.008) * 0.03;
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = -0.5 + oscillate;
+        leftArmRef.current.position.z = 0.35 + oscillate;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = -0.5 - oscillate;
+        rightArmRef.current.position.z = 0.35 - oscillate;
+      }
+    } else {
+      if (leftArmRef.current) {
+        leftArmRef.current.rotation.x = -0.15;
+        leftArmRef.current.position.z = 0.2;
+      }
+      if (rightArmRef.current) {
+        rightArmRef.current.rotation.x = -0.15;
+        rightArmRef.current.position.z = 0.2;
+      }
     }
   });
 
   return (
     <group position={[0, 0.6, 0]}>
-      <group ref={leftArmRef} position={[-0.25, 0.1, 0]}>
+      <group ref={leftArmRef} position={[-0.25, 0.1, 0.2]}>
         <mesh rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[0.03, 0.03, 0.2, 8]} />
           <meshStandardMaterial color="#6B7280" />
         </mesh>
-        <mesh position={[-0.15, -0.05, 0.1]} rotation={[0.5, 0, 0]}>
+        <mesh position={[-0.15, -0.05, 0.05]} rotation={[0.5, 0, 0]}>
           <cylinderGeometry args={[0.025, 0.025, 0.15, 8]} />
           <meshStandardMaterial color="#6B7280" />
         </mesh>
       </group>
-      <group ref={rightArmRef} position={[0.25, 0.1, 0]}>
+      <group ref={rightArmRef} position={[0.25, 0.1, 0.2]}>
         <mesh rotation={[0, 0, -Math.PI / 2]}>
           <cylinderGeometry args={[0.03, 0.03, 0.2, 8]} />
           <meshStandardMaterial color="#6B7280" />
         </mesh>
-        <mesh position={[0.15, -0.05, 0.1]} rotation={[0.5, 0, 0]}>
+        <mesh position={[0.15, -0.05, 0.05]} rotation={[0.5, 0, 0]}>
           <cylinderGeometry args={[0.025, 0.025, 0.15, 8]} />
           <meshStandardMaterial color="#6B7280" />
         </mesh>
@@ -146,7 +168,12 @@ function AgentFace({ state }: { state: string }) {
   const isBlinkingRef = useRef(false);
   const blinkProgressRef = useRef(0);
 
+  const isSleeping = state === "away";
+  const isWalking = state === "walking";
+
   useFrame((_, delta) => {
+    if (isSleeping) return;
+
     blinkTimerRef.current += delta;
 
     if (blinkTimerRef.current > 4 && !isBlinkingRef.current) {
@@ -173,58 +200,142 @@ function AgentFace({ state }: { state: string }) {
   });
 
   const mouthShape = () => {
-    if (state === "working" || state === "sitting") return "typing";
-    if (state === "error") return "x";
+    if (state === "working" || state === "sitting") return "neutral";
+    if (state === "idle" || state === "patrol") return "smile";
+    if (state === "error") return "frown";
+    if (state === "walking") return "open";
     return "neutral";
   };
 
   return (
     <group position={[0, 1.1, 0]}>
-      <group ref={leftEyeRef} position={[-0.06, 0.02, 0.15]}>
-        <mesh>
-          <sphereGeometry args={[0.04, 8, 8]} />
-          <meshStandardMaterial color="#FFFFFF" />
-        </mesh>
-        <mesh position={[0, 0, 0.02]}>
-          <sphereGeometry args={[0.02, 6, 6]} />
-          <meshStandardMaterial color="#1F2937" />
-        </mesh>
-      </group>
-      <group ref={rightEyeRef} position={[0.06, 0.02, 0.15]}>
-        <mesh>
-          <sphereGeometry args={[0.04, 8, 8]} />
-          <meshStandardMaterial color="#FFFFFF" />
-        </mesh>
-        <mesh position={[0, 0, 0.02]}>
-          <sphereGeometry args={[0.02, 6, 6]} />
-          <meshStandardMaterial color="#1F2937" />
-        </mesh>
-      </group>
+      {isSleeping ? (
+        <>
+          <mesh position={[-0.06, 0.02, 0.15]} scale={[1, 0.1, 1]}>
+            <sphereGeometry args={[0.04, 8, 8]} />
+            <meshStandardMaterial color="#6B7280" />
+          </mesh>
+          <mesh position={[0.06, 0.02, 0.15]} scale={[1, 0.1, 1]}>
+            <sphereGeometry args={[0.04, 8, 8]} />
+            <meshStandardMaterial color="#6B7280" />
+          </mesh>
+          <mesh position={[0, -0.04, 0.16]} rotation={[0, 0, 0]}>
+            <boxGeometry args={[0.04, 0.01, 0.01]} />
+            <meshStandardMaterial color="#6B7280" />
+          </mesh>
+        </>
+      ) : (
+        <>
+          <group ref={leftEyeRef} position={[-0.06, 0.02, 0.15]}>
+            <mesh>
+              <sphereGeometry args={[0.04, 8, 8]} />
+              <meshStandardMaterial color="#FFFFFF" />
+            </mesh>
+            <mesh position={[0, 0, 0.02]}>
+              <sphereGeometry args={[0.02, 6, 6]} />
+              <meshStandardMaterial color="#1F2937" />
+            </mesh>
+          </group>
+          <group ref={rightEyeRef} position={[0.06, 0.02, 0.15]}>
+            <mesh>
+              <sphereGeometry args={[0.04, 8, 8]} />
+              <meshStandardMaterial color="#FFFFFF" />
+            </mesh>
+            <mesh position={[0, 0, 0.02]}>
+              <sphereGeometry args={[0.02, 6, 6]} />
+              <meshStandardMaterial color="#1F2937" />
+            </mesh>
+          </group>
+        </>
+      )}
       {mouthShape() === "neutral" && (
-        <mesh position={[0, -0.04, 0.16]} rotation={[0, 0, 0]}>
+        <mesh position={[0, -0.04, 0.16]}>
           <boxGeometry args={[0.06, 0.015, 0.01]} />
           <meshStandardMaterial color="#1F2937" />
         </mesh>
       )}
-      {mouthShape() === "typing" && (
-        <mesh position={[0, -0.04, 0.16]}>
-          <boxGeometry args={[0.05, 0.025, 0.01]} />
+      {mouthShape() === "smile" && (
+        <mesh position={[0, -0.045, 0.16]} rotation={[0.3, 0, 0]}>
+          <boxGeometry args={[0.06, 0.015, 0.01]} />
           <meshStandardMaterial color="#1F2937" />
         </mesh>
       )}
-      {mouthShape() === "x" && (
-        <group position={[0, -0.04, 0.16]}>
-          <mesh rotation={[0, 0, Math.PI / 4]}>
-            <boxGeometry args={[0.05, 0.015, 0.01]} />
-            <meshStandardMaterial color="#EF4444" />
-          </mesh>
-          <mesh rotation={[0, 0, -Math.PI / 4]}>
-            <boxGeometry args={[0.05, 0.015, 0.01]} />
-            <meshStandardMaterial color="#EF4444" />
-          </mesh>
-        </group>
+      {mouthShape() === "frown" && (
+        <mesh position={[0, -0.035, 0.16]} rotation={[-0.3, 0, 0]}>
+          <boxGeometry args={[0.06, 0.015, 0.01]} />
+          <meshStandardMaterial color="#EF4444" />
+        </mesh>
+      )}
+      {mouthShape() === "open" && (
+        <mesh position={[0, -0.04, 0.16]}>
+          <sphereGeometry args={[0.025, 8, 8]} />
+          <meshStandardMaterial color="#1F2937" />
+        </mesh>
       )}
     </group>
+  );
+}
+
+function AwayZZZ({ color }: { color: string }) {
+  const [zzz, setZzz] = useState([{ char: "Z", y: 1.3, opacity: 0.8 }]);
+
+  useFrame(() => {
+    const t = Date.now() * 0.001;
+    setZzz([
+      { char: "Z", y: 1.3 + Math.sin(t * 1.5) * 0.05, opacity: 0.8 },
+      { char: "z", y: 1.5 + Math.sin(t * 1.5 + 0.5) * 0.08, opacity: 0.5 },
+      { char: "z", y: 1.7 + Math.sin(t * 1.5 + 1) * 0.1, opacity: 0.2 },
+    ]);
+  });
+
+  return (
+    <group position={[0.3, 0, 0]}>
+      {zzz.map((z, i) => (
+        <Html key={i} position={[i * 0.12, z.y, 0]} center>
+          <div style={{
+            color,
+            fontSize: `${10 - i * 2}px`,
+            fontWeight: "bold",
+            opacity: z.opacity,
+            textShadow: `0 0 5px ${color}`,
+          }}>
+            {z.char}
+          </div>
+        </Html>
+      ))}
+    </group>
+  );
+}
+
+function NameBadge({ name, color, isSelected }: { name: string; color: string; isSelected: boolean }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <Html position={[0, -0.5, 0]} center distanceFactor={8} zIndexRange={[50, 0]}>
+      <div
+        style={{
+          backgroundColor: isSelected ? color : `${color}cc`,
+          color: "#FFFFFF",
+          padding: "2px 8px",
+          borderRadius: "10px",
+          fontSize: "10px",
+          fontWeight: 600,
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          whiteSpace: "nowrap",
+          opacity: visible ? 1 : 0,
+          transition: "opacity 200ms ease",
+          boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+          border: isSelected ? "2px solid #FFFFFF" : "none",
+        }}
+      >
+        {name}
+      </div>
+    </Html>
   );
 }
 
@@ -262,6 +373,26 @@ export function AgentModel({
       groupRef.current.position.z = startPosition[2] + (targetPosition[2] - startPosition[2]) * eased;
       const bob = Math.sin(elapsedRef.current * Math.PI * 4) * 0.05;
       groupRef.current.position.y = bob;
+    } else if (currentAnimState === "patrol") {
+      const path = idlePath;
+      const idx = idlePathRef.current.index;
+      const nextIdx = (idx + 1) % path.length;
+      const t = idlePathRef.current.t;
+
+      const current = path[idx];
+      const next = path[nextIdx];
+
+      groupRef.current.position.x = current[0] + (next[0] - current[0]) * t;
+      groupRef.current.position.z = current[2] + (next[2] - current[2]) * t;
+
+      const bob = getAnimationBob("patrol", elapsedRef.current);
+      groupRef.current.position.y = bob;
+
+      idlePathRef.current.t += delta * 0.8;
+      if (idlePathRef.current.t >= 1) {
+        idlePathRef.current.t = 0;
+        idlePathRef.current.index = nextIdx;
+      }
     } else if (currentAnimState === "idle") {
       const path = idlePath;
       const idx = idlePathRef.current.index;
@@ -277,7 +408,7 @@ export function AgentModel({
       const bob = getAnimationBob("idle", elapsedRef.current);
       groupRef.current.position.y = bob;
 
-      idlePathRef.current.t += delta * 0.3;
+      idlePathRef.current.t += delta * 0.15;
       if (idlePathRef.current.t >= 1) {
         idlePathRef.current.t = 0;
         idlePathRef.current.index = nextIdx;
@@ -324,11 +455,13 @@ export function AgentModel({
           <meshStandardMaterial color={isAway ? "#6B7280" : agent.color} />
         </mesh>
         <AgentFace state={currentAnimState} />
-        <TypingArms state={currentAnimState} />
+        <AgentArms state={currentAnimState} walkProgress={walkProgressRef.current} />
       </group>
       {isError && <ErrorGlow color={agent.color} />}
+      {isAway && <AwayZZZ color={agent.color} />}
       {isSelected && <SelectionRing />}
       {agent.hasActiveRun && <ActiveRunRing />}
+      <NameBadge name={agent.name} color={agent.color} isSelected={isSelected} />
     </group>
   );
 }

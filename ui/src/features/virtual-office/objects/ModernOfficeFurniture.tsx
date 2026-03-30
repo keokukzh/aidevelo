@@ -1,5 +1,6 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
+import { Html } from "@react-three/drei";
 import * as THREE from "three";
 
 interface FurnitureProps {
@@ -265,6 +266,88 @@ function Window({ theme }: { theme?: "dark" | "light" }) {
   );
 }
 
+function WallClock({ theme }: { theme?: "dark" | "light" }) {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const hours = time.getHours().toString().padStart(2, "0");
+  const minutes = time.getMinutes().toString().padStart(2, "0");
+
+  return (
+    <Html position={[-4, 3.8, -5.85]} center>
+      <div style={{
+        backgroundColor: theme === "dark" ? "#1F2937" : "#374151",
+        color: "#10B981",
+        padding: "8px 16px",
+        borderRadius: "8px",
+        fontFamily: "monospace",
+        fontSize: "28px",
+        fontWeight: "bold",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+        border: "1px solid #374151",
+      }}>
+        {hours}:{minutes}
+      </div>
+    </Html>
+  );
+}
+
+function WhiteboardAnimation() {
+  const bar1Ref = useRef<THREE.Group>(null);
+  const bar2Ref = useRef<THREE.Group>(null);
+  const bar3Ref = useRef<THREE.Group>(null);
+  const arrowRef = useRef<THREE.Mesh>(null);
+
+  useFrame(() => {
+    const t = Date.now() * 0.001;
+    if (bar1Ref.current) {
+      bar1Ref.current.scale.y = 0.5 + Math.sin(t * 0.8) * 0.15 + 0.35;
+    }
+    if (bar2Ref.current) {
+      bar2Ref.current.scale.y = 0.7 + Math.sin(t * 0.8 + 1) * 0.15 + 0.35;
+    }
+    if (bar3Ref.current) {
+      bar3Ref.current.scale.y = 0.4 + Math.sin(t * 0.8 + 2) * 0.15 + 0.35;
+    }
+    if (arrowRef.current) {
+      arrowRef.current.position.x = Math.sin(t * 0.5) * 0.3;
+    }
+  });
+
+  return (
+    <group position={[0, -0.2, 0.02]}>
+      {/* Bar chart */}
+      <group ref={bar1Ref} position={[-0.8, 0.15, 0]}>
+        <mesh>
+          <boxGeometry args={[0.25, 0.5, 0.01]} />
+          <meshStandardMaterial color="#3B82F6" emissive="#3B82F6" emissiveIntensity={0.1} />
+        </mesh>
+      </group>
+      <group ref={bar2Ref} position={[0, 0.15, 0]}>
+        <mesh>
+          <boxGeometry args={[0.25, 0.7, 0.01]} />
+          <meshStandardMaterial color="#10B981" emissive="#10B981" emissiveIntensity={0.1} />
+        </mesh>
+      </group>
+      <group ref={bar3Ref} position={[0.8, 0.15, 0]}>
+        <mesh>
+          <boxGeometry args={[0.25, 0.4, 0.01]} />
+          <meshStandardMaterial color="#F59E0B" emissive="#F59E0B" emissiveIntensity={0.1} />
+        </mesh>
+      </group>
+      {/* Moving arrow */}
+      <mesh ref={arrowRef} position={[0, -0.3, 0]}>
+        <boxGeometry args={[0.4, 0.02, 0.01]} />
+        <meshStandardMaterial color="#1F2937" />
+      </mesh>
+    </group>
+  );
+}
+
 function Plant({ position }: { position: [number, number, number] }) {
   return (
     <group position={position}>
@@ -302,6 +385,7 @@ function WallDecor({ theme }: { theme?: "dark" | "light" }) {
           <boxGeometry args={[3.05, 1.85, 0.01]} />
           <meshStandardMaterial color="#374151" metalness={0.3} roughness={0.7} />
         </mesh>
+        <WhiteboardAnimation />
         {/* Whiteboard markers */}
         <mesh position={[-1.2, -0.7, 0.02]} rotation={[0, 0, Math.PI / 2]}>
           <cylinderGeometry args={[0.02, 0.02, 0.15, 8]} />
@@ -350,6 +434,7 @@ function WallDecor({ theme }: { theme?: "dark" | "light" }) {
           <meshStandardMaterial color="#064E3B" roughness={0.9} />
         </mesh>
       </group>
+      <WallClock theme={theme} />
     </group>
   );
 }

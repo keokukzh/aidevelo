@@ -59,17 +59,14 @@ Write-Host ""
 Write-Host "[4/4] Starting AIDEVELO server on port $ServerPort..." -ForegroundColor Yellow
 Write-Host ""
 
-Set-Location "$ProjectRoot\server"
+$serverDir = "$ProjectRoot\server"
 
-# Use npm exec to ensure correct pnpm version
-$npmCmd = "npm exec -- tsx src/index.ts"
-
-# Start in background
-$serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "cd /d `"$ProjectRoot\server`" && npm exec -- tsx src/index.ts" -NoNewWindow -PassThru -WindowStyle Normal
+# Start in background using cmd.exe with semicolon (PowerShell compatible)
+$serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c","cd /d `"$serverDir`" && npm exec -- tsx src/index.ts" -WorkingDirectory $serverDir -NoNewWindow -PassThru -WindowStyle Hidden
 
 # Wait for server to start
 Write-Host "  Server starting (PID: $($serverProcess.Id))..." -ForegroundColor Cyan
-Start-Sleep -Seconds 8
+Start-Sleep -Seconds 10
 
 # Check if server is running
 $healthCheck = try {
