@@ -1,0 +1,270 @@
+# Virtual Office 3D — Design
+
+**Date:** 2026-03-30
+**Status:** Draft
+**Parent plan:** `virtualofficeplan.md`
+
+---
+
+## Context
+
+AIDEVELO users have no visual way to see their AI agents "at work" — the dashboard shows metrics and text-based activity logs. Adding a 3D Virtual Office powered by Three.js + React Three Fiber gives users a live, interactive view of their agents in a retro office environment. Agents animate based on real-time status via the existing WebSocket/React Query event system.
+
+**Source:** Clone and extract from `https://github.com/iamlukethedev/Claw3D.git` — retro office 3D scene, agent models, and furniture.
+
+---
+
+## Architecture
+
+```
+Dashboard.tsx
+  └─ <Suspense> (lazy-loaded, zero impact on initial load)
+       └─ VirtualOfficeCard (collapsed preview OR expanded dialog)
+             ├─ useOfficeAgents() hook ── React Query (agents + liveRuns)
+             │      ↑ auto-invalidated by LiveUpdatesProvider via WebSocket
+             └─ RetroOfficeScene (R3F Canvas)
+                  ├─ AgentModel[] (from Claw3D agents.tsx)
+                  ├─ OfficeFurniture (from Claw3D primitives.tsx)
+                  └─ CameraLighting (from Claw3D cameraLighting.tsx)
+```
+
+**Selective extraction** from Claw3D — only the 3D rendering layer, no Next.js/Phaser.
+**Radix Dialog overlay** for expanded view (consistent with existing modals).
+**Lazy-loaded vendor chunk** for Three.js (~600KB isolated).
+**Mobile: 2D fallback** — no Three.js loaded on `isMobile`.
+**No new WebSocket code** — piggybacks on existing React Query invalidation.
+
+---
+
+## File Structure
+
+```
+ui/src/features/virtual-office/
+  core/
+    types.ts              — OfficeAgent type, state enums
+    constants.ts          — Scale, timing, color constants
+    geometry.ts           — Coordinate transforms (from Claw3D)
+    mapAgentState.ts      — AIDEVELO Agent → OfficeAgent mapper
+  objects/
+    AgentModel.tsx        — 3D agent model + animations (from Claw3D agents.tsx)
+    OfficeFurniture.tsx  — Desks, chairs, instanced geometry (from Claw3D primitives.tsx)
+  systems/
+    CameraLighting.tsx    — OrbitControls + DayNight lighting (from Claw3D)
+  scenes/
+    RetroOfficeScene.tsx  — Main R3F Canvas scene (adapted RetroOffice3D.tsx)
+  components/
+    VirtualOfficeCard.tsx      — Dashboard card (preview + dialog trigger)
+    VirtualOfficeDialog.tsx    — Expanded fullscreen dialog
+    VirtualOfficeFallback.tsx  — 2D mobile fallback grid
+  hooks/
+    useOfficeAgents.ts    — React Query → OfficeAgent[] bridge
+  index.ts                — Barrel export for lazy loading
+```
+
+**Files to Modify:**
+
+| File | Change |
+|------|--------|
+| `ui/package.json` | Add `three`, `@react-three/fiber`, `@react-three/drei`, `@types/three` |
+| `ui/vite.config.ts` | Add `"vendor-three"` manual chunk |
+| `ui/src/pages/Dashboard.tsx` | Insert lazy `<VirtualOfficeCard>` between ActiveAgentsPanel and metrics |
+
+---
+
+## Agent State Mapping
+
+| AIDEVELO Status | 3D State | Visual |
+|----------------|----------|--------|
+| `running` (live run active) | `working` | Sitting at desk, typing animation |
+| `active` (no live run) | `standing` | Standing near desk |
+| `idle` | `walking` | Walking around office |
+| `paused` | `away` | Frozen/grayed out at desk |
+| `error` | `error` | Red pulsing glow |
+| `pending_approval` | `standing` | Standing with yellow indicator |
+| `terminated` | *(excluded)* | Not rendered |
+
+---
+
+## Desk Assignment — Role-Based Layout
+
+Desks are positioned in distinct zones by agent role:
+
+| Role | Desk Position |
+|------|--------------|
+| `ceo` | Corner office / premium desk near window |
+| `cto` / `cpo` / `head_of` | Semi-private area adjacent to CEO zone |
+| `engineer` / `developer` | Open-plan area with standard desk grid |
+| `designer` | Open-plan near engineering |
+| `default` | Remaining available desks |
+
+Desk index assignment: filter terminated agents → sort by role priority → assign desks by zone. Walking agents animate freely in common areas rather than occupying desks.
+
+---
+
+## Claw3D Extraction
+
+**Source**: `https://github.com/iamlukethedev/Claw3D.git`
+
+1. **RetroOfficeScene** ← adapted from `src/features/retro-office/RetroOffice3D.tsx`
+   - Strip from 60+ props to ~10:
+     ```ts
+     interface RetroOfficeSceneProps {
+       agents: OfficeAgent[];
+       onAgentClick?: (agentId: string) => void;
+       quality?: "low" | "medium" | "high";
+       maxFps?: number;
+     }
+     ```
+   - Remove all Next.js imports, Phaser references, upstream gateway code
+
+2. **AgentModel** ← from `src/features/retro-office/objects/agents.tsx`
+   - Use Claw3D's existing agent avatars (humanoid or geometric as Claw3D provides)
+   - Add: `error` state with red pulsing glow overlay
+   - Map `OfficeAgent.state` → animation trigger
+
+3. **OfficeFurniture** ← from `src/features/retro-office/objects/primitives.tsx`
+   - Keep: desks, chairs, walls (instanced geometry)
+   - Theme-aware materials: dark mode = darker furniture, light mode = lighter
+
+4. **CameraLighting** ← from `src/features/retro-office/systems/cameraLighting.tsx`
+   - Keep: OrbitControls, DayNight cycle
+   - Theme-aware: dark mode = night scene + neon accents, light mode = day scene
+
+---
+
+## Dashboard Integration
+
+### VirtualOfficeCard (collapsed)
+- Lightweight animated silhouette of the office — single R3F canvas at **10fps**
+- Agent count badge overlaid
+- "View Office" button
+- `IntersectionObserver` gating (same pattern as `LightRays.tsx:117-134`)
+- Click → sets `expanded=true` → opens `VirtualOfficeDialog`
+- Persists collapsed/hidden state in `localStorage` key `aidevelo:virtual-office-visible`
+
+### VirtualOfficeDialog (expanded)
+- Uses existing Radix `<Dialog>` + `<DialogContent>` from `ui/src/components/ui/dialog.tsx`
+- `max-w-[95vw] h-[85vh] p-0` — near-fullscreen
+- Contains `<RetroOfficeScene quality="high" maxFps={30} />`
+- `onAgentClick` → navigate to `/agents/{agentId}` via `useNavigate()`
+- Keyboard: Escape closes, arrows cycle agents, Enter selects
+
+### VirtualOfficeFallback (mobile)
+- Simple 2D grid of agent status cards (no Three.js loaded)
+- Uses `useSidebar().isMobile` to gate
+
+---
+
+## Data Hook
+
+```ts
+export function useOfficeAgents(companyId: string | null) {
+  const { data: agents } = useQuery({...queryKeys.agents.list...});
+  const { data: liveRuns } = useQuery({...queryKeys.liveRuns...});
+
+  return useMemo(() => {
+    // Filter terminated, map via mapAgentToOfficeState, assign desk indices by role
+  }, [agents, liveRuns]);
+}
+```
+
+**Key insight:** `LiveUpdatesProvider` already invalidates `agents.list` and `liveRuns` queries on WebSocket events. Zero additional WebSocket work — the 3D scene auto-updates via React Query re-renders.
+
+---
+
+## Phase 1: Foundation — Dependencies & Types
+1. Install deps: `three@^0.183.2`, `@react-three/fiber@^9.5.0`, `@react-three/drei@^10.7.7`, `@types/three@^0.183.0`
+2. Add `vendor-three` manual chunk to `vite.config.ts`
+3. Create `core/types.ts`, `core/constants.ts`, `core/geometry.ts`
+4. Create `core/mapAgentState.ts` — role-based desk assignment included
+
+**Verify:** `pnpm build` — Three.js chunk is separate, main bundle unaffected.
+
+---
+
+## Phase 2: Claw3D Scene Extraction (parallel with Phase 3)
+1. Clone Claw3D repo
+2. Extract and adapt `RetroOfficeScene`, `AgentModel`, `OfficeFurniture`, `CameraLighting`
+3. Strip Next.js/Phaser code, reduce prop surfaces
+
+**Verify:** Render with mock data — agents animate, camera controls work.
+
+---
+
+## Phase 3: Data Hook (parallel with Phase 2)
+1. Create `hooks/useOfficeAgents.ts` — React Query → `OfficeAgent[]` bridge
+2. Verify: log `officeAgents`, change agent status, confirm update within ~1s
+
+---
+
+## Phase 4: Dashboard Integration Components
+1. `VirtualOfficeCard` — collapsed preview card with animated silhouette
+2. `VirtualOfficeDialog` — fullscreen Radix Dialog with scene
+3. `VirtualOfficeFallback` — 2D mobile grid
+4. Barrel `index.ts` for lazy import
+
+**Verify:** Desktop: preview card → expand → click agent → navigates. Mobile: 2D fallback.
+
+---
+
+## Phase 5: Wire into Dashboard
+```tsx
+const VirtualOfficeCard = lazy(() =>
+  import("@/features/virtual-office").then(m => ({ default: m.VirtualOfficeCard }))
+);
+// JSX: between ActiveAgentsPanel and metrics grid
+<Suspense fallback={null}>
+  <VirtualOfficeCard companyId={selectedCompanyId!} />
+</Suspense>
+```
+
+**Verify:** Full flow works end-to-end.
+
+---
+
+## Phase 6: Theme & Polish
+- Dark mode → night scene + neon accents matching `--primary` OKLch token
+- Light mode → day scene + natural lighting
+- Role-based agent colors (CEO=gold, CTO=cyan, Engineer=green, etc.)
+- WebGL cleanup following `LightRays.tsx:323-338` pattern
+- Persist `localStorage` preference
+
+---
+
+## Phase 7: Performance & Edge Cases
+- **0 agents** → empty office + "No agents yet" overlay
+- **50+ agents** → instanced rendering keeps FPS ≥ 30
+- **WebGL cleanup** → `WEBGL_lose_context`, disposal on unmount
+- **Low-end** → `quality="low"` disables shadows, caps DPR at 1x
+
+---
+
+## Verification Checklist
+
+- [ ] `pnpm build` succeeds, `vendor-three` chunk is separate (~600KB)
+- [ ] Dashboard loads without regression
+- [ ] 3D preview card renders on desktop after lazy load
+- [ ] Clicking "View Office" opens fullscreen dialog
+- [ ] Agents animate correctly per status mapping
+- [ ] Role-based desk assignment works (CEO at corner, engineers in open plan)
+- [ ] Changing agent status via API → 3D scene updates in real-time
+- [ ] Clicking agent in 3D → navigates to agent detail page
+- [ ] Mobile shows 2D fallback, no Three.js loaded
+- [ ] Theme toggle updates scene lighting
+- [ ] Dialog close properly disposes WebGL context
+- [ ] Collapsed/hidden preference persists across page reloads
+
+---
+
+## Reuse Existing Patterns
+
+| Pattern | Source | Reuse In |
+|---------|--------|----------|
+| Lazy page loading | `App.tsx:31-53` | VirtualOfficeCard import |
+| IntersectionObserver gating | `LightRays.tsx:117-134` | Preview canvas visibility |
+| WebGL cleanup | `LightRays.tsx:323-338` | Scene disposal |
+| Radix Dialog | `NewIssueDialog.tsx:22-24` | VirtualOfficeDialog |
+| React Query agents | `Dashboard.tsx:43-81` | useOfficeAgents hook |
+| Mobile detection | `SidebarContext` (`isMobile`) | 3D vs 2D fallback gate |
+| Theme consumption | `ThemeContext` (`useTheme()`) | Scene lighting |
+| Vendor chunk splitting | `vite.config.ts` manualChunks | vendor-three chunk |
