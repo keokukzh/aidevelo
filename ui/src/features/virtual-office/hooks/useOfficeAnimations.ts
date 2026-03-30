@@ -1,6 +1,7 @@
 import { useMemo, useRef } from "react";
 import type { OfficeAgent, OfficeAgentState } from "../core/types";
 import { deskIndexToWorld, walkingPathForAgent } from "../core/geometry";
+import { derivePersonality } from "../core/personality";
 
 export type AgentAnimationState = "idle" | "walking" | "sitting" | "standing" | "patrol";
 
@@ -14,6 +15,10 @@ export interface AnimationEntry {
   isWalking: boolean;
   idlePathIndex: number;
   isPatrol: boolean;
+  personality: {
+    walkSpeed: number;
+    bobAmplitude: number;
+  };
 }
 
 export const ANIM = {
@@ -93,7 +98,8 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
       if (prevState !== undefined && (prevState !== agent.state || prevDeskIndex !== agent.deskIndex)) {
         const fromPos = prevWorldPos;
         const prevAnim = prev?.animState ?? "idle";
-        
+        const personality = derivePersonality(agent.id);
+
         if (isPatrol && currentAnimState === "idle") {
           states.set(agent.id, {
             agentId: agent.id,
@@ -105,6 +111,10 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
             isWalking: true,
             idlePathIndex,
             isPatrol: true,
+            personality: {
+              walkSpeed: personality.walkSpeed,
+              bobAmplitude: personality.bobAmplitude,
+            },
           });
         } else {
           states.set(agent.id, {
@@ -117,6 +127,10 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
             isWalking: true,
             idlePathIndex,
             isPatrol: false,
+            personality: {
+              walkSpeed: personality.walkSpeed,
+              bobAmplitude: personality.bobAmplitude,
+            },
           });
         }
       } else {
@@ -128,6 +142,7 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
               state: "patrol",
               isWalking: true,
               isPatrol: true,
+              personality: existing.personality,
             });
           } else {
             states.set(agent.id, {
@@ -135,9 +150,11 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
               state: currentAnimState,
               isWalking: existing.progress < 1 || isPatrol,
               isPatrol,
+              personality: existing.personality,
             });
           }
         } else {
+          const personality = derivePersonality(agent.id);
           states.set(agent.id, {
             agentId: agent.id,
             state: isPatrol ? "patrol" : currentAnimState,
@@ -148,6 +165,10 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
             isWalking: false,
             idlePathIndex,
             isPatrol,
+            personality: {
+              walkSpeed: personality.walkSpeed,
+              bobAmplitude: personality.bobAmplitude,
+            },
           });
         }
       }
