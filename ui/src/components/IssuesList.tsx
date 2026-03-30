@@ -634,10 +634,10 @@ export function IssuesList({
       ) : (
         groupedContent.map((group) => {
           const isUngrouped = group.key === "__all";
-          const useVirtual = isUngrouped && group.items.length > 50;
+          const enableVirtual = isUngrouped && group.items.length > 50;
 
           // Virtual list for ungrouped views with >50 items
-          const virtualizer = useVirtual({
+          const virtualizer = useVirtualizer({
             count: group.items.length,
             getScrollElement: () => listContainerRef.current,
             estimateSize: () => 56,
@@ -675,7 +675,7 @@ export function IssuesList({
                 </div>
               )}
               <CollapsibleContent>
-                {useVirtual ? (
+                {enableVirtual ? (
                   <div
                     ref={listContainerRef}
                     className="overflow-auto"
