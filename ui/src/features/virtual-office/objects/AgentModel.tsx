@@ -360,6 +360,7 @@ export function AgentModel({
   const elapsedRef = useRef(0);
   const walkProgressRef = useRef(0);
   const idlePathRef = useRef({ index: 0, t: 0 });
+  const bodyRef = useRef<THREE.Group>(null);
 
   const isError = agent.state === "error";
   const isAway = agent.state === "away";
@@ -444,6 +445,13 @@ export function AgentModel({
       const shake = Math.sin(Date.now() * 0.03) * 0.03;
       groupRef.current.position.x += shake;
     }
+
+    // Apply breathing to body group Y scale (subtle chest expansion)
+    if (bodyRef.current) {
+      const breatheCycle = Math.sin(elapsedRef.current * Math.PI * 0.5); // ~4 second cycle
+      const breatheScale = 1 + breatheCycle * 0.015; // ±1.5% chest expansion
+      bodyRef.current.scale.y = breatheScale;
+    }
   });
 
   const handleClick = useCallback(
@@ -461,7 +469,7 @@ export function AgentModel({
       onClick={handleClick}
     >
       <AgentShadow />
-      <group>
+      <group ref={bodyRef}>
         <mesh position={[0, 0.6, 0]} castShadow>
           <capsuleGeometry args={[0.2, 0.5, 4, 8]} />
           <meshStandardMaterial color={isAway ? "#6B7280" : agent.color} />
