@@ -44,22 +44,24 @@ function getTargetPosition(deskIndex: number): [number, number, number] {
 }
 
 export function useOfficeAnimations(agents: OfficeAgent[]) {
-  // Ref to store previous states for transition detection
-  const prevStatesRef = useRef<Map<string, OfficeAgentState>>(new Map());
+  // Ref to store previous states and desk indices for transition detection
+  const prevStatesRef = useRef<Map<string, { state: OfficeAgentState; deskIndex: number }>>(new Map());
 
   const animationStates = useMemo(() => {
     const states = new Map<string, AnimationEntry>();
 
     for (const agent of agents) {
-      const prevState = prevStatesRef.current.get(agent.id);
+      const prev = prevStatesRef.current.get(agent.id);
+      const prevState = prev?.state;
+      const prevDeskIndex = prev?.deskIndex;
       const currentAnimState = stateToAnimation(agent.state, agent.deskIndex);
       const targetPos = getTargetPosition(agent.deskIndex);
 
       // Detect state transitions
-      if (prevState !== agent.state) {
-        // State changed - trigger transition
-        const fromPos = prevState
-          ? getTargetPosition(agent.deskIndex)
+      if (prevState !== undefined && prevState !== agent.state) {
+        // State changed - trigger transition with proper fromPosition
+        const fromPos = prevDeskIndex !== undefined
+          ? getTargetPosition(prevDeskIndex)
           : targetPos;
 
         states.set(agent.id, {
@@ -70,10 +72,8 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
           fromPosition: fromPos,
           toPosition: targetPos,
         });
-
-        prevStatesRef.current.set(agent.id, agent.state);
       } else {
-        // No state change - continue current animation
+        // No state change - continue current animation or initialize
         const existing = states.get(agent.id);
         if (existing) {
           // Update with current data but keep animating
@@ -93,6 +93,9 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
           });
         }
       }
+
+      // Update ref AFTER processing to ensure proper transition detection
+      prevStatesRef.current.set(agent.id, { state: agent.state, deskIndex: agent.deskIndex });
     }
 
     return states;

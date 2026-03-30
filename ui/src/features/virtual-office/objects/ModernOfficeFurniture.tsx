@@ -139,6 +139,7 @@ function ModernChair({ position, theme }: { position: [number, number, number]; 
 
 function Floor({ theme }: { theme?: "dark" | "light" }) {
   const color = COLORS[theme ?? "dark"].floor;
+  const gridIndices = Array.from({ length: 13 }, (_, i) => i - 6);
 
   return (
     <group>
@@ -147,15 +148,15 @@ function Floor({ theme }: { theme?: "dark" | "light" }) {
         <planeGeometry args={[30, 30]} />
         <meshStandardMaterial color={color} roughness={0.9} metalness={0.0} />
       </mesh>
-      {/* Subtle grid lines */}
-      {Array.from({ length: 13 }, (_, i) => i - 6).map((x) => (
-        <mesh key={`grid-x-${x}`} position={[x * 2.5, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      {/* Grid lines - no receiveShadow for performance */}
+      {gridIndices.map((i) => (
+        <mesh key={`grid-x-${i}`} position={[i * 2.5, 0.001, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[0.02, 30]} />
           <meshBasicMaterial color="#D1D5DB" transparent opacity={0.3} />
         </mesh>
       ))}
-      {Array.from({ length: 13 }, (_, i) => i - 6).map((z) => (
-        <mesh key={`grid-z-${z}`} position={[0, 0.001, z * 2.5]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      {gridIndices.map((i) => (
+        <mesh key={`grid-z-${i}`} position={[0, 0.001, i * 2.5]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[30, 0.02]} />
           <meshBasicMaterial color="#D1D5DB" transparent opacity={0.3} />
         </mesh>
@@ -235,4 +236,5 @@ export function ModernOfficeFurniture({ theme = "dark" }: FurnitureProps) {
 }
 
 // Re-export for backwards compatibility
+import { OfficeFurniture } from "./OfficeFurniture";
 export { OfficeFurniture as ModernOfficeFurnitureAlias };

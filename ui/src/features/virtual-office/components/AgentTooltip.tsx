@@ -28,7 +28,7 @@ export function AgentTooltip({ agent, position, activeTask }: AgentTooltipProps)
     ? activeTask
     : agent.state === "working"
     ? "Working"
-    : agent.state === "idle" || agent.state === "standing"
+    : agent.state === "standing"
     ? "Available"
     : agent.state === "away"
     ? "Away"

@@ -16,13 +16,12 @@ interface AgentModelProps {
 function AgentBody({
   color,
   animState,
-  elapsed,
 }: {
   color: string;
   animState: "idle" | "walking" | "sitting" | "standing";
-  elapsed: number;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const elapsedRef = useRef(0);
   const positionRef = useRef(new THREE.Vector3(0, 0, 0));
   const [startPos] = useState(() => new THREE.Vector3(0, 0, 0));
   const [targetPos] = useState(() => new THREE.Vector3(0, 0, 0));
@@ -31,13 +30,17 @@ function AgentBody({
   useFrame((_, delta) => {
     if (!groupRef.current) return;
 
+    // Increment elapsed time for bob animations
+    elapsedRef.current += delta;
+
     if (animState === "walking" && progressRef.current < 1) {
       // Lerp position
       progressRef.current = Math.min(1, progressRef.current + delta / ANIM.WALK_DURATION);
       positionRef.current.lerpVectors(startPos, targetPos, progressRef.current);
+      groupRef.current.position.y = positionRef.current.y;
     } else if (animState === "idle" || animState === "sitting") {
-      // Bob animation
-      const bob = getAnimationBob(animState, elapsed);
+      // Bob animation using updated elapsed time
+      const bob = getAnimationBob(animState, elapsedRef.current);
       groupRef.current.position.y = bob;
     } else {
       groupRef.current.position.y = 0;
@@ -95,6 +98,15 @@ function SelectionRing() {
   );
 }
 
+function AgentShadow() {
+  return (
+    <mesh position={[0, 0.005, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+      <circleGeometry args={[0.35, 16]} />
+      <meshBasicMaterial color="#000000" transparent opacity={0.15} />
+    </mesh>
+  );
+}
+
 export function AgentModel({
   agent,
   animState = "idle",
@@ -104,7 +116,6 @@ export function AgentModel({
   onClick,
 }: AgentModelProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const elapsedRef = useRef(0);
   const isError = agent.state === "error";
   const isAway = agent.state === "away";
 
@@ -130,10 +141,10 @@ export function AgentModel({
       position={[initX, initY, initZ]}
       onClick={handleClick}
     >
+      <AgentShadow />
       <AgentBody
         color={isAway ? "#6B7280" : agent.color}
         animState={animState}
-        elapsed={elapsedRef.current}
       />
       {isError && <ErrorGlow color={agent.color} />}
       {isSelected && <SelectionRing />}
