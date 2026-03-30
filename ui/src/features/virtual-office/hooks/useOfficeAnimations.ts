@@ -1,19 +1,20 @@
 import { useMemo, useRef } from "react";
 import type { OfficeAgent, OfficeAgentState } from "../core/types";
-import { deskIndexToWorld } from "../core/geometry";
+import { deskIndexToWorld, walkingPathForAgent } from "../core/geometry";
 
 export type AgentAnimationState = "idle" | "walking" | "sitting" | "standing";
 
-interface AnimationEntry {
+export interface AnimationEntry {
   agentId: string;
   state: AgentAnimationState;
   previousState: AgentAnimationState;
   progress: number;
   fromPosition: [number, number, number];
   toPosition: [number, number, number];
+  isWalking: boolean;
+  idlePathIndex: number;
 }
 
-// Animation timing constants (in seconds)
 export const ANIM = {
   WALK_DURATION: 0.8,
   SIT_DELAY: 0.4,
@@ -23,7 +24,6 @@ export const ANIM = {
 
 function stateToAnimation(
   agentState: OfficeAgentState,
-  deskIndex: number
 ): AgentAnimationState {
   switch (agentState) {
     case "working":
@@ -44,8 +44,8 @@ function getTargetPosition(deskIndex: number): [number, number, number] {
 }
 
 export function useOfficeAnimations(agents: OfficeAgent[]) {
-  // Ref to store previous states and desk indices for transition detection
-  const prevStatesRef = useRef<Map<string, { state: OfficeAgentState; deskIndex: number }>>(new Map());
+  const prevStatesRef = useRef<Map<string, { state: OfficeAgentState; deskIndex: number; worldPos: [number, number, number]; animState: AgentAnimationState }>>(new Map());
+  const idlePathProgressRef = useRef<Map<string, number>>(new Map());
 
   const animationStates = useMemo(() => {
     const states = new Map<string, AnimationEntry>();
@@ -54,35 +54,37 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
       const prev = prevStatesRef.current.get(agent.id);
       const prevState = prev?.state;
       const prevDeskIndex = prev?.deskIndex;
-      const currentAnimState = stateToAnimation(agent.state, agent.deskIndex);
+      const prevWorldPos = prev?.worldPos ?? getTargetPosition(agent.deskIndex);
+      const currentAnimState = stateToAnimation(agent.state);
       const targetPos = getTargetPosition(agent.deskIndex);
 
-      // Detect state transitions
-      if (prevState !== undefined && prevState !== agent.state) {
-        // State changed - trigger transition with proper fromPosition
-        const fromPos = prevDeskIndex !== undefined
-          ? getTargetPosition(prevDeskIndex)
-          : targetPos;
+      let isWalking = false;
+      let idlePathIndex = idlePathProgressRef.current.get(agent.id) ?? 0;
+
+      if (prevState !== undefined && (prevState !== agent.state || prevDeskIndex !== agent.deskIndex)) {
+        const fromPos = prevWorldPos;
+        const prevAnim = prev?.animState ?? "idle";
+        isWalking = true;
 
         states.set(agent.id, {
           agentId: agent.id,
-          state: currentAnimState,
-          previousState: currentAnimState,
+          state: "walking",
+          previousState: prevAnim,
           progress: 0,
           fromPosition: fromPos,
           toPosition: targetPos,
+          isWalking: true,
+          idlePathIndex,
         });
       } else {
-        // No state change - continue current animation or initialize
         const existing = states.get(agent.id);
         if (existing) {
-          // Update with current data but keep animating
           states.set(agent.id, {
             ...existing,
             state: currentAnimState,
+            isWalking: existing.progress < 1,
           });
         } else {
-          // New agent or no animation needed
           states.set(agent.id, {
             agentId: agent.id,
             state: currentAnimState,
@@ -90,12 +92,33 @@ export function useOfficeAnimations(agents: OfficeAgent[]) {
             progress: 1,
             fromPosition: targetPos,
             toPosition: targetPos,
+            isWalking: false,
+            idlePathIndex,
           });
         }
       }
 
-      // Update ref AFTER processing to ensure proper transition detection
-      prevStatesRef.current.set(agent.id, { state: agent.state, deskIndex: agent.deskIndex });
+      if (currentAnimState === "idle") {
+        const path = walkingPathForAgent(agent.id);
+        const pathProgress = idlePathProgressRef.current.get(agent.id) ?? 0;
+        const nextIndex = pathProgress + 0.002;
+        idlePathProgressRef.current.set(agent.id, nextIndex % path.length);
+        const pathIdx = Math.floor(nextIndex) % path.length;
+        const pathPos = path[pathIdx];
+        const state = states.get(agent.id);
+        if (state) {
+          state.fromPosition = pathPos;
+          state.toPosition = pathPos;
+          state.idlePathIndex = pathIdx;
+        }
+      }
+
+      prevStatesRef.current.set(agent.id, { 
+        state: agent.state, 
+        deskIndex: agent.deskIndex,
+        worldPos: targetPos,
+        animState: currentAnimState,
+      });
     }
 
     return states;

@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { Suspense } from "react";
 import type { OfficeAgent } from "../core/types";
@@ -8,8 +8,10 @@ import { CameraLighting } from "../systems/CameraLighting";
 import { CameraController, CameraControllerHandle } from "../systems/CameraController";
 import { AgentTooltip } from "../components/AgentTooltip";
 import { PostProcessing } from "../systems/PostProcessing";
+import { AmbientParticles } from "../systems/AmbientParticles";
 import { FPS, QUALITY_DPR } from "../core/constants";
 import { deskIndexToWorld } from "../core/geometry";
+import { useOfficeAnimations } from "../hooks/useOfficeAnimations";
 
 interface RetroOfficeSceneProps {
   agents: OfficeAgent[];
@@ -34,8 +36,8 @@ function SceneContent({
   quality?: "low" | "medium" | "high";
 }) {
   const cameraControllerRef = useRef<CameraControllerHandle>(null);
-  const [hoveredAgentId, setHoveredAgentId] = useState<string | null>(null);
   const { camera } = useThree();
+  const { animationStates } = useOfficeAnimations(agents);
 
   // Fly-in animation on mount
   useEffect(() => {
@@ -83,12 +85,15 @@ function SceneContent({
       <CameraController ref={cameraControllerRef} />
       <CameraLighting theme={theme} />
       <ModernOfficeFurniture theme={theme} />
+      {quality !== "low" && <AmbientParticles />}
       {agents.map((agent) => {
         const pos = deskIndexToWorld(agent.deskIndex);
+        const animEntry = animationStates.get(agent.id);
         return (
           <group key={agent.id}>
             <AgentModel
               agent={agent}
+              animState={animEntry}
               isSelected={selectedAgentId === agent.id}
               onClick={handleAgentClick}
             />

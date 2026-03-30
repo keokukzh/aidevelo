@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
 interface FurnitureProps {
@@ -31,9 +32,24 @@ const COLORS = {
   },
 };
 
-function ModernDesk({ position, theme, index }: { position: [number, number, number]; theme?: "dark" | "light"; index: number }) {
+function ModernDesk({ position, theme, index, isHovered, isOccupied, hasActiveRun }: { 
+  position: [number, number, number]; 
+  theme?: "dark" | "light"; 
+  index: number;
+  isHovered?: boolean;
+  isOccupied?: boolean;
+  hasActiveRun?: boolean;
+}) {
   const colors = COLORS[theme ?? "dark"];
-  const hasLamp = index < 4; // First 4 desks get desk lamps
+  const hasLamp = index < 4;
+  const monitorGlowRef = useRef<THREE.Mesh>(null);
+
+  useFrame(() => {
+    if (monitorGlowRef.current && hasActiveRun) {
+      const mat = monitorGlowRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 0.4 + Math.sin(Date.now() * 0.01) * 0.2;
+    }
+  });
 
   return (
     <group position={position}>
@@ -64,9 +80,9 @@ function ModernDesk({ position, theme, index }: { position: [number, number, num
           <meshStandardMaterial color={colors.monitor} metalness={0.3} roughness={0.7} />
         </mesh>
         {/* Screen glow */}
-        <mesh position={[0, 0.1, 0.011]}>
+        <mesh ref={monitorGlowRef} position={[0, 0.1, 0.011]}>
           <planeGeometry args={[0.65, 0.4]} />
-          <meshStandardMaterial color={colors.monitorGlow} emissive={colors.monitorGlow} emissiveIntensity={0.4} />
+          <meshStandardMaterial color={colors.monitorGlow} emissive={colors.monitorGlow} emissiveIntensity={hasActiveRun ? 0.6 : 0.4} />
         </mesh>
       </group>
 
@@ -104,6 +120,16 @@ function ModernDesk({ position, theme, index }: { position: [number, number, num
           />
         </group>
       )}
+
+      {/* Coffee mug */}
+      <mesh position={[0.7, 0.77, 0.2]} castShadow>
+        <cylinderGeometry args={[0.04, 0.04, 0.08, 12]} />
+        <meshStandardMaterial color="#FFFFFF" roughness={0.6} />
+      </mesh>
+      <mesh position={[0.76, 0.77, 0.2]} rotation={[0, Math.PI / 2, 0]}>
+        <torusGeometry args={[0.03, 0.008, 8, 12, Math.PI]} />
+        <meshStandardMaterial color="#FFFFFF" roughness={0.6} />
+      </mesh>
     </group>
   );
 }
@@ -209,6 +235,125 @@ function CeilingLights({ theme }: { theme?: "dark" | "light" }) {
   );
 }
 
+function Window({ theme }: { theme?: "dark" | "light" }) {
+  return (
+    <group position={[8.9, 2.5, -1]}>
+      {/* Window frame */}
+      <mesh position={[0, 0, 0]}>
+        <boxGeometry args={[0.1, 3, 2.5]} />
+        <meshStandardMaterial color="#374151" metalness={0.3} roughness={0.7} />
+      </mesh>
+      {/* Glass pane */}
+      <mesh position={[-0.06, 0, 0]}>
+        <planeGeometry args={[2.3, 2.8]} />
+        <meshStandardMaterial color="#E0F4FF" emissive="#E0F4FF" emissiveIntensity={0.15} transparent opacity={0.8} />
+      </mesh>
+      {/* Window dividers */}
+      <mesh position={[-0.05, 0, 0]}>
+        <boxGeometry args={[0.02, 2.8, 0.05]} />
+        <meshStandardMaterial color="#374151" />
+      </mesh>
+      <mesh position={[-0.05, 0.7, 0]}>
+        <boxGeometry args={[2.3, 0.05, 0.05]} />
+        <meshStandardMaterial color="#374151" />
+      </mesh>
+      <mesh position={[-0.05, -0.7, 0]}>
+        <boxGeometry args={[2.3, 0.05, 0.05]} />
+        <meshStandardMaterial color="#374151" />
+      </mesh>
+    </group>
+  );
+}
+
+function Plant({ position }: { position: [number, number, number] }) {
+  return (
+    <group position={position}>
+      {/* Pot */}
+      <mesh position={[0, 0.1, 0]}>
+        <cylinderGeometry args={[0.12, 0.08, 0.2, 8]} />
+        <meshStandardMaterial color="#8B4513" roughness={0.9} />
+      </mesh>
+      {/* Stem */}
+      <mesh position={[0, 0.35, 0]}>
+        <cylinderGeometry args={[0.02, 0.02, 0.3, 6]} />
+        <meshStandardMaterial color="#228B22" roughness={0.8} />
+      </mesh>
+      {/* Leaves */}
+      {[0, 60, 120, 180, 240, 300].map((angle, i) => (
+        <mesh key={i} position={[Math.cos(angle * Math.PI / 180) * 0.1, 0.5 + i * 0.08, Math.sin(angle * Math.PI / 180) * 0.1]} rotation={[0.3, angle * Math.PI / 180, 0]}>
+          <sphereGeometry args={[0.12, 8, 8]} scale={[1, 0.3, 1]} />
+          <meshStandardMaterial color="#228B22" roughness={0.8} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+function WallDecor({ theme }: { theme?: "dark" | "light" }) {
+  return (
+    <group>
+      {/* Whiteboard on back wall */}
+      <group position={[0, 2.8, -5.88]}>
+        <mesh>
+          <boxGeometry args={[3, 1.8, 0.03]} />
+          <meshStandardMaterial color="#F5F5F5" roughness={0.9} />
+        </mesh>
+        <mesh position={[0, 0, -0.02]}>
+          <boxGeometry args={[3.05, 1.85, 0.01]} />
+          <meshStandardMaterial color="#374151" metalness={0.3} roughness={0.7} />
+        </mesh>
+        {/* Whiteboard markers */}
+        <mesh position={[-1.2, -0.7, 0.02]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.02, 0.02, 0.15, 8]} />
+          <meshStandardMaterial color="#EF4444" />
+        </mesh>
+        <mesh position={[-1.0, -0.7, 0.02]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.02, 0.02, 0.15, 8]} />
+          <meshStandardMaterial color="#3B82F6" />
+        </mesh>
+      </group>
+      {/* Pinboard on left wall */}
+      <group position={[-8.88, 2.5, -2]}>
+        <mesh>
+          <boxGeometry args={[0.05, 2, 2.5]} />
+          <meshStandardMaterial color="#8B4513" roughness={0.95} />
+        </mesh>
+        {/* Pinned notes */}
+        <mesh position={[0.04, 0.3, -0.5]}>
+          <boxGeometry args={[0.02, 0.3, 0.3]} />
+          <meshStandardMaterial color="#FEF3C7" roughness={0.9} />
+        </mesh>
+        <mesh position={[0.04, 0.3, 0.2]}>
+          <boxGeometry args={[0.02, 0.25, 0.25]} />
+          <meshStandardMaterial color="#DBEAFE" roughness={0.9} />
+        </mesh>
+        <mesh position={[0.04, -0.4, 0]}>
+          <boxGeometry args={[0.02, 0.2, 0.35]} />
+          <meshStandardMaterial color="#FCE7F3" roughness={0.9} />
+        </mesh>
+      </group>
+      {/* Poster 1 */}
+      <group position={[-5, 3, -5.88]}>
+        <mesh>
+          <boxGeometry args={[0.8, 0.6, 0.02]} />
+          <meshStandardMaterial color="#1E293B" roughness={0.9} />
+        </mesh>
+        <mesh position={[0, 0, 0.015]}>
+          <boxGeometry args={[0.7, 0.5, 0.01]} />
+          <meshStandardMaterial color="#0F172A" />
+        </mesh>
+      </group>
+      {/* Poster 2 */}
+      <group position={[5, 3.2, -5.88]}>
+        <mesh>
+          <boxGeometry args={[0.6, 0.8, 0.02]} />
+          <meshStandardMaterial color="#064E3B" roughness={0.9} />
+        </mesh>
+      </group>
+    </group>
+  );
+}
+
 export function ModernOfficeFurniture({ theme = "dark" }: FurnitureProps) {
   const desks = useMemo(() => {
     const result: [number, number, number][] = [];
@@ -225,6 +370,13 @@ export function ModernOfficeFurniture({ theme = "dark" }: FurnitureProps) {
       <Floor theme={theme} />
       <Walls theme={theme} />
       <CeilingLights theme={theme} />
+      <Window theme={theme} />
+      <WallDecor theme={theme} />
+      <Plant position={[-8, 0, -5]} />
+      <Plant position={[8, 0, -5]} />
+      <Plant position={[-8, 0, 3]} />
+      <Plant position={[8, 0, 3]} />
+      <Plant position={[0, 0, 5]} />
       {desks.map((pos, i) => (
         <ModernDesk key={i} position={pos} theme={theme} index={i} />
       ))}
