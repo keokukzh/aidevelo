@@ -96,10 +96,11 @@ function AgentShadow() {
   );
 }
 
-function AgentArms({ state, walkProgress, personality }: {
+function AgentArms({ state, walkProgress, personality, isActiveRun }: {
   state: string;
   walkProgress: number;
   personality?: { armSwingAmplitude: number; typeSpeed: number };
+  isActiveRun?: boolean;
 }) {
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
@@ -121,7 +122,8 @@ function AgentArms({ state, walkProgress, personality }: {
       }
     } else if (isTyping) {
       const typeSpd = personality?.typeSpeed ?? 1;
-      const oscillate = Math.sin(Date.now() * 0.008 * typeSpd) * 0.03;
+      const activeMultiplier = isActiveRun ? 1.2 : 1.0;
+      const oscillate = Math.sin(Date.now() * 0.008 * typeSpd * activeMultiplier) * 0.03;
       if (leftArmRef.current) {
         leftArmRef.current.rotation.x = -0.5 + oscillate;
         leftArmRef.current.position.z = 0.35 + oscillate;
@@ -479,7 +481,7 @@ export function AgentModel({
           <meshStandardMaterial color={isAway ? "#6B7280" : agent.color} />
         </mesh>
         <AgentFace state={currentAnimState} personality={personality} />
-        <AgentArms state={currentAnimState} walkProgress={walkProgressRef.current} personality={personality} />
+        <AgentArms state={currentAnimState} walkProgress={walkProgressRef.current} personality={personality} isActiveRun={agent.hasActiveRun} />
       </group>
       {isError && <ErrorGlow color={agent.color} />}
       {isAway && <AwayZZZ color={agent.color} />}
