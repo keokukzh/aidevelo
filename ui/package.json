@@ -10,11 +10,11 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@aideveloai/adapter-aidevelo-gateway": "workspace:*",
     "@aideveloai/adapter-claude-local": "workspace:*",
     "@aideveloai/adapter-codex-local": "workspace:*",
     "@aideveloai/adapter-cursor-local": "workspace:*",
     "@aideveloai/adapter-gemini-local": "workspace:*",
-    "@aideveloai/adapter-aidevelo-gateway": "workspace:*",
     "@aideveloai/adapter-opencode-local": "workspace:*",
     "@aideveloai/adapter-pi-local": "workspace:*",
     "@aideveloai/adapter-utils": "workspace:*",
@@ -26,6 +26,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.5.0",
+    "@react-three/postprocessing": "^3.0.4",
     "@tailwindcss/typography": "^0.5.19",
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-virtual": "^3.13.2",
@@ -36,6 +37,7 @@
     "lucide-react": "^0.574.0",
     "mermaid": "^11.12.0",
     "ogl": "^1.0.11",
+    "postprocessing": "^6.39.0",
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

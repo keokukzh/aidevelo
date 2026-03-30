@@ -1,4 +1,4 @@
-import { lazy, Suspense, useState, useEffect, useRef } from "react";
+import { lazy, Suspense, useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@/context/ThemeContext";
 import { useSidebar } from "@/context/SidebarContext";
@@ -15,6 +15,7 @@ interface VirtualOfficeCardProps {
 export function VirtualOfficeCard({ companyId }: VirtualOfficeCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
   const { theme } = useTheme();
   const { isMobile } = useSidebar();
   const { officeAgents } = useOfficeAgents({ companyId });
@@ -32,12 +33,34 @@ export function VirtualOfficeCard({ companyId }: VirtualOfficeCardProps) {
     return () => observer.disconnect();
   }, []);
 
+  // Handle Escape key when dialog is open
+  useEffect(() => {
+    if (!expanded) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedAgentId(null);
+        setExpanded(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [expanded]);
+
   const handleToggle = () => setExpanded((v) => !v);
-  const handleClose = () => setExpanded(false);
-  const handleAgentClick = (agentId: string) => {
+  const handleClose = useCallback(() => {
+    setSelectedAgentId(null);
     setExpanded(false);
-    navigate(`/agents/${agentId}`);
-  };
+  }, []);
+
+  const handleAgentClick = useCallback((agentId: string) => {
+    setSelectedAgentId(agentId);
+    // Small delay before navigation to allow selection to show
+    setTimeout(() => {
+      navigate(`/agents/${agentId}`);
+    }, 300);
+  }, [navigate]);
 
   if (isMobile) {
     return <VirtualOfficeFallback agents={officeAgents} />;
@@ -63,6 +86,7 @@ export function VirtualOfficeCard({ companyId }: VirtualOfficeCardProps) {
               theme={theme === "dark" ? "dark" : "light"}
               quality="low"
               maxFps={FPS.PREVIEW}
+              selectedAgentId={null}
             />
           </Suspense>
         )}
@@ -78,6 +102,7 @@ export function VirtualOfficeCard({ companyId }: VirtualOfficeCardProps) {
             theme={theme === "dark" ? "dark" : "light"}
             quality="high"
             maxFps={FPS.HIGH}
+            selectedAgentId={selectedAgentId}
             onAgentClick={handleAgentClick}
           />
         </DialogContent>

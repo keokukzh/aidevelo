@@ -24,6 +24,7 @@ import { Activity } from "./pages/Activity";
 import { AuthPage } from "./pages/Auth";
 import { BoardClaimPage } from "./pages/BoardClaim";
 import { InviteLandingPage } from "./pages/InviteLanding";
+import { Landing } from "./pages/Landing";
 import { NotFoundPage } from "./pages/NotFound";
 import { NewAgent } from "./pages/NewAgent";
 
@@ -312,6 +313,7 @@ export function App() {
         <Route path="auth" element={<AuthPage />} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />
+        <Route path="landing" element={<Landing />} />
 
         <Route element={<CloudAccessGate />}>
           <Route index element={<CompanyRootRedirect />} />
