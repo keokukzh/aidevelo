@@ -16,7 +16,7 @@ Write-Host "[1/4] Checking for processes on ports $ServerPort, $PostgresPort..."
 
 $ports = @($ServerPort, $PostgresPort)
 foreach ($port in $ports) {
-    $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue
+    $connections = Get-NetTCPConnection -LocalPort $port -ErrorAction SilentlyContinue | Where-Object { $_.OwningProcess -ne 0 }
     if ($connections) {
         foreach ($conn in $connections) {
             $process = Get-Process -Id $conn.OwningProcess -ErrorAction SilentlyContinue
@@ -54,18 +54,25 @@ if ($portsInUse) {
     Start-Sleep -Seconds 5
 }
 
-# Step 4: Start the server
+# Step 4: Start the server and UI
 Write-Host ""
-Write-Host "[4/4] Starting AIDEVELO server on port $ServerPort..." -ForegroundColor Yellow
+Write-Host "[4/4] Starting AIDEVELO server and UI..." -ForegroundColor Yellow
 Write-Host ""
 
 $serverDir = "$ProjectRoot\server"
+$uiDir = "$ProjectRoot\ui"
 
-# Start in background using cmd.exe with semicolon (PowerShell compatible)
-$serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/c","cd /d `"$serverDir`" && npm exec -- tsx src/index.ts" -WorkingDirectory $serverDir -NoNewWindow -PassThru -WindowStyle Hidden
+# Start server in hidden cmd window
+$serverProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/k","cd /d `"$serverDir`" & npm exec -- tsx src/index.ts" -PassThru -WindowStyle Hidden
 
-# Wait for server to start
+# Start Vite in hidden cmd window
+$uiProcess = Start-Process -FilePath "cmd.exe" -ArgumentList "/k","cd /d `"$uiDir`" & npm exec -- vite --host 127.0.0.1 --port 5173" -PassThru -WindowStyle Hidden
+
+# Wait for processes to start
+Start-Sleep -Seconds 5
+
 Write-Host "  Server starting (PID: $($serverProcess.Id))..." -ForegroundColor Cyan
+Write-Host "  Vite UI starting (PID: $($uiProcess.Id))..." -ForegroundColor Cyan
 
 # Poll health endpoint until ready or timeout
 $maxAttempts = 15
@@ -96,7 +103,7 @@ if ($serverReady) {
     Write-Host "  AIDEVELO is RUNNING!" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Dashboard: http://localhost:$ServerPort" -ForegroundColor Cyan
+    Write-Host "  Full App:  http://localhost:5173" -ForegroundColor Cyan
     Write-Host "  API:       http://localhost:$ServerPort/api" -ForegroundColor Cyan
     Write-Host "  Health:    http://localhost:$ServerPort/api/health" -ForegroundColor Cyan
     Write-Host ""
