@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router";
-import { useTheme } from "@/hooks/useTheme";
-import { useSidebar } from "@/hooks/useSidebar";
+import { useNavigate } from "react-router-dom";
+import { useTheme } from "@/context/ThemeContext";
+import { useSidebar } from "@/context/SidebarContext";
 import { useOfficeAgents } from "../hooks/useOfficeAgents";
 import { FPS } from "../core/constants";
 import { Dialog, DialogContent } from "@/components/ui/dialog";

@@ -39,7 +39,6 @@ export function RetroOfficeScene({
           <group
             key={agent.id}
             onClick={() => onAgentClick?.(agent.id)}
-            style={{ cursor: "pointer" }}
           >
             <AgentModel agent={agent} />
           </group>
