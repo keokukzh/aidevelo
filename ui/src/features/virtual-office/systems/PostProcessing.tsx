@@ -52,5 +52,5 @@ export function PostProcessing({ quality = "high", theme = "dark" }: PostProcess
     ) : null,
   ].filter(Boolean);
 
-  return <EffectComposer>{effects as React.ReactElement[]}</EffectComposer>;
+  return <EffectComposer enableNormalPass>{effects as React.ReactElement[]}</EffectComposer>;
 }
