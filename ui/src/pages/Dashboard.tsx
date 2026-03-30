@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, lazy, Suspense } from "react";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardApi } from "../api/dashboard";
@@ -25,6 +25,10 @@ import { ChartCard, RunActivityChart, PriorityChart, IssueStatusChart, SuccessRa
 import { PageSkeleton } from "../components/PageSkeleton";
 import type { Agent, Issue } from "@aideveloai/shared";
 import { PluginSlotOutlet } from "@/plugins/slots";
+
+const VirtualOfficeCard = lazy(() =>
+  import("@/features/virtual-office").then((m) => ({ default: m.VirtualOfficeCard }))
+);
 
 function getRecentIssues(issues: Issue[]): Issue[] {
   return [...issues]
@@ -207,6 +211,10 @@ export function Dashboard() {
       )}
 
       <ActiveAgentsPanel companyId={selectedCompanyId!} />
+
+      <Suspense fallback={null}>
+        {selectedCompanyId && <VirtualOfficeCard companyId={selectedCompanyId} />}
+      </Suspense>
 
       {data && (
         <>
