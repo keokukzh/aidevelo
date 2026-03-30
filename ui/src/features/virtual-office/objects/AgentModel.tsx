@@ -6,6 +6,7 @@ import type { OfficeAgent } from "../core/types";
 import type { AnimationEntry } from "../hooks/useOfficeAnimations";
 import { deskIndexToWorld, walkingPathForAgent } from "../core/geometry";
 import { getAnimationBob, ANIM } from "../hooks/useOfficeAnimations";
+import { derivePersonality } from "../core/personality";
 
 interface AgentModelProps {
   agent: OfficeAgent;
@@ -95,7 +96,12 @@ function AgentShadow() {
   );
 }
 
-function AgentArms({ state, walkProgress }: { state: string; walkProgress: number }) {
+function AgentArms({ state, walkProgress, personality, isActiveRun }: {
+  state: string;
+  walkProgress: number;
+  personality?: { armSwingAmplitude: number; typeSpeed: number };
+  isActiveRun?: boolean;
+}) {
   const leftArmRef = useRef<THREE.Group>(null);
   const rightArmRef = useRef<THREE.Group>(null);
 
@@ -104,7 +110,8 @@ function AgentArms({ state, walkProgress }: { state: string; walkProgress: numbe
     const isWalking = state === "walking" || state === "patrol";
 
     if (isWalking) {
-      const swing = Math.sin(walkProgress * Math.PI * 6) * 0.4;
+      const swingAmp = (personality?.armSwingAmplitude ?? 1) * 0.4;
+      const swing = Math.sin(walkProgress * Math.PI * 6) * swingAmp;
       if (leftArmRef.current) {
         leftArmRef.current.rotation.x = swing;
         leftArmRef.current.position.z = 0.15 + Math.abs(swing) * 0.1;
@@ -114,7 +121,9 @@ function AgentArms({ state, walkProgress }: { state: string; walkProgress: numbe
         rightArmRef.current.position.z = 0.15 + Math.abs(swing) * 0.1;
       }
     } else if (isTyping) {
-      const oscillate = Math.sin(Date.now() * 0.008) * 0.03;
+      const typeSpd = personality?.typeSpeed ?? 1;
+      const activeMultiplier = isActiveRun ? 1.2 : 1.0;
+      const oscillate = Math.sin(Date.now() * 0.008 * typeSpd * activeMultiplier) * 0.03;
       if (leftArmRef.current) {
         leftArmRef.current.rotation.x = -0.5 + oscillate;
         leftArmRef.current.position.z = 0.35 + oscillate;
@@ -161,7 +170,7 @@ function AgentArms({ state, walkProgress }: { state: string; walkProgress: numbe
   );
 }
 
-function AgentFace({ state }: { state: string }) {
+function AgentFace({ state, personality }: { state: string; personality?: { headSway: number } }) {
   const leftEyeRef = useRef<THREE.Group>(null);
   const rightEyeRef = useRef<THREE.Group>(null);
   const blinkTimerRef = useRef(0);
@@ -353,12 +362,14 @@ export function AgentModel({
   const elapsedRef = useRef(0);
   const walkProgressRef = useRef(0);
   const idlePathRef = useRef({ index: 0, t: 0 });
+  const bodyRef = useRef<THREE.Group>(null);
 
   const isError = agent.state === "error";
   const isAway = agent.state === "away";
 
   const deskPos = useMemo(() => deskIndexToWorld(agent.deskIndex), [agent.deskIndex]);
   const idlePath = useMemo(() => walkingPathForAgent(agent.id), [agent.id]);
+  const personality = useMemo(() => derivePersonality(agent.id), [agent.id]);
 
   const targetPosition = animState?.toPosition ?? deskPos;
   const startPosition = animState?.fromPosition ?? deskPos;
@@ -370,12 +381,14 @@ export function AgentModel({
     elapsedRef.current += delta;
 
     if (currentAnimState === "walking" && walkProgressRef.current < 1) {
-      walkProgressRef.current = Math.min(1, walkProgressRef.current + delta / ANIM.WALK_DURATION);
+      const walkDuration = ANIM.WALK_DURATION / (animState?.personality?.walkSpeed ?? 1);
+      walkProgressRef.current = Math.min(1, walkProgressRef.current + delta / walkDuration);
       const t = walkProgressRef.current;
       const eased = 1 - Math.pow(1 - t, 3);
       groupRef.current.position.x = startPosition[0] + (targetPosition[0] - startPosition[0]) * eased;
       groupRef.current.position.z = startPosition[2] + (targetPosition[2] - startPosition[2]) * eased;
-      const bob = Math.sin(elapsedRef.current * Math.PI * 4) * 0.05;
+      const bobAmp = animState?.personality?.bobAmplitude ?? 1;
+      const bob = Math.sin(elapsedRef.current * Math.PI * 4) * 0.05 * bobAmp;
       groupRef.current.position.y = bob;
     } else if (currentAnimState === "patrol") {
       const path = idlePath;
@@ -434,6 +447,13 @@ export function AgentModel({
       const shake = Math.sin(Date.now() * 0.03) * 0.03;
       groupRef.current.position.x += shake;
     }
+
+    // Apply breathing to body group Y scale (subtle chest expansion)
+    if (bodyRef.current) {
+      const breatheCycle = Math.sin(elapsedRef.current * Math.PI * 0.5); // ~4 second cycle
+      const breatheScale = 1 + breatheCycle * 0.015; // ±1.5% chest expansion
+      bodyRef.current.scale.y = breatheScale;
+    }
   });
 
   const handleClick = useCallback(
@@ -451,7 +471,7 @@ export function AgentModel({
       onClick={handleClick}
     >
       <AgentShadow />
-      <group>
+      <group ref={bodyRef}>
         <mesh position={[0, 0.6, 0]} castShadow>
           <capsuleGeometry args={[0.2, 0.5, 4, 8]} />
           <meshStandardMaterial color={isAway ? "#6B7280" : agent.color} />
@@ -460,8 +480,8 @@ export function AgentModel({
           <sphereGeometry args={[0.18, 8, 8]} />
           <meshStandardMaterial color={isAway ? "#6B7280" : agent.color} />
         </mesh>
-        <AgentFace state={currentAnimState} />
-        <AgentArms state={currentAnimState} walkProgress={walkProgressRef.current} />
+        <AgentFace state={currentAnimState} personality={personality} />
+        <AgentArms state={currentAnimState} walkProgress={walkProgressRef.current} personality={personality} isActiveRun={agent.hasActiveRun} />
       </group>
       {isError && <ErrorGlow color={agent.color} />}
       {isAway && <AwayZZZ color={agent.color} />}
