@@ -12,9 +12,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Fragment, useMemo } from "react";
+import { Fragment, lazy, Suspense, useMemo } from "react";
 import { PluginSlotOutlet, usePluginSlots } from "@/plugins/slots";
 import { PluginLauncherOutlet, usePluginLaunchers } from "@/plugins/launchers";
+
+const VirtualOfficeHeaderWidget = lazy(() =>
+  import("@/features/virtual-office").then((m) => ({ default: m.VirtualOfficeHeaderWidget }))
+);
 
 type GlobalToolbarContext = { companyId: string | null; companyPrefix: string | null };
 
@@ -45,9 +49,16 @@ export function BreadcrumbBar() {
 
   const globalToolbarSlots = <GlobalToolbarPlugins context={globalToolbarSlotContext} />;
 
+  const virtualOfficeWidget = (
+    <Suspense fallback={null}>
+      <VirtualOfficeHeaderWidget />
+    </Suspense>
+  );
+
   if (breadcrumbs.length === 0) {
     return (
-      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end">
+      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1">
+        {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
     );
@@ -68,13 +79,14 @@ export function BreadcrumbBar() {
   // Single breadcrumb = page title (uppercase)
   if (breadcrumbs.length === 1) {
     return (
-      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center">
+      <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center gap-1">
         {menuButton}
         <div className="min-w-0 overflow-hidden flex-1">
           <h1 className="text-sm font-semibold uppercase tracking-wider truncate">
             {breadcrumbs[0].label}
           </h1>
         </div>
+        {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
     );
@@ -82,7 +94,7 @@ export function BreadcrumbBar() {
 
   // Multiple breadcrumbs = breadcrumb trail
   return (
-    <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center">
+    <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center gap-1">
       {menuButton}
       <div className="min-w-0 overflow-hidden flex-1">
         <Breadcrumb className="min-w-0 overflow-hidden">
@@ -107,6 +119,7 @@ export function BreadcrumbBar() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+      {virtualOfficeWidget}
       {globalToolbarSlots}
     </div>
   );

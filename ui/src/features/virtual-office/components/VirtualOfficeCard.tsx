@@ -4,7 +4,7 @@ import { useTheme } from "@/context/ThemeContext";
 import { useSidebar } from "@/context/SidebarContext";
 import { useOfficeAgents } from "../hooks/useOfficeAgents";
 import { FPS } from "../core/constants";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { RetroOfficeScene } from "../scenes/RetroOfficeScene";
 
@@ -111,6 +111,10 @@ export function VirtualOfficeCard({ companyId }: VirtualOfficeCardProps) {
 
       <Dialog open={expanded} onOpenChange={handleClose}>
         <DialogContent className="max-w-[95vw] h-[85vh] p-0 overflow-hidden">
+          <DialogTitle className="sr-only">Virtual Office</DialogTitle>
+          <DialogDescription className="sr-only">
+            Interactive 3D virtual office showing agent workspaces and real-time status
+          </DialogDescription>
           <div className="relative w-full h-full">
             <RetroOfficeScene
               agents={officeAgents}

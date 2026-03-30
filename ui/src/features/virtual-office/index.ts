@@ -1,4 +1,5 @@
 export { VirtualOfficeCard } from "./components/VirtualOfficeCard";
+export { VirtualOfficeHeaderWidget } from "./components/VirtualOfficeHeaderWidget";
 export { RetroOfficeScene } from "./scenes/RetroOfficeScene";
 export { AgentTooltip } from "./components/AgentTooltip";
 export { ModernOfficeFurniture } from "./objects/ModernOfficeFurniture";
