@@ -19,6 +19,7 @@ export default defineConfig({
           "vendor-editor": ["@mdxeditor/editor"],
           "vendor-mermaid": ["mermaid"],
           "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
+          "vendor-three": ["three", "@react-three/fiber", "@react-three/drei"],
         },
       },
     },
