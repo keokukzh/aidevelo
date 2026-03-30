@@ -1,0 +1,9 @@
+Merge feature/phase3-optimizations into main
+
+Combines Phase 1-3 performance optimizations:
+- Granular vendor chunk splitting (react/router/query/editor/mermaid/dnd)
+- Eager/lazy page split for faster initial load
+- Enhanced API key cache (10min TTL, size-capped at 10k entries)
+- Extended DB pool idle_timeout to 300s for serverless envs
+- Compression upgrade to ^1.8.1
+- Better auth.ts with inline cache and full key fields

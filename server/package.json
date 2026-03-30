@@ -47,7 +47,7 @@
     "@aideveloai/adapter-codex-local": "workspace:*",
     "@aideveloai/adapter-cursor-local": "workspace:*",
     "@aideveloai/adapter-gemini-local": "workspace:*",
-    "@aideveloai/adapter-openclaw-gateway": "workspace:*",
+    "@aideveloai/adapter-aidevelo-gateway": "workspace:*",
     "@aideveloai/adapter-opencode-local": "workspace:*",
     "@aideveloai/adapter-pi-local": "workspace:*",
     "@aideveloai/adapter-utils": "workspace:*",
