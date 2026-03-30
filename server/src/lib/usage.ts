@@ -12,7 +12,7 @@
  */
 import { eq, and, gte, sql } from "drizzle-orm";
 import type { Db } from "@aideveloai/db";
-import { userUsage, TIER_QUOTAS } from "@aideveloai/db";
+import { userUsage, TIER_QUOTAS } from "@aideveloai/db/schema/user_usage";
 
 const WINDOW_SIZE_MS = 5 * 60 * 60 * 1000; // 5 hours
 
@@ -48,9 +48,9 @@ export async function getRemainingQuota(
   const windowEnd = new Date(windowStart.getTime() + WINDOW_SIZE_MS);
   const quota = TIER_QUOTAS[tier] ?? TIER_QUOTAS["starter"];
 
-  // Sum all usage rows in the current 5-hour window
-  const rows = await db
-    .select()
+  // DB-side aggregation: single query returns the sum directly
+  const [result] = await db
+    .select({ total: sql<number>`coalesce(sum(${userUsage.requestCount}), 0)::int` })
     .from(userUsage)
     .where(
       and(
@@ -60,7 +60,7 @@ export async function getRemainingQuota(
     )
     .execute();
 
-  const used = rows.reduce((sum, row) => sum + row.requestCount, 0);
+  const used = result?.total ?? 0;
   return {
     tier,
     quota,

@@ -12,29 +12,31 @@ function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
 
-// In-memory TTL cache for API key lookups — avoids DB hit on every request
-type CachedKey = typeof agentApiKeys.$inferSelect;
-const keyCache = new Map<string, { key: CachedKey; expiresAt: number }>();
-const KEY_CACHE_TTL_MS = 60_000; // 1 minute TTL
+// --- API key lookup cache (10-minute TTL) ---
+const API_KEY_CACHE_TTL_MS = 10 * 60 * 1000;
+type CachedApiKey = {
+  key: { id: string; agentId: string; companyId: string } | null;
+  expiresAt: number;
+};
+const apiKeyCache = new Map<string, CachedApiKey>();
 
-async function getCachedApiKey(db: Db, tokenHash: string): Promise<CachedKey | null> {
-  const now = Date.now();
-  const cached = keyCache.get(tokenHash);
-  if (cached && cached.expiresAt > now) {
-    return cached.key;
+function getCachedApiKey(tokenHash: string): CachedApiKey["key"] | undefined {
+  const entry = apiKeyCache.get(tokenHash);
+  if (!entry) return undefined;
+  if (Date.now() > entry.expiresAt) {
+    apiKeyCache.delete(tokenHash);
+    return undefined;
   }
-  keyCache.delete(tokenHash);
+  return entry.key;
+}
 
-  const key = await db
-    .select()
-    .from(agentApiKeys)
-    .where(and(eq(agentApiKeys.keyHash, tokenHash), isNull(agentApiKeys.revokedAt)))
-    .then((rows) => rows[0] ?? null);
-
-  if (key) {
-    keyCache.set(tokenHash, { key, expiresAt: now + KEY_CACHE_TTL_MS });
+function setCachedApiKey(tokenHash: string, key: CachedApiKey["key"]): void {
+  // Cap cache size to prevent unbounded growth
+  if (apiKeyCache.size > 10_000) {
+    const firstKey = apiKeyCache.keys().next().value;
+    if (firstKey) apiKeyCache.delete(firstKey);
   }
-  return key;
+  apiKeyCache.set(tokenHash, { key, expiresAt: Date.now() + API_KEY_CACHE_TTL_MS });
 }
 
 interface ActorMiddlewareOptions {
@@ -119,7 +121,19 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
     }
 
     const tokenHash = hashToken(token);
-    const key = await getCachedApiKey(db, tokenHash);
+
+    // Check cache first, fall back to DB
+    let cachedHit = getCachedApiKey(tokenHash);
+    if (cachedHit === undefined) {
+      const dbRow = await db
+        .select({ id: agentApiKeys.id, agentId: agentApiKeys.agentId, companyId: agentApiKeys.companyId })
+        .from(agentApiKeys)
+        .where(and(eq(agentApiKeys.keyHash, tokenHash), isNull(agentApiKeys.revokedAt)))
+        .then((rows) => rows[0] ?? null);
+      setCachedApiKey(tokenHash, dbRow);
+      cachedHit = dbRow;
+    }
+    const key = cachedHit;
 
     if (!key) {
       const claims = verifyLocalAgentJwt(token);
@@ -156,10 +170,11 @@ export function actorMiddleware(db: Db, opts: ActorMiddlewareOptions): RequestHa
       return;
     }
 
-    await db
-      .update(agentApiKeys)
+    // Fire-and-forget: don't block the request for a timestamp update
+    db.update(agentApiKeys)
       .set({ lastUsedAt: new Date() })
-      .where(eq(agentApiKeys.id, key.id));
+      .where(eq(agentApiKeys.id, key.id))
+      .catch(() => {});
 
     const agentRecord = await db
       .select()

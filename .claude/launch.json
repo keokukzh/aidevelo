@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "API Server",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["tsx", "server/src/index.ts"],
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["node_modules/pnpm/bin/pnpm.cjs", "--filter", "@aideveloai/server", "dev"],
       "port": 3100
     },
     {

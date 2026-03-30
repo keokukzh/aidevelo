@@ -1511,31 +1511,41 @@ export function issueService(db: Db) {
     },
 
     getAncestors: async (issueId: string) => {
-      const raw: Array<{
+      // Recursive CTE: fetch entire ancestor chain in a single query (replaces N+1 while-loop)
+      type AncestorRow = {
         id: string; identifier: string | null; title: string; description: string | null;
         status: string; priority: string;
-        assigneeAgentId: string | null; projectId: string | null; goalId: string | null;
-      }> = [];
-      const visited = new Set<string>([issueId]);
-      const start = await db.select().from(issues).where(eq(issues.id, issueId)).then(r => r[0] ?? null);
-      let currentId = start?.parentId ?? null;
-      while (currentId && !visited.has(currentId) && raw.length < 50) {
-        visited.add(currentId);
-        const parent = await db.select({
-          id: issues.id, identifier: issues.identifier, title: issues.title, description: issues.description,
-          status: issues.status, priority: issues.priority,
-          assigneeAgentId: issues.assigneeAgentId, projectId: issues.projectId,
-          goalId: issues.goalId, parentId: issues.parentId,
-        }).from(issues).where(eq(issues.id, currentId)).then(r => r[0] ?? null);
-        if (!parent) break;
-        raw.push({
-          id: parent.id, identifier: parent.identifier ?? null, title: parent.title, description: parent.description ?? null,
-          status: parent.status, priority: parent.priority,
-          assigneeAgentId: parent.assigneeAgentId ?? null,
-          projectId: parent.projectId ?? null, goalId: parent.goalId ?? null,
-        });
-        currentId = parent.parentId ?? null;
-      }
+        assignee_agent_id: string | null; project_id: string | null; goal_id: string | null;
+      };
+      const ancestorRows = await db.execute<AncestorRow>(sql`
+        WITH RECURSIVE ancestors AS (
+          SELECT i.parent_id AS next_id, 0 AS depth
+          FROM issues i WHERE i.id = ${issueId}
+          UNION ALL
+          SELECT p.parent_id, a.depth + 1
+          FROM ancestors a
+          JOIN issues p ON p.id = a.next_id
+          WHERE a.next_id IS NOT NULL AND a.depth < 50
+        )
+        SELECT p.id, p.identifier, p.title, p.description,
+               p.status, p.priority,
+               p.assignee_agent_id, p.project_id, p.goal_id
+        FROM ancestors a
+        JOIN issues p ON p.id = a.next_id
+        WHERE a.next_id IS NOT NULL
+        ORDER BY a.depth
+      `);
+      const raw = Array.from(ancestorRows as Iterable<AncestorRow>).map(row => ({
+        id: row.id,
+        identifier: row.identifier ?? null,
+        title: row.title,
+        description: row.description ?? null,
+        status: row.status,
+        priority: row.priority,
+        assigneeAgentId: row.assignee_agent_id ?? null,
+        projectId: row.project_id ?? null,
+        goalId: row.goal_id ?? null,
+      }));
 
       // Batch-fetch referenced projects and goals
       const projectIds = [...new Set(raw.map(a => a.projectId).filter((id): id is string => id != null))];

@@ -13,12 +13,12 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        // Vendor chunk splitting for better caching and parallel loading
         manualChunks: {
-          "vendor-react": ["react", "react-dom"],
-          "vendor-router": ["react-router-dom"],
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
           "vendor-query": ["@tanstack/react-query"],
-          "vendor-mdx": ["@mdxeditor/editor"],
+          "vendor-editor": ["@mdxeditor/editor"],
+          "vendor-mermaid": ["mermaid"],
+          "vendor-dnd": ["@dnd-kit/core", "@dnd-kit/sortable", "@dnd-kit/utilities"],
         },
       },
     },

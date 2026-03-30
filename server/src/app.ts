@@ -85,6 +85,7 @@ export async function createApp(
 ) {
   const app = express();
 
+  app.use(compression({ threshold: 1024 }));
   app.use(express.json({
     verify: (req, _res, buf) => {
       (req as unknown as { rawBody: Buffer }).rawBody = buf;
