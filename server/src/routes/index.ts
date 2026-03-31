@@ -17,3 +17,4 @@ export { accessRoutes } from "./access.js";
 export { instanceSettingsRoutes } from "./instance-settings.js";
 export { billingRoutes } from "./billing.js";
 export { webhookRoutes } from "./webhooks.js";
+export { chatRoutes } from "./chat.js";

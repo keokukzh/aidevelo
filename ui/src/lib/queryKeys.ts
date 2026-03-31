@@ -136,4 +136,7 @@ export const queryKeys = {
     dashboard: (pluginId: string) => ["plugins", pluginId, "dashboard"] as const,
     logs: (pluginId: string) => ["plugins", pluginId, "logs"] as const,
   },
+  chat: {
+    messages: (companyId: string, agentId: string) => ["chat", companyId, agentId, "messages"] as const,
+  },
 };

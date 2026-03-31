@@ -61,3 +61,4 @@ export { userUsage, TIER_QUOTAS } from "./user_usage.js";
 export type { UserUsage, NewUserUsage } from "./user_usage.js";
 export { userApiKeys } from "./user_api_keys.js";
 export type { UserApiKey, NewUserApiKey } from "./user_api_keys.js";
+export { chatMessages } from "./chatMessages.js";

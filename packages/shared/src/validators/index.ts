@@ -272,3 +272,12 @@ export {
   type SetPluginState,
   type ListPluginState,
 } from "./plugin.js";
+
+export {
+  sendChatMessageSchema,
+  chatMessageSchema,
+  listChatMessagesSchema,
+  type SendChatMessage,
+  type ChatMessage,
+  type ListChatMessages,
+} from "./chat.js";

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Moon, Settings, Sun } from "lucide-react";
+import { Moon, Settings, Sun, Building2, MessageSquare } from "lucide-react";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "@/lib/router";
 import { CompanyRail } from "./CompanyRail";
 import { Sidebar } from "./Sidebar";
@@ -12,6 +12,7 @@ import { NewIssueDialog } from "./NewIssueDialog";
 import { NewProjectDialog } from "./NewProjectDialog";
 import { NewGoalDialog } from "./NewGoalDialog";
 import { NewAgentDialog } from "./NewAgentDialog";
+import { ChatDialog } from "./ChatDialog";
 import { ToastViewport } from "./ToastViewport";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { WorktreeBanner } from "./WorktreeBanner";
@@ -67,6 +68,8 @@ export function Layout() {
   const lastMainScrollTop = useRef(0);
   const [mobileNavVisible, setMobileNavVisible] = useState(true);
   const [instanceSettingsTarget, setInstanceSettingsTarget] = useState<string>(() => readRememberedInstanceSettingsPath());
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chatAgentId, setChatAgentId] = useState<string | null>(null);
   const nextTheme = theme === "dark" ? "light" : "dark";
   const matchedCompany = useMemo(() => {
     if (!companyPrefix) return null;
@@ -317,6 +320,49 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      asChild
+                    >
+                      <Link
+                        to="/virtual-office"
+                        aria-label="Virtual Office"
+                        title="Virtual Office"
+                        onClick={() => {
+                          if (isMobile) setSidebarOpen(false);
+                        }}
+                      >
+                        <Building2 className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Virtual Office</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      onClick={() => {
+                        if (isMobile) setSidebarOpen(false);
+                        // TODO: Get the actual CEO agent ID from context or API
+                        // For now, use a placeholder - this should be the CEO agent
+                        setChatAgentId("00000000-0000-0000-0000-000000000001");
+                        setChatOpen(true);
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Chat with CEO</TooltipContent>
+                </Tooltip>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -381,6 +427,49 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      asChild
+                    >
+                      <Link
+                        to="/virtual-office"
+                        aria-label="Virtual Office"
+                        title="Virtual Office"
+                        onClick={() => {
+                          if (isMobile) setSidebarOpen(false);
+                        }}
+                      >
+                        <Building2 className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Virtual Office</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon-sm"
+                      className="text-muted-foreground shrink-0"
+                      onClick={() => {
+                        if (isMobile) setSidebarOpen(false);
+                        // TODO: Get the actual CEO agent ID from context or API
+                        // For now, use a placeholder - this should be the CEO agent
+                        setChatAgentId("00000000-0000-0000-0000-000000000001");
+                        setChatOpen(true);
+                      }}
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Chat with CEO</TooltipContent>
+                </Tooltip>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -453,6 +542,11 @@ export function Layout() {
       <NewProjectDialog />
       <NewGoalDialog />
       <NewAgentDialog />
+      <ChatDialog
+        agentId={chatAgentId || "00000000-0000-0000-0000-000000000001"}
+        open={chatOpen}
+        onOpenChange={setChatOpen}
+      />
       <ToastViewport />
     </div>
   );
