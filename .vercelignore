@@ -1,0 +1,22 @@
+# Exclude data folder with symlinks
+data/
+
+# Exclude development files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Exclude Git
+.git/
+.gitignore
+
+# Exclude documentation
+*.md
+!README.md
+
+# Exclude temporary files
+*.log
+*.tmp
+*.temp
+.DS_Store

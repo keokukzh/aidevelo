@@ -1,16 +1,27 @@
 {
   "version": 2,
-  "buildCommand": "pnpm -r build",
-  "installCommand": "pnpm install --prod=false",
+  "buildCommand": "cd ui && npm exec -- vite build",
+  "installCommand": "npm exec -- pnpm@9.15.4 install",
   "outputDirectory": "ui/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api/index"
-    },
+      "destination": "https://api.aidevelo.ai/$1"
+    }
+  ],
+  "headers": [
     {
       "source": "/(.*)",
-      "destination": "/$1"
+      "headers": [
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
+      ]
     }
   ]
 }

@@ -14,6 +14,12 @@ data/
 tmp-*
 cli/tmp/
 
+# Obsidian vaults (personal notes)
+.obsidian/
+AIDevelObsidian/
+.tmp-aidevelo-home/
+.sixth/
+
 # Scratch/seed scripts (but not scripts/ dir)
 check-*.mjs
 !scripts/check-*.mjs
@@ -56,3 +62,4 @@ tests/release-smoke/playwright-report/
 
 # PowerShell deployment scripts (contain credentials)
 scripts/*.ps1
+.vercel
