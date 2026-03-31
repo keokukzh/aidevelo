@@ -2,9 +2,9 @@
   "version": 2,
   "buildCommand": "pnpm -r build",
   "installCommand": "pnpm install --prod=false",
-  "framework": null,
+  "outputDirectory": "ui/dist",
   "functions": {
-    "server/src/vercel-entry.ts": {
+    "api/index.ts": {
       "runtime": "nodejs20.x",
       "maxDuration": 60
     }
@@ -12,7 +12,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "server/src/vercel-entry.ts"
+      "destination": "/api/index"
     },
     {
       "source": "/(.*)",
