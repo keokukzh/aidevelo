@@ -5,6 +5,7 @@
 
   // Cloudflare Pages configuration
   "pages_build_output_dir": "../ui/dist",
+  "pages_functions_distribution": "../_functions",
   "build_command": "cd ui && pnpm build",
 
   // Single Pages deployment (not yet using git integration)
