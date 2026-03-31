@@ -1,6 +1,6 @@
 services:
   - name: aidevelo-api
-    type: web_service
+    type: web
     region: oregon
     runtime: node
     nodeVersion: "20"
@@ -51,7 +51,7 @@ services:
         value: "https://aidevelo.ai"
 
   - name: aidevelo-worker
-    type: background_worker
+    type: worker
     region: oregon
     runtime: node
     nodeVersion: "20"
