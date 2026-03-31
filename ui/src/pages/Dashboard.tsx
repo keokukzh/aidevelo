@@ -212,10 +212,6 @@ export function Dashboard() {
 
       <ActiveAgentsPanel companyId={selectedCompanyId!} />
 
-      <Suspense fallback={null}>
-        {selectedCompanyId && <VirtualOfficeCard companyId={selectedCompanyId} />}
-      </Suspense>
-
       {data && (
         <>
           {data.budgets.activeIncidents > 0 ? (
@@ -391,6 +387,10 @@ export function Dashboard() {
 
         </>
       )}
+
+      <Suspense fallback={null}>
+        {selectedCompanyId && <VirtualOfficeCard companyId={selectedCompanyId} />}
+      </Suspense>
     </div>
   );
 }

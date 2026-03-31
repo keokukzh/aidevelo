@@ -330,7 +330,7 @@ export function Layout() {
                       asChild
                     >
                       <Link
-                        to="/virtual-office"
+                        to={selectedCompany ? `/${selectedCompany.issuePrefix}/dashboard` : "/dashboard"}
                         aria-label="Virtual Office"
                         title="Virtual Office"
                         onClick={() => {
@@ -437,7 +437,7 @@ export function Layout() {
                       asChild
                     >
                       <Link
-                        to="/virtual-office"
+                        to={selectedCompany ? `/${selectedCompany.issuePrefix}/dashboard` : "/dashboard"}
                         aria-label="Virtual Office"
                         title="Virtual Office"
                         onClick={() => {
