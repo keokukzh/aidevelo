@@ -3,7 +3,6 @@ services:
     type: web
     region: oregon
     runtime: node
-    nodeVersion: "20"
     buildCommand: npx pnpm@9.15.4 install && npx pnpm@9.15.4 build
     startCommand: node server/dist/index.js
     envVars:
@@ -54,7 +53,6 @@ services:
     type: worker
     region: oregon
     runtime: node
-    nodeVersion: "20"
     buildCommand: npx pnpm@9.15.4 build
     startCommand: node server/dist/worker/index.js
     envVars:
