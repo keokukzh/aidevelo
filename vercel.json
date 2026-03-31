@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "buildCommand": "pnpm -r build && mkdir -p ./dist && cp -r ui/dist/* ./dist/",
+  "buildCommand": "pnpm -r build",
   "installCommand": "pnpm install --prod=false",
-  "outputDirectory": "dist",
+  "outputDirectory": "ui/dist",
   "rewrites": [
     {
       "source": "/api/(.*)",
