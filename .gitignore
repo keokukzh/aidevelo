@@ -53,3 +53,6 @@ tests/release-smoke/playwright-report/
 .superset/
 .claude/worktrees/
 .worktrees/
+
+# PowerShell deployment scripts (contain credentials)
+scripts/*.ps1
