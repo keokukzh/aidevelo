@@ -1,0 +1,2 @@
+# Proxy all /api requests to Render backend
+/api/* https://aidevelo.onrender.com/:splat 200
