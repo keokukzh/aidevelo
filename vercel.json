@@ -3,12 +3,6 @@
   "buildCommand": "pnpm -r build && mkdir -p ./dist && cp -r ui/dist/* ./dist/",
   "installCommand": "pnpm install --prod=false",
   "outputDirectory": "dist",
-  "functions": {
-    "api/index.ts": {
-      "runtime": "nodejs20.x",
-      "maxDuration": 60
-    }
-  },
   "rewrites": [
     {
       "source": "/api/(.*)",
