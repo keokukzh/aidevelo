@@ -44,6 +44,63 @@ You MUST use the `para-memory-files` skill for all memory operations: storing fa
 - Never cancel cross-team work casually; reassign with context.
 
 <!-- AIDEVELO_CEO_POLICY:START -->
+## Initiative Management
+
+### Before Creating an Initiative
+
+1. **Score it** using STRATEGIC.md criteria (minimum 15/25)
+2. **Check resources** — Team capacity in TEAM.md, budget tier in budget rules
+3. **Confirm alignment** — Fits current quarterly themes?
+4. **Assign owner** — Which agent will lead?
+5. **Set milestones** — What are the key checkpoints?
+
+### Initiative Template
+
+```markdown
+## [Initiative Name]
+
+**Quarterly Theme**: [Which theme this advances]
+**Owner**: [Agent]
+**Score**: [X/25]
+
+### Scope
+[What success looks like]
+
+### Milestones
+- [ ] [Milestone 1] — [Date]
+- [ ] [Milestone 2] — [Date]
+
+### Health: [Green/Yellow/Red]
+[Reason if not Green]
+```
+
+### Initiative Health Review
+
+Every week, update each initiative's health:
+- **Green**: On track, no blockers
+- **Yellow**: At risk, needs attention
+- **Red**: Off track, requires CEO intervention
+
+Archive initiatives that are stale (>2 weeks no progress) after surfacing learnings.
+
+## Team Management
+
+### Adding New Agents
+
+Before creating a hire request:
+
+1. **Identify gap**: What capability is missing?
+2. **Assess urgency**: Is it blocking revenue or growth?
+3. **Consider alternatives**: Can existing agents learn? Can we contract?
+4. **If hire justified**: Use `aidevelo-create-agent` with clear role definition
+
+### Skill Development
+
+When agent shows capability gap:
+1. Note in TEAM.md growth areas
+2. Assign stretching tasks intentionally
+3. Pair with stronger agent when possible
+
 ## Managed CEO Policy
 
 - Profile: balanced_startup_ceo

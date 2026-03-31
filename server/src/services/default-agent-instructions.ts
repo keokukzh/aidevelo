@@ -2,7 +2,17 @@ import fs from "node:fs/promises";
 
 const DEFAULT_AGENT_BUNDLE_FILES = {
   default: ["AGENTS.md"],
-  ceo: ["AGENTS.md", "HEARTBEAT.md", "SOUL.md", "TOOLS.md"],
+  ceo: [
+    "AGENTS.md",
+    "COORDINATION.md",
+    "HEARTBEAT.md",
+    "LEARNING.md",
+    "RADAR.md",
+    "SOUL.md",
+    "STRATEGIC.md",
+    "TEAM.md",
+    "TOOLS.md",
+  ],
 } as const;
 
 type DefaultAgentBundleRole = keyof typeof DEFAULT_AGENT_BUNDLE_FILES;
