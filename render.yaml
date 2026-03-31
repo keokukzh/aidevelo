@@ -3,7 +3,7 @@ services:
     region: oregon
     runtime: node
     nodeVersion: "20"
-    buildCommand: npm exec -- pnpm@9.15.4 -- build
+    buildCommand: npx pnpm@9.15.4 install && npx pnpm@9.15.4 build
     startCommand: npx tsx server/src/index.ts
     envVars:
       - key: NODE_ENV
@@ -53,7 +53,7 @@ services:
     region: oregon
     runtime: node
     nodeVersion: "20"
-    buildCommand: npm exec -- pnpm@9.15.4 -- build
+    buildCommand: npx pnpm@9.15.4 build
     startCommand: node server/dist/worker/index.js
     envVars:
       - key: DATABASE_URL
