@@ -156,12 +156,15 @@ A change is done when all are true:
 - When confirming destructive actions in CursorBrowser, avoid native `window.prompt()` / `window.confirm()` since those dialogs are suppressed and input may be empty; use an in-app `Dialog` with controlled text input instead.
 - For browser-driven flows, ensure destructive actions rely on explicit user input validation inside React components rather than native blocking dialogs.
 - When the user provides CSS/style changes with a DOM Path from browser preview, locate the target element in source JSX/TSX using the class names and element path, then update Tailwind classes or inline styles accordingly — do not write new CSS files.
+- The user prefers **compound shell commands** in PowerShell — prefer `;` to chain commands rather than `&&` (which is bash syntax and not supported in PowerShell). Use `cmd.exe /c "cd /d path && command"` as a workaround when bash-style `&&` is needed.
 
 ## Learned Workspace Facts
 - In `local_trusted` mode, the server must ensure `AIDEVELO_AGENT_JWT_SECRET` is generated and available so local agents can inject `AIDEVELO_API_KEY` during heartbeats.
 - When creating a CEO agent, provision the default agent workspace under `workspaces/<agentId>/` with PARA directories (`life/projects`, `life/areas/*`, `life/resources`, `life/archives`) plus `memory/`, seed `MEMORY.md`, and write `HEARTBEAT.md`, `SOUL.md`, and `TOOLS.md` at the workspace root.
 - For CEO agents running `opencode_local`, inline required `$AGENT_HOME/HEARTBEAT.md` / `SOUL.md` / `TOOLS.md` contents into the prompt and explicitly forbid `read`/`glob` tool calls to prevent `external_directory` permission rejections.
 - Company deletion must delete dependent tables in foreign-key-safe order (e.g. delete `company_skills`, then `cost_events`/`finance_events`, then `heartbeat_runs`) to prevent 500s from FK constraint violations.
+- **Vercel deployment**: The project uses a dedicated `server/src/vercel-entry.ts` entrypoint for Vercel serverless functions (not `server/src/index.ts` which is long-running). Cron handlers are at `server/src/routes/worker/cron-dispatch.ts` and `server/src/routes/worker/cron-heartbeat-tick.ts`. `turbo.json` and `vercel.json` at the repo root configure the build.
+- **UI cache issue**: When Virtual Office or React UI changes don't appear in the browser, it is almost always browser cache — restart Vite (`pnpm dev`) or do a hard refresh (Ctrl+Shift+R) before assuming code is broken.
 
 ## Cursor Cloud specific instructions
 

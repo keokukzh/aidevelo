@@ -1,221 +1,69 @@
 {
   "version": 1,
   "transcripts": {
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\15b4a6af-895a-4481-8e53-1b82d50adb41\\15b4a6af-895a-4481-8e53-1b82d50adb41.jsonl": {
-      "mtimeMs": 1774210651931.9531,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\1e341823-35a8-416d-b255-ae793f9c9723\\1e341823-35a8-416d-b255-ae793f9c9723.jsonl": {
-      "mtimeMs": 1773944349549.1584,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6\\subagents\\d2fb6bb3-5e11-4e50-be6f-88eeeab35eca.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\1e341823-35a8-416d-b255-ae793f9c9723\\subagents\\37a404f5-61d3-47d6-82f7-8b22c332ccb1.jsonl": {
-      "mtimeMs": 1773941932057.9502,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6\\subagents\\3e83c682-79c0-49ef-b872-9292684623b3.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\1e341823-35a8-416d-b255-ae793f9c9723\\subagents\\ac7d94df-6af3-4541-a34d-04a974d2e067.jsonl": {
-      "mtimeMs": 1773941960179.131,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6\\subagents\\6ca8d8d5-89f7-4f70-abfd-7c8270b57c47.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\388f16be-5e74-41bc-a1e4-7525b4cb1ba5\\388f16be-5e74-41bc-a1e4-7525b4cb1ba5.jsonl": {
-      "mtimeMs": 1773773678509.9016,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\ed7b2781-4553-42ac-a656-6f8c0fa05fe6\\subagents\\fd6427cc-8144-47c3-b936-84e7b0641d90.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\419b29e2-5470-41f3-b0b5-e4e6833141bd\\419b29e2-5470-41f3-b0b5-e4e6833141bd.jsonl": {
-      "mtimeMs": 1773787593078.4343,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\691bcd96-9268-419d-905f-9c29905e46f1\\691bcd96-9268-419d-905f-9c29905e46f1.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\419b29e2-5470-41f3-b0b5-e4e6833141bd\\subagents\\b1d45927-52e0-4d34-a3ec-a7948ce395e7.jsonl": {
-      "mtimeMs": 1773780162436.1147,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\29c18730-c3a2-4d06-8d84-8dad1b2a18c1\\29c18730-c3a2-4d06-8d84-8dad1b2a18c1.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\43877c8e-057c-44fd-b36b-48a2f002e666.jsonl": {
-      "mtimeMs": 1773941564648.9387,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\883f36ea-e39c-485a-ae77-4d4b222c0f54\\883f36ea-e39c-485a-ae77-4d4b222c0f54.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\06fef74e-1501-4c0d-a1f8-d8310f41b30f.jsonl": {
-      "mtimeMs": 1773803317244.631,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\66383ae1-0671-44b9-922b-d2a21b039dc7\\66383ae1-0671-44b9-922b-d2a21b039dc7.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\23bc665a-7ab0-46e7-9046-a1765aedc174.jsonl": {
-      "mtimeMs": 1773936464519.9888,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\66383ae1-0671-44b9-922b-d2a21b039dc7\\subagents\\2dbe8324-f056-4a1c-8532-3c08e3bb35dc.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\32213cea-e967-4bea-a65e-1ce18b283644.jsonl": {
-      "mtimeMs": 1773928295570.7705,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\d20a2c5e-c749-4761-b3a2-d4771fa73b50\\d20a2c5e-c749-4761-b3a2-d4771fa73b50.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\408ae6de-6b87-4b87-a824-56488dc17180.jsonl": {
-      "mtimeMs": 1773803316511.141,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\d20a2c5e-c749-4761-b3a2-d4771fa73b50\\subagents\\6c09ceea-e970-498c-b6b2-41e537703083.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\59d9d61d-0882-4470-8e4f-796a0332a08a.jsonl": {
-      "mtimeMs": 1773939951877.1274,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\534a6b78-aeae-439b-92a5-3ab52ec524b8\\534a6b78-aeae-439b-92a5-3ab52ec524b8.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\8cb01468-054a-4a50-ba5e-14d80d373049.jsonl": {
-      "mtimeMs": 1773936635149.1355,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\89e3d271-6b13-469c-856d-b1cadc8c8e32\\89e3d271-6b13-469c-856d-b1cadc8c8e32.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\8f6394d2-429b-43b9-8fc5-6a54bc7abd2e.jsonl": {
-      "mtimeMs": 1773939864656.7185,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\cc52f187-603c-449d-abf6-4007a0385cab\\cc52f187-603c-449d-abf6-4007a0385cab.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\43877c8e-057c-44fd-b36b-48a2f002e666\\subagents\\bc6d538b-2bce-48ec-b92d-06e3b0eb316e.jsonl": {
-      "mtimeMs": 1773938204739.7979,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\45c32e86-dbd4-4d81-87dc-36efa78366c5\\45c32e86-dbd4-4d81-87dc-36efa78366c5.jsonl": {
-      "mtimeMs": 1773778417940.9565,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\562cf139-a4a9-4751-96b9-d54f72e48a83\\562cf139-a4a9-4751-96b9-d54f72e48a83.jsonl": {
-      "mtimeMs": 1774253376549.8748,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\7053dd65-b43b-41f3-8918-0c3fc6e6397c\\7053dd65-b43b-41f3-8918-0c3fc6e6397c.jsonl": {
-      "mtimeMs": 1773778248755.599,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\7053dd65-b43b-41f3-8918-0c3fc6e6397c\\subagents\\76bc3200-8bb9-4717-ae4c-b39cac23e604.jsonl": {
-      "mtimeMs": 1773774390673.4436,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\7053dd65-b43b-41f3-8918-0c3fc6e6397c\\subagents\\ac9567f0-4533-4589-ba5e-72ccafc64f82.jsonl": {
-      "mtimeMs": 1773774409969.9468,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\7053dd65-b43b-41f3-8918-0c3fc6e6397c\\subagents\\cc34e669-9015-4e92-b0e9-6662a69949d8.jsonl": {
-      "mtimeMs": 1773774425884.0632,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\8ee59e02-c303-4bf8-92a0-b00a3e38236b.jsonl": {
-      "mtimeMs": 1773803591735.4734,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\1d9a1a39-283d-4d3e-8828-941a6c3027b3.jsonl": {
-      "mtimeMs": 1773797219445.8562,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\26a7c601-a041-43f5-a4e2-38cf59db67c5.jsonl": {
-      "mtimeMs": 1773792484466.489,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\28326326-c4c6-4325-911b-df4e07e64dc7.jsonl": {
-      "mtimeMs": 1773803323219.3103,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\56176351-4f81-4d6c-94cf-aac8746ca02b.jsonl": {
-      "mtimeMs": 1773792458826.6404,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\5ae90555-c89d-404c-8dfc-0e1ea530f613.jsonl": {
-      "mtimeMs": 1773799748594.7893,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\6d550d25-ad16-4fda-9501-23a902894be6.jsonl": {
-      "mtimeMs": 1773794091327.7158,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\77dad2e7-c7fc-4c47-b471-95c60fac4dfb.jsonl": {
-      "mtimeMs": 1773803295807.0552,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\8c8ebd53-45b5-4c23-ae5e-7e86322371e7.jsonl": {
-      "mtimeMs": 1773793666539.4934,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\aab77044-3467-4daf-8844-150e9320f75d.jsonl": {
-      "mtimeMs": 1773791036464.7395,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\b016e275-a7c5-4595-8a70-c04ebba7817b.jsonl": {
-      "mtimeMs": 1773791028825.615,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\c0c4e2d7-62ee-4b86-ba6e-4452d2849ec1.jsonl": {
-      "mtimeMs": 1773799714660.2056,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\c4a87889-fbf9-4a26-876d-95fdb381a4bd.jsonl": {
-      "mtimeMs": 1773794227179.0535,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\8ee59e02-c303-4bf8-92a0-b00a3e38236b\\subagents\\efbe8e1a-bcf0-471b-a8b2-decdb35c6672.jsonl": {
-      "mtimeMs": 1773797258372.593,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\ad326b81-e821-48a3-bafc-2135be988158\\ad326b81-e821-48a3-bafc-2135be988158.jsonl": {
-      "mtimeMs": 1773786796242.0403,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\ad326b81-e821-48a3-bafc-2135be988158\\subagents\\166f32be-0e13-4ee3-aa39-ffb1dcd3e245.jsonl": {
-      "mtimeMs": 1773780620519.78,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\ad326b81-e821-48a3-bafc-2135be988158\\subagents\\531bbe18-f67a-4c2e-b61c-023cc34bd95b.jsonl": {
-      "mtimeMs": 1773780511560.1013,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\adb11282-5897-4fd0-bdd6-3bb255fec3e9\\adb11282-5897-4fd0-bdd6-3bb255fec3e9.jsonl": {
-      "mtimeMs": 1774252971287.2747,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\adb11282-5897-4fd0-bdd6-3bb255fec3e9\\subagents\\06087e18-335f-461f-be3b-b2faf33ce7bc.jsonl": {
-      "mtimeMs": 1774252121698.2754,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\cc5a0a3e-a630-4eb0-aa2b-013505ec941e\\cc5a0a3e-a630-4eb0-aa2b-013505ec941e.jsonl": {
-      "mtimeMs": 1774233876981.6516,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\d1a4338e-17be-456e-a72c-379416729873\\d1a4338e-17be-456e-a72c-379416729873.jsonl": {
-      "mtimeMs": 1773945850417.7395,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\d1a4338e-17be-456e-a72c-379416729873\\subagents\\dbf1ec73-1f1b-4833-9cec-be40353d30f7.jsonl": {
-      "mtimeMs": 1773944937718.1292,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\d492f173-62e3-4bb8-accb-a9f236215171\\d492f173-62e3-4bb8-accb-a9f236215171.jsonl": {
-      "mtimeMs": 1773790416638.771,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\d492f173-62e3-4bb8-accb-a9f236215171\\subagents\\1ffa7fbb-7e3b-4e4d-aa35-cbce5ba59c4e.jsonl": {
-      "mtimeMs": 1773789768143.0403,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\d492f173-62e3-4bb8-accb-a9f236215171\\subagents\\cb6e8396-e398-4ab7-9c96-ea15d846f2bc.jsonl": {
-      "mtimeMs": 1773789602905.7048,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\fec7851c-af30-4df9-8615-3db151a8a3d1\\fec7851c-af30-4df9-8615-3db151a8a3d1.jsonl": {
-      "mtimeMs": 1774054084174.739,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\fec7851c-af30-4df9-8615-3db151a8a3d1\\subagents\\81c15d08-c8bc-401b-b558-27d71368eab9.jsonl": {
-      "mtimeMs": 1774052637677.6145,
-      "lastProcessedAt": "2026-03-23T08:10:06.128Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\45e6518d-31e0-4d9a-8b4c-60d824ea464d\\45e6518d-31e0-4d9a-8b4c-60d824ea464d.jsonl": {
-      "mtimeMs": 1774260812610.3638,
-      "lastProcessedAt": "2026-03-23T10:15:14.961Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\562cf139-a4a9-4751-96b9-d54f72e48a83\\562cf139-a4a9-4751-96b9-d54f72e48a83.jsonl": {
-      "mtimeMs": 1774253750064.352,
-      "lastProcessedAt": "2026-03-23T10:15:14.961Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\6722f949-937a-409b-8136-3d549044acc3\\6722f949-937a-409b-8136-3d549044acc3.jsonl": {
-      "mtimeMs": 1774254930642.4834,
-      "lastProcessedAt": "2026-03-23T10:15:14.961Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\9a9e884c-9aa9-4094-acd3-06a8efe71d04\\9a9e884c-9aa9-4094-acd3-06a8efe71d04.jsonl": {
-      "mtimeMs": 1774256242346.5652,
-      "lastProcessedAt": "2026-03-23T10:15:14.961Z"
-    },
-    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-AIDevelo-ai\\agent-transcripts\\dc1ab650-84ae-46e3-8d8f-07c99bab8596\\dc1ab650-84ae-46e3-8d8f-07c99bab8596.jsonl": {
-      "mtimeMs": 1774255879803.2468,
-      "lastProcessedAt": "2026-03-23T10:15:14.961Z"
+    "C:\\Users\\aidevelo\\.cursor\\projects\\c-Users-aidevelo-Desktop-aidevelo\\agent-transcripts\\6cf8e4b5-40ad-4bbc-b76f-0768d662a292\\6cf8e4b5-40ad-4bbc-b76f-0768d662a292.jsonl": {
+      "mtimeMs": 1774940000000,
+      "lastProcessedAt": "2026-03-31T00:00:00.000Z"
     }
   }
 }
