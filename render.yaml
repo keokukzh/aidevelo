@@ -4,42 +4,42 @@ services:
     runtime: node
     nodeVersion: "20"
     buildCommand: npx pnpm@9.15.4 install && npx pnpm@9.15.4 build
-    startCommand: npx tsx server/src/index.ts
+    startCommand: node server/dist/index.js
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: "3000"
       - key: DATABASE_URL
-        sync: false
+        value: "postgresql://postgres:Kukukeku992!@db.ngyncmglvqnmdnpiaqjq.supabase.co:5432/postgres"
       - key: SUPABASE_URL
-        sync: false
+        value: "https://ngyncmglvqnmdnpiaqjq.supabase.co"
       - key: SUPABASE_ANON_KEY
-        sync: false
+        value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5neW5jbWdsdnFubWRucGlhcWpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5MTkyMjAsImV4cCI6MjA5MDQ5NTIyMH0.W6skv6k1cmlkgGc_Pug8LKLWQr9Z6ncxdRVQQvQdO7U"
       - key: SUPABASE_SERVICE_ROLE_KEY
-        sync: false
+        value: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5neW5jbWdsdnFubWRucGlhcWpxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDkxOTIyMCwiZXhwIjoyMDkwNDk1MjIwfQ.KScXBE7ubDgo4iKGeeDuXKtRdamnANH0JKu1KfRlLp0"
       - key: SUPABASE_SECRET
-        sync: false
+        value: "Kukukeku992!"
       - key: AUTH_SECRET
-        sync: false
+        value: "Kukukeku992!atleast32charsforauth"
       - key: BETTER_AUTH_SECRET
-        sync: false
+        value: "Kukukeku992!atleast32charsforbetterauth"
       - key: RENDER_API_KEY
-        sync: false
+        value: "rnd_bzIh6ZkBOg1WcKHYEQZe2WJNEeQI"
       - key: CLOUDFLARE_ACCOUNT_ID
-        sync: false
+        value: "9a0e1ab190099be9b4be61dcadd9f16c"
       - key: R2_ACCESS_KEY_ID
-        sync: false
+        value: "doesnotmatterforfix"
       - key: R2_SECRET_ACCESS_KEY
-        sync: false
+        value: "doesnotmatterforfix"
       - key: R2_BUCKET_NAME
-        sync: false
+        value: "aidevelo"
       - key: R2_S3_ENDPOINT
-        sync: false
+        value: "https://9a0e1ab190099be9b4be61dcadd9f16c.r2.cloudflarestorage.com/aidevelo"
       - key: ANTHROPIC_BASE_URL
-        sync: false
+        value: "https://api.minimax.io/anthropic"
       - key: ANTHROPIC_API_KEY
-        sync: false
+        value: "doesnotmatterforfix"
       - key: AIDEVELO_MIGRATION_AUTO_APPLY
         value: "true"
       - key: AIDEVELO_MIGRATION_PROMPT
