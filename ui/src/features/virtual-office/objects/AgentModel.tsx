@@ -176,6 +176,7 @@ function AgentFace({ state, personality }: { state: string; personality?: { head
   const blinkTimerRef = useRef(0);
   const isBlinkingRef = useRef(false);
   const blinkProgressRef = useRef(0);
+  const headRef = useRef<THREE.Group>(null);
 
   const isSleeping = state === "away";
   const isWalking = state === "walking";
@@ -206,6 +207,13 @@ function AgentFace({ state, personality }: { state: string; personality?: { head
         if (rightEyeRef.current) rightEyeRef.current.scale.y = 1;
       }
     }
+
+    // Head sway micro-movement
+    if (headRef?.current) {
+      const swayAmt = 0.02 * (personality?.headSway ?? 1);
+      headRef.current.rotation.y = Math.sin(Date.now() * 0.001 * 0.7) * swayAmt;
+      headRef.current.rotation.x = Math.sin(Date.now() * 0.001 * 0.5) * swayAmt * 0.5;
+    }
   });
 
   const mouthShape = () => {
@@ -217,7 +225,7 @@ function AgentFace({ state, personality }: { state: string; personality?: { head
   };
 
   return (
-    <group position={[0, 1.1, 0]}>
+    <group ref={headRef} position={[0, 1.1, 0]}>
       {isSleeping ? (
         <>
           <mesh position={[-0.06, 0.02, 0.15]} scale={[1, 0.1, 1]}>
