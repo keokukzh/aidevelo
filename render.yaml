@@ -59,6 +59,7 @@ services:
       - key: DATABASE_URL
         fromService:
           name: aidevelo-api
+          type: web
           envVarKey: DATABASE_URL
       - key: NODE_ENV
         value: production
