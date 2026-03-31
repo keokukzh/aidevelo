@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "aidevelo-ui",
+  "compatibility_date": "2026-03-31",
+
+  // Cloudflare Pages configuration
+  "pages_build_output_dir": "../ui/dist",
+  "build_command": "cd ui && pnpm build",
+
+  // Single Pages deployment (not yet using git integration)
+  // For git-based deploys, use wrangler pages project create + git-connector
+  "assets": {
+    "directory": "../ui/dist"
+  },
+
+  // Environment: production
+  "env": {
+    "production": {
+      "name": "aidevelo-ui",
+      "routes": [
+        { "pattern": "aidevelo.ai", "zone_name": "aidevelo.ai" }
+      ]
+    }
+  },
+
+  // Secrets required (set via `wrangler secret put`):
+  // VITE_API_URL        — e.g. https://api.aidevelo.ai
+  // VITE_SUPABASE_URL   — e.g. https://yhhrbfukivgccdaxqupm.supabase.co
+  // VITE_SUPABASE_ANON_KEY
+
+  // Cloudflare Observability
+  "observability": {
+    "enabled": true
+  }
+}
