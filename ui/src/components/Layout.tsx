@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Moon, Settings, Sun, Building2, MessageSquare } from "lucide-react";
+import { Moon, Settings, Sun } from "lucide-react";
 import { Link, Outlet, useLocation, useNavigate, useParams } from "@/lib/router";
 import { CompanyRail } from "./CompanyRail";
 import { Sidebar } from "./Sidebar";
@@ -67,9 +67,9 @@ export function Layout() {
   const onboardingTriggered = useRef(false);
   const lastMainScrollTop = useRef(0);
   const [mobileNavVisible, setMobileNavVisible] = useState(true);
-  const [instanceSettingsTarget, setInstanceSettingsTarget] = useState<string>(() => readRememberedInstanceSettingsPath());
   const [chatOpen, setChatOpen] = useState(false);
   const [chatAgentId, setChatAgentId] = useState<string | null>(null);
+  const [instanceSettingsTarget, setInstanceSettingsTarget] = useState<string>(() => readRememberedInstanceSettingsPath());
   const nextTheme = theme === "dark" ? "light" : "dark";
   const matchedCompany = useMemo(() => {
     if (!companyPrefix) return null;
@@ -320,49 +320,6 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-muted-foreground shrink-0"
-                      asChild
-                    >
-                      <Link
-                        to={selectedCompany ? `/${selectedCompany.issuePrefix}/dashboard` : "/dashboard"}
-                        aria-label="Virtual Office"
-                        title="Virtual Office"
-                        onClick={() => {
-                          if (isMobile) setSidebarOpen(false);
-                        }}
-                      >
-                        <Building2 className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Virtual Office</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-muted-foreground shrink-0"
-                      onClick={() => {
-                        if (isMobile) setSidebarOpen(false);
-                        // TODO: Get the actual CEO agent ID from context or API
-                        // For now, use a placeholder - this should be the CEO agent
-                        setChatAgentId("00000000-0000-0000-0000-000000000001");
-                        setChatOpen(true);
-                      }}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Chat with CEO</TooltipContent>
-                </Tooltip>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -427,49 +384,6 @@ export function Layout() {
                     <Settings className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-muted-foreground shrink-0"
-                      asChild
-                    >
-                      <Link
-                        to={selectedCompany ? `/${selectedCompany.issuePrefix}/dashboard` : "/dashboard"}
-                        aria-label="Virtual Office"
-                        title="Virtual Office"
-                        onClick={() => {
-                          if (isMobile) setSidebarOpen(false);
-                        }}
-                      >
-                        <Building2 className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Virtual Office</TooltipContent>
-                </Tooltip>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      className="text-muted-foreground shrink-0"
-                      onClick={() => {
-                        if (isMobile) setSidebarOpen(false);
-                        // TODO: Get the actual CEO agent ID from context or API
-                        // For now, use a placeholder - this should be the CEO agent
-                        setChatAgentId("00000000-0000-0000-0000-000000000001");
-                        setChatOpen(true);
-                      }}
-                    >
-                      <MessageSquare className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>Chat with CEO</TooltipContent>
-                </Tooltip>
                 {health?.version && (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -512,9 +426,9 @@ export function Layout() {
               isMobile && "sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/85",
             )}
           >
-            <BreadcrumbBar />
+            <BreadcrumbBar chatOpen={chatOpen} setChatOpen={setChatOpen} chatAgentId={chatAgentId} setChatAgentId={setChatAgentId} />
           </div>
-          <div className={cn(isMobile ? "block" : "flex flex-1 min-h-0")}>
+          <div className={cn(isMobile ? "block" : "flex flex-1 min-h-0 relative")}>
             <main
               id="main-content"
               tabIndex={-1}
@@ -533,6 +447,14 @@ export function Layout() {
               )}
             </main>
             <PropertiesPanel />
+            {chatOpen && (
+              <ChatDialog
+                agentId={chatAgentId}
+                onAgentChange={setChatAgentId}
+                open={chatOpen}
+                onOpenChange={setChatOpen}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -543,7 +465,8 @@ export function Layout() {
       <NewGoalDialog />
       <NewAgentDialog />
       <ChatDialog
-        agentId={chatAgentId || "00000000-0000-0000-0000-000000000001"}
+        agentId={chatAgentId}
+        onAgentChange={setChatAgentId}
         open={chatOpen}
         onOpenChange={setChatOpen}
       />

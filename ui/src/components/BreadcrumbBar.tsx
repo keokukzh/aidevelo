@@ -1,5 +1,5 @@
 import { Link } from "@/lib/router";
-import { Menu } from "lucide-react";
+import { Menu, MessageSquare } from "lucide-react";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { useSidebar } from "../context/SidebarContext";
 import { useCompany } from "../context/CompanyContext";
@@ -12,7 +12,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Fragment, lazy, Suspense, useMemo } from "react";
+import { Fragment, lazy, Suspense, useMemo, useState } from "react";
 import { PluginSlotOutlet, usePluginSlots } from "@/plugins/slots";
 import { PluginLauncherOutlet, usePluginLaunchers } from "@/plugins/launchers";
 
@@ -21,6 +21,13 @@ const VirtualOfficeHeaderWidget = lazy(() =>
 );
 
 type GlobalToolbarContext = { companyId: string | null; companyPrefix: string | null };
+
+type ChatState = {
+  chatOpen: boolean;
+  setChatOpen: (open: boolean) => void;
+  chatAgentId: string | null;
+  setChatAgentId: (id: string | null) => void;
+};
 
 function GlobalToolbarPlugins({ context }: { context: GlobalToolbarContext }) {
   const { slots } = usePluginSlots({ slotTypes: ["globalToolbarButton"], companyId: context.companyId });
@@ -34,7 +41,9 @@ function GlobalToolbarPlugins({ context }: { context: GlobalToolbarContext }) {
   );
 }
 
-export function BreadcrumbBar() {
+type BreadcrumbBarProps = ChatState;
+
+export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgentId }: BreadcrumbBarProps) {
   const { breadcrumbs } = useBreadcrumbs();
   const { toggleSidebar, isMobile } = useSidebar();
   const { selectedCompanyId, selectedCompany } = useCompany();
@@ -58,6 +67,18 @@ export function BreadcrumbBar() {
   if (breadcrumbs.length === 0) {
     return (
       <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1">
+        {/* Chat toggle button */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => setChatOpen(!chatOpen)}
+          aria-label={chatOpen ? "Close chat" : "Open chat"}
+          title="Chat"
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
         {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
@@ -86,6 +107,18 @@ export function BreadcrumbBar() {
             {breadcrumbs[0].label}
           </h1>
         </div>
+        {/* Chat toggle button */}
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="text-muted-foreground hover:text-foreground shrink-0"
+          onClick={() => setChatOpen(!chatOpen)}
+          aria-label={chatOpen ? "Close chat" : "Open chat"}
+          title="Chat"
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
         {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
@@ -119,6 +152,18 @@ export function BreadcrumbBar() {
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+      {/* Chat toggle button */}
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-sm"
+        className="text-muted-foreground hover:text-foreground shrink-0"
+        onClick={() => setChatOpen(!chatOpen)}
+        aria-label={chatOpen ? "Close chat" : "Open chat"}
+        title="Chat"
+      >
+        <MessageSquare className="h-4 w-4" />
+      </Button>
       {virtualOfficeWidget}
       {globalToolbarSlots}
     </div>
