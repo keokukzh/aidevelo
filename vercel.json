@@ -21,12 +21,8 @@
   ],
   "crons": [
     {
-      "path": "/api/worker/cron-dispatch",
+      "path": "/api/worker/cron-unified",
       "schedule": "* * * * *"
-    },
-    {
-      "path": "/api/worker/heartbeat-tick",
-      "schedule": "*/5 * * * *"
     }
   ]
 }

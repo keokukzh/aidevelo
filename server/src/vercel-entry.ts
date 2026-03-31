@@ -10,6 +10,7 @@ import { createStorageServiceFromConfig } from "./storage/index.js";
 import { logger } from "./middleware/logger.js";
 import { cronDispatchRoutes } from "./routes/worker/cron-dispatch.js";
 import { cronHeartbeatTickRoutes } from "./routes/worker/cron-heartbeat-tick.js";
+import { cronUnifiedRoutes } from "./routes/worker/cron-unified.js";
 
 const isVercel = process.env.VERCEL === "true" || process.env.VERCEL === "1";
 
@@ -98,8 +99,10 @@ async function buildApp() {
   // vercel.json routes these based on path, but we also mount here for local testing
   const workerApi = cronDispatchRoutes(db);
   const heartbeatApi = cronHeartbeatTickRoutes(db);
+  const unifiedApi = cronUnifiedRoutes();
   app.use("/api/worker", workerApi);
   app.use("/api/worker", heartbeatApi);
+  app.use("/api/worker", unifiedApi);
 
   return app;
 }
