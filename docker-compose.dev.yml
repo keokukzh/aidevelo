@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: aidevelo-db-dev
+    environment:
+      POSTGRES_USER: aidevelo
+      POSTGRES_PASSWORD: aidevelo
+      POSTGRES_DB: aidevelo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aidevelo -d aidevelo"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    ports:
+      - "127.0.0.1:${AIDEVELO_DB_PORT:-5432}:5432"
+    volumes:
+      - ./data/docker-aidevelo-dev/postgres:/var/lib/postgresql/data
+    networks:
+      - aidevelo-dev-net
+
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    container_name: aidevelo-server-dev
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${AIDEVELO_PORT:-3100}:3100"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "3100"
+      SERVE_UI: "true"
+      AIDEVELO_HOME: "/aidevelo"
+      DATABASE_URL: "postgres://aidevelo:aidevelo@db:5432/aidevelo"
+      AIDEVELO_DEPLOYMENT_MODE: "authenticated"
+      AIDEVELO_DEPLOYMENT_EXPOSURE: "private"
+      AIDEVELO_AUTH_ALLOW_LOCAL_IMPLICIT_BOARD: "true"
+      AIDEVELO_PUBLIC_URL: "${AIDEVELO_PUBLIC_URL:-http://localhost:3100}"
+      BETTER_AUTH_SECRET: "${BETTER_AUTH_SECRET:-dev-secret-change-in-production}"
+      OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
+      MINIMAX_API_KEY: "${MINIMAX_API_KEY:-}"
+      MINIMAX_ANTHROPIC_BASE_URL: "${MINIMAX_ANTHROPIC_BASE_URL:-}"
+      AIDEVELO_AGENT_JWT_SECRET: "${AIDEVELO_AGENT_JWT_SECRET:-}"
+      NODE_ENV: "development"
+    volumes:
+      - ./data/docker-aidevelo-dev/app:/aidevelo
+      - ./server:/app/server
+      - ./ui:/app/ui
+      - ./packages:/app/packages
+    working_dir: /app
+    command: pnpm dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:3100/api/health >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    networks:
+      - aidevelo-dev-net
+    develop:
+      watch:
+        - action: sync
+          path: ./server
+          target: /app/server
+        - action: sync
+          path: ./ui
+          target: /app/ui
+        - action: sync
+          path: ./packages
+          target: /app/packages
+
+volumes:
+
+networks:
+  aidevelo-dev-net:
+    driver: bridge

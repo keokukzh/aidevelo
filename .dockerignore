@@ -1,10 +1,60 @@
+# Version control
 .git
 .github
-.aidevelo
+.gitignore
+.mailmap
+
+# Local development
+.claude
+.claude-flow
+.cloudflare
+.codex
+.corepack
+.cursor
 .pnpm-store
+.wrangler
+.env.local
+.env.*.local
+
+# Build artifacts and logs
 node_modules
 **/node_modules
 coverage
-data
-tmp
+dist
+build
 *.log
+tmp
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Testing
+tests
+evals
+reports
+*.test.js
+*.spec.js
+
+# Documentation and config
+docs
+doc
+CONTRIBUTING.md
+*.md
+*.canvas
+
+# Unnecessary files
+data
+releases
+report
+render.yaml
+vercel.json
+*.ps1
+Unbenannt.canvas
+virtualofficeplan.png
+AID-thumbnail-white.png
+mainlogonobackwhite.png

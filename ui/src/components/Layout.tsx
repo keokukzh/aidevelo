@@ -307,51 +307,49 @@ export function Layout() {
               className="border border-border bg-[rgba(3,3,3,1)] px-3 py-2"
               style={{ boxSizing: "content-box", opacity: 1, borderRadius: 15, borderTopLeftRadius: 15, borderTopRightRadius: 15, borderBottomRightRadius: 15, borderBottomLeftRadius: 15, color: "rgba(240, 196, 36, 1)", borderImage: "none" }}
             >
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
-                  <Link
-                    to={instanceSettingsTarget}
-                    aria-label="Instance settings"
-                    title="Instance settings"
-                    onClick={() => {
-                      if (isMobile) setSidebarOpen(false);
-                    }}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Link>
-                </Button>
-                {health?.version && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="Open dashboard"
-                        title="Open dashboard"
-                        onClick={handleDashboardLogoClick}
-                        className="shrink-0 rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-                      >
-                        <img
-                          src="/aidevelopment.png"
-                          alt="AIDevelopment"
-                          className="h-[53px] w-[190px] object-contain shrink-0"
-                        />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>v{health.version}</TooltipContent>
-                  </Tooltip>
-                )}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  onClick={toggleTheme}
-                  aria-label={`Switch to ${nextTheme} mode`}
-                  title={`Switch to ${nextTheme} mode`}
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
+                <Link
+                  to={instanceSettingsTarget}
+                  aria-label="Instance settings"
+                  title="Instance settings"
+                  onClick={() => {
+                    if (isMobile) setSidebarOpen(false);
+                  }}
                 >
-                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-              </div>
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </Button>
+              {health?.version && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Open dashboard"
+                      title="Open dashboard"
+                      onClick={handleDashboardLogoClick}
+                      className="shrink-0 rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                    >
+                      <img
+                        src="/aidevelopment.png"
+                        alt="AIDevelopment"
+                        className="h-[53px] w-[190px] object-contain shrink-0"
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>v{health.version}</TooltipContent>
+                </Tooltip>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="text-muted-foreground shrink-0"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${nextTheme} mode`}
+                title={`Switch to ${nextTheme} mode`}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
         ) : (
@@ -371,51 +369,49 @@ export function Layout() {
               className="border border-border bg-[rgba(3,3,3,1)] px-3 py-2"
               style={{ boxSizing: "content-box", opacity: 1, borderRadius: 15, borderTopLeftRadius: 15, borderTopRightRadius: 15, borderBottomRightRadius: 15, borderBottomLeftRadius: 15, color: "rgba(240, 196, 36, 1)", borderImage: "none" }}
             >
-              <div className="flex items-center gap-1">
-                <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
-                  <Link
-                    to={instanceSettingsTarget}
-                    aria-label="Instance settings"
-                    title="Instance settings"
-                    onClick={() => {
-                      if (isMobile) setSidebarOpen(false);
-                    }}
-                  >
-                    <Settings className="h-4 w-4" />
-                  </Link>
-                </Button>
-                {health?.version && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label="Open dashboard"
-                        title="Open dashboard"
-                        onClick={handleDashboardLogoClick}
-                        className="shrink-0 rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
-                      >
-                        <img
-                          src="/aidevelopment.png"
-                          alt="AIDevelopment"
-                          className="h-[53px] w-[190px] object-contain shrink-0"
-                        />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>v{health.version}</TooltipContent>
-                  </Tooltip>
-                )}
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="text-muted-foreground shrink-0"
-                  onClick={toggleTheme}
-                  aria-label={`Switch to ${nextTheme} mode`}
-                  title={`Switch to ${nextTheme} mode`}
+              <Button variant="ghost" size="icon-sm" className="text-muted-foreground shrink-0" asChild>
+                <Link
+                  to={instanceSettingsTarget}
+                  aria-label="Instance settings"
+                  title="Instance settings"
+                  onClick={() => {
+                    if (isMobile) setSidebarOpen(false);
+                  }}
                 >
-                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                </Button>
-              </div>
+                  <Settings className="h-4 w-4" />
+                </Link>
+              </Button>
+              {health?.version && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Open dashboard"
+                      title="Open dashboard"
+                      onClick={handleDashboardLogoClick}
+                      className="shrink-0 rounded-sm transition-opacity hover:opacity-80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+                    >
+                      <img
+                        src="/aidevelopment.png"
+                        alt="AIDevelopment"
+                        className="h-[53px] w-[190px] object-contain shrink-0"
+                      />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent>v{health.version}</TooltipContent>
+                </Tooltip>
+              )}
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                className="text-muted-foreground shrink-0"
+                onClick={toggleTheme}
+                aria-label={`Switch to ${nextTheme} mode`}
+                title={`Switch to ${nextTheme} mode`}
+              >
+                {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
         )}

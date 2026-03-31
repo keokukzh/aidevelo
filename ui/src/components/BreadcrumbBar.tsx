@@ -67,6 +67,7 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
   if (breadcrumbs.length === 0) {
     return (
       <div className="border-b border-border px-4 md:px-6 h-12 shrink-0 flex items-center justify-end gap-1">
+        {virtualOfficeWidget}
         {/* Chat toggle button */}
         <Button
           type="button"
@@ -79,7 +80,6 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
         >
           <MessageSquare className="h-4 w-4" />
         </Button>
-        {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
     );
@@ -107,6 +107,7 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
             {breadcrumbs[0].label}
           </h1>
         </div>
+        {virtualOfficeWidget}
         {/* Chat toggle button */}
         <Button
           type="button"
@@ -119,7 +120,6 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
         >
           <MessageSquare className="h-4 w-4" />
         </Button>
-        {virtualOfficeWidget}
         {globalToolbarSlots}
       </div>
     );
@@ -152,6 +152,7 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
           </BreadcrumbList>
         </Breadcrumb>
       </div>
+      {virtualOfficeWidget}
       {/* Chat toggle button */}
       <Button
         type="button"
@@ -164,7 +165,6 @@ export function BreadcrumbBar({ chatOpen, setChatOpen, chatAgentId, setChatAgent
       >
         <MessageSquare className="h-4 w-4" />
       </Button>
-      {virtualOfficeWidget}
       {globalToolbarSlots}
     </div>
   );

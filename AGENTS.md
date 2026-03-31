@@ -165,6 +165,9 @@ A change is done when all are true:
 - Company deletion must delete dependent tables in foreign-key-safe order (e.g. delete `company_skills`, then `cost_events`/`finance_events`, then `heartbeat_runs`) to prevent 500s from FK constraint violations.
 - **Vercel deployment**: The project uses a dedicated `server/src/vercel-entry.ts` entrypoint for Vercel serverless functions (not `server/src/index.ts` which is long-running). Cron handlers are at `server/src/routes/worker/cron-dispatch.ts` and `server/src/routes/worker/cron-heartbeat-tick.ts`. `turbo.json` and `vercel.json` at the repo root configure the build.
 - **UI cache issue**: When Virtual Office or React UI changes don't appear in the browser, it is almost always browser cache — restart Vite (`pnpm dev`) or do a hard refresh (Ctrl+Shift+R) before assuming code is broken.
+- **CEO Bundle Files**: `DEFAULT_AGENT_BUNDLE_FILES` in `server/src/services/default-agent-instructions.ts` is a hardcoded build-time constant — when adding new CEO bundle files to `server/src/onboarding-assets/ceo/`, this array must be updated or files will silently never load.
+- **CEO E2E Test**: `tests/e2e/onboarding.spec.ts` hardcodes the expected bundle file list — any new bundle files will cause this test to fail until the assertion is updated.
+- **tsconfig base config**: `tsconfig.base.json` must have `jsx: "react-jsx"` for React JSX support to cascade properly to workspace packages.
 
 ## Cursor Cloud specific instructions
 
