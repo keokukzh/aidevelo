@@ -3,7 +3,7 @@
 ## Phase 1: Onboarding Wizard Refinement
 Goal: Streamline the onboarding UI to focus on the essential steps for first-task success.
 
-- [ ] Task: Research and analyze current onboarding friction points in `OnboardingWizard.tsx`
+- [x] Task: Research and analyze current onboarding friction points in `OnboardingWizard.tsx` [4542f9e]
 - [ ] Task: Refine Onboarding Wizard UI for simplicity
     - [ ] Write tests for the refined wizard steps in `ui/src/components/__tests__/OnboardingWizard.test.tsx`
     - [ ] Implement UI refinements in `ui/src/components/OnboardingWizard.tsx`
