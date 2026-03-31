@@ -14,5 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true
-  }
+  },
+  "exclude": ["**/*.test.ts", "**/*.spec.ts"]
 }
