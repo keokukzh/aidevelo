@@ -3,7 +3,7 @@ services:
     type: web
     region: oregon
     runtime: node
-    buildCommand: npx pnpm@9.15.4 install && npx pnpm@9.15.4 build
+    buildCommand: npx pnpm@9.15.4 install --include=dev && npx pnpm@9.15.4 build
     startCommand: node server/dist/index.js
     envVars:
       - key: NODE_ENV
