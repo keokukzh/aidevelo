@@ -149,6 +149,10 @@ export function OnboardingWizard() {
   const [ceoSkillPreset, setCeoSkillPreset] =
     useState<CeoSkillPresetId>("ceo_builder");
   const [selectedSkillKeys, setSelectedSkillKeys] = useState<string[]>([]);
+  const [ceoEmail, setCeoEmail] = useState("");
+  const [ceoPhone, setCeoPhone] = useState("");
+  const [ceoContactPreferences, setCeoContactPreferences] =
+    useState<"email" | "phone" | "sms" | "slack">("email");
 
   // Step 3
   const [taskTitle, setTaskTitle] = useState(DEFAULT_TASK_TITLE);
@@ -331,6 +335,9 @@ export function OnboardingWizard() {
     setAutonomousHiringEnabled(false);
     setCeoSkillPreset("ceo_builder");
     setSelectedSkillKeys([]);
+    setCeoEmail("");
+    setCeoPhone("");
+    setCeoContactPreferences("email");
     setTaskTitle(DEFAULT_TASK_TITLE);
     setTaskDescription(DEFAULT_TASK_DESCRIPTION);
     setCreatedCompanyId(null);
@@ -502,7 +509,10 @@ export function OnboardingWizard() {
               cooldownSec: 10,
               maxConcurrentRuns: 1
             }
-          }
+          },
+          email: ceoEmail || undefined,
+          phone: ceoPhone || undefined,
+          contactPreferences: ceoContactPreferences
         });
         setCreatedAgentId(agent.id);
         queryClient.invalidateQueries({
@@ -566,7 +576,10 @@ export function OnboardingWizard() {
             cooldownSec: 10,
             maxConcurrentRuns: 1
           }
-        }
+        },
+        email: ceoEmail || undefined,
+        phone: ceoPhone || undefined,
+        contactPreferences: ceoContactPreferences
       });
       setCreatedAgentId(agent.id);
       queryClient.invalidateQueries({
@@ -1028,6 +1041,59 @@ export function OnboardingWizard() {
                       {ceoSkillPreset !== "manual"
                         ? ` via ${getCeoSkillPreset(ceoSkillPreset).label}`
                         : ""}
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-border bg-card/40 p-4 space-y-4">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">CEO contact information</p>
+                      <p className="text-xs text-muted-foreground">
+                        Optional contact details for the CEO agent.
+                      </p>
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div>
+                        <label htmlFor="onboarding-ceo-email" className="text-sm text-muted-foreground mb-1 block">
+                          Email
+                        </label>
+                        <input
+                          id="onboarding-ceo-email"
+                          type="email"
+                          className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+                          placeholder="ceo@company.com"
+                          value={ceoEmail}
+                          onChange={(e) => setCeoEmail(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label htmlFor="onboarding-ceo-phone" className="text-sm text-muted-foreground mb-1 block">
+                          Phone
+                        </label>
+                        <input
+                          id="onboarding-ceo-phone"
+                          type="tel"
+                          className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/50"
+                          placeholder="+1 555 123 4567"
+                          value={ceoPhone}
+                          onChange={(e) => setCeoPhone(e.target.value)}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label htmlFor="onboarding-ceo-contact-preferences" className="text-sm text-muted-foreground mb-1 block">
+                        Contact preference
+                      </label>
+                      <select
+                        id="onboarding-ceo-contact-preferences"
+                        className="w-full rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+                        value={ceoContactPreferences}
+                        onChange={(e) => setCeoContactPreferences(e.target.value as "email" | "phone" | "sms" | "slack")}
+                      >
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                        <option value="sms">SMS</option>
+                        <option value="slack">Slack</option>
+                      </select>
                     </div>
                   </div>
 
