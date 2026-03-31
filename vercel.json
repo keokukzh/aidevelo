@@ -1,0 +1,25 @@
+{
+  "version": 2,
+  "rootDirectory": ".",
+  "buildCommand": "npm exec -- pnpm@9.15.4 -- build",
+  "installCommand": "npm exec -- pnpm@9.15.4 -- install",
+  "framework": null,
+  "experimental": {
+    "services": {
+      "api": {
+        "entrypoint": "server/src/vercel-entry.ts",
+        "routePrefix": "/api"
+      }
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/worker/cron-dispatch",
+      "schedule": "* * * * *"
+    },
+    {
+      "path": "/api/worker/heartbeat-tick",
+      "schedule": "*/5 * * * *"
+    }
+  ]
+}
