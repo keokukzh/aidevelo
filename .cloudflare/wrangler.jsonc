@@ -25,7 +25,7 @@
 
   // Secrets required (set via `wrangler secret put`):
   // VITE_API_URL        — e.g. https://api.aidevelo.ai
-  // VITE_SUPABASE_URL   — e.g. https://yhhrbfukivgccdaxqupm.supabase.co
+  // VITE_SUPABASE_URL   — e.g. https://ngyncmglvqnmdnpiaqjq.supabase.co
   // VITE_SUPABASE_ANON_KEY
 
   // Cloudflare Observability
