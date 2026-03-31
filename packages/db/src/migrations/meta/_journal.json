@@ -342,7 +342,14 @@
       "idx": 48,
       "version": "7",
       "when": 1743292800001,
-      "tag": "0048_add_chat_messages",
+      "tag": "0048_add_ceo_contact_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 49,
+      "version": "7",
+      "when": 1743292800002,
+      "tag": "0049_add_chat_messages",
       "breakpoints": true
     }
   ]

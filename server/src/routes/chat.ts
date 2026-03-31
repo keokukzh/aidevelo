@@ -33,7 +33,7 @@ export function chatRoutes(db: Db) {
     }
 
     const { agentId, body } = parsed.data;
-    const userId = req.actor.type === "user" ? req.actor.userId : null;
+    const userId = req.actor.type === "board" ? req.actor.userId : null;
 
     const [message] = await db
       .insert(chatMessages)
