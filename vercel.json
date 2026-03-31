@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "rootDirectory": ".",
   "buildCommand": "npm exec -- pnpm@9.15.4 -- build",
   "installCommand": "npm exec -- pnpm@9.15.4 -- install",
   "framework": null,
