@@ -9,6 +9,10 @@ export type InboxSummary = {
   agentErrorCount: number;
   monthBudgetCents: number;
   monthUtilizationPercent: number;
+  workerPendingJobs: number;
+  workerRetryBacklog: number;
+  workerOldestPendingAgeSeconds: number | null;
+  workerLastHeartbeatTickAt: string | null;
 };
 
 export const dashboardApi = {

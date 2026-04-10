@@ -128,8 +128,8 @@ async function bootstrap() {
   const jobQueue = jobQueueService(db);
 
   // Enqueue initial heartbeat tick
-  await jobQueue.enqueue("heartbeat_tick", null, {
-    tickTimestamp: new Date().toISOString(),
+  await jobQueue.enqueueHeartbeatTick(new Date().toISOString(), {
+    source: "worker_bootstrap",
   });
 
   log.info("Bootstrap complete: initial heartbeat tick enqueued");

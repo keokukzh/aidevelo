@@ -608,7 +608,11 @@ export function Inbox() {
     (inboxSummary?.monthBudgetCents ?? dashboard?.costs.monthBudgetCents ?? 0) > 0 &&
     (inboxSummary?.monthUtilizationPercent ?? dashboard?.costs.monthUtilizationPercent ?? 0) >= 80 &&
     !dismissed.has("alert:budget");
-  const hasAlerts = showAggregateAgentError || showBudgetAlert;
+  const workerLagSeconds = inboxSummary?.workerOldestPendingAgeSeconds ?? 0;
+  const showWorkerQueueAlert =
+    ((inboxSummary?.workerRetryBacklog ?? 0) > 0 || workerLagSeconds >= 120) &&
+    !dismissed.has("alert:worker-queue");
+  const hasAlerts = showAggregateAgentError || showBudgetAlert || showWorkerQueueAlert;
   const hasJoinRequests = (inboxSummary?.pendingJoinRequests ?? joinRequests.length) > 0;
   const showWorkItemsSection = workItemsToRender.length > 0;
   const showJoinRequestsSection =
@@ -918,6 +922,34 @@ export function Inbox() {
                   <button
                     type="button"
                     onClick={() => dismiss("alert:budget")}
+                    className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/alert:opacity-100"
+                    aria-label="Dismiss"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              )}
+              {showWorkerQueueAlert && (
+                <div className="group/alert relative flex items-center gap-3 px-4 py-3 transition-colors hover:bg-accent/50">
+                  <Link
+                    to="/inbox/all"
+                    className="flex flex-1 cursor-pointer items-center gap-3 no-underline text-inherit"
+                  >
+                    <AlertTriangle className="h-4 w-4 shrink-0 text-orange-500" />
+                    <span className="text-sm">
+                      Worker queue degraded:{" "}
+                      <span className="font-medium">
+                        {inboxSummary?.workerPendingJobs ?? 0} pending
+                      </span>
+                      {workerLagSeconds > 0 ? `, oldest ${Math.floor(workerLagSeconds / 60)}m` : ""}
+                      {(inboxSummary?.workerRetryBacklog ?? 0) > 0
+                        ? `, retries ${inboxSummary?.workerRetryBacklog ?? 0}`
+                        : ""}
+                    </span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => dismiss("alert:worker-queue")}
                     className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity hover:bg-accent hover:text-foreground group-hover/alert:opacity-100"
                     aria-label="Dismiss"
                   >

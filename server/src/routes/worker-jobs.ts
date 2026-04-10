@@ -8,6 +8,14 @@ export function workerJobRoutes(db: Db) {
   const jobQueue = jobQueueService(db);
 
   // GET /api/companies/:companyId/jobs - List jobs for company
+  router.get("/companies/:companyId/jobs/health", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const health = await jobQueue.getQueueHealth(companyId);
+    res.json(health);
+  });
+
+  // GET /api/companies/:companyId/jobs - List jobs for company
   router.get("/companies/:companyId/jobs", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);

@@ -1,6 +1,6 @@
 // server/src/worker/handlers/routine-dispatch.ts
-import { createDb, routineTriggers } from "@aideveloai/db";
-import { eq } from "drizzle-orm";
+import { backgroundJobs, createDb, routineTriggers } from "@aideveloai/db";
+import { and, desc, eq } from "drizzle-orm";
 import { routineService } from "../../services/routines.js";
 import type { RoutineDispatchPayload } from "../../services/job-queue.js";
 
@@ -31,6 +31,32 @@ export const routineDispatchHandler = {
 
     // If nextRunAt has advanced past our scheduled tick, we've already run
     if (trigger.nextRunAt && trigger.nextRunAt > new Date(scheduledTick)) {
+      return { success: false, skipped: true };
+    }
+
+    // Idempotency: skip if same trigger/tick was already completed.
+    const recentDispatches = await db
+      .select({ status: backgroundJobs.status, jobPayload: backgroundJobs.jobPayload })
+      .from(backgroundJobs)
+      .where(
+        and(
+          eq(backgroundJobs.jobType, "routine_dispatch"),
+          eq(backgroundJobs.companyId, companyId),
+        ),
+      )
+      .orderBy(desc(backgroundJobs.updatedAt))
+      .limit(200);
+
+    const duplicateCompleted = recentDispatches.some((job) => {
+      const payload = job.jobPayload as Record<string, unknown> | null;
+      return (
+        job.status === "completed" &&
+        payload?.triggerId === triggerId &&
+        payload?.scheduledTick === scheduledTick
+      );
+    });
+
+    if (duplicateCompleted) {
       return { success: false, skipped: true };
     }
 

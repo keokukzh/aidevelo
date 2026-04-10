@@ -1,5 +1,5 @@
 // server/src/services/job-queue.ts
-import { and, desc, eq, isNull, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, isNull, lte, or } from "drizzle-orm";
 import type { Db, BackgroundJob, NewBackgroundJob } from "@aideveloai/db";
 import { backgroundJobs } from "@aideveloai/db";
 
@@ -17,10 +17,14 @@ export interface RoutineDispatchPayload {
   routineId: string;
   companyId: string;
   scheduledTick: string;
+  producer?: string;
+  producedAt?: string;
 }
 
 export interface HeartbeatTickPayload {
   tickTimestamp: string;
+  source?: string;
+  producedAt?: string;
 }
 
 export type JobPayload = WorkspaceCleanupPayload | RoutineDispatchPayload | HeartbeatTickPayload;
@@ -30,6 +34,29 @@ export interface ListJobsOptions {
   jobType?: JobType;
   limit?: number;
   cursor?: string;
+}
+
+export function isDuplicateHeartbeatTickPayload(
+  existingPayload: Record<string, unknown> | null | undefined,
+  requestedTickTimestamp: string,
+  dedupeWindowMs: number,
+): boolean {
+  if (!existingPayload || typeof existingPayload.tickTimestamp !== "string") return false;
+  const existingTick = new Date(existingPayload.tickTimestamp);
+  const requestedTick = new Date(requestedTickTimestamp);
+  if (Number.isNaN(existingTick.getTime()) || Number.isNaN(requestedTick.getTime())) return false;
+  return Math.abs(existingTick.getTime() - requestedTick.getTime()) <= dedupeWindowMs;
+}
+
+export function isDuplicateRoutineDispatchPayload(
+  existingPayload: Record<string, unknown> | null | undefined,
+  requested: RoutineDispatchPayload,
+): boolean {
+  if (!existingPayload) return false;
+  return (
+    existingPayload.triggerId === requested.triggerId &&
+    existingPayload.scheduledTick === requested.scheduledTick
+  );
 }
 
 export interface JobQueueService {
@@ -43,6 +70,22 @@ export interface JobQueueService {
       maxAttempts?: number;
     },
   ): Promise<BackgroundJob>;
+  enqueueHeartbeatTick(
+    tickTimestamp: string,
+    options?: {
+      priority?: number;
+      dedupeWindowMs?: number;
+      source?: string;
+    },
+  ): Promise<{ job: BackgroundJob; deduped: boolean }>;
+  enqueueRoutineDispatchIfAbsent(
+    payload: RoutineDispatchPayload,
+    options?: {
+      priority?: number;
+      maxAttempts?: number;
+      source?: string;
+    },
+  ): Promise<{ job: BackgroundJob; deduped: boolean }>;
 
   cancel(jobId: string): Promise<void>;
   getJob(jobId: string): Promise<BackgroundJob | null>;
@@ -53,6 +96,15 @@ export interface JobQueueService {
   markProcessing(jobId: string): Promise<void>;
   markCompleted(jobId: string): Promise<void>;
   markFailed(jobId: string, error: string, retryable: boolean): Promise<void>;
+  getQueueHealth(companyId?: string): Promise<{
+    pendingCount: number;
+    processingCount: number;
+    retryBacklogCount: number;
+    failedCount: number;
+    oldestPendingAgeSeconds: number | null;
+    oldestRetryAgeSeconds: number | null;
+    lastHeartbeatTickAt: string | null;
+  }>;
 }
 
 export function jobQueueService(db: Db): JobQueueService {
@@ -76,6 +128,76 @@ export function jobQueueService(db: Db): JobQueueService {
         .returning();
 
       return job;
+    },
+    async enqueueHeartbeatTick(tickTimestamp, options = {}) {
+      const dedupeWindowMs = options.dedupeWindowMs ?? 120000;
+      const dedupeAfter = new Date(Date.now() - dedupeWindowMs);
+      const candidates = await db
+        .select()
+        .from(backgroundJobs)
+        .where(
+          and(
+            eq(backgroundJobs.jobType, "heartbeat_tick"),
+            or(eq(backgroundJobs.status, "pending"), eq(backgroundJobs.status, "processing")),
+            gte(backgroundJobs.createdAt, dedupeAfter),
+          ),
+        )
+        .orderBy(desc(backgroundJobs.createdAt))
+        .limit(20);
+
+      for (const candidate of candidates) {
+        const payload = candidate.jobPayload as Record<string, unknown> | null;
+        if (isDuplicateHeartbeatTickPayload(payload, tickTimestamp, dedupeWindowMs)) {
+          return { job: candidate, deduped: true };
+        }
+      }
+
+      const job = await this.enqueue(
+        "heartbeat_tick",
+        null,
+        {
+          tickTimestamp,
+          source: options.source ?? "worker",
+          producedAt: new Date().toISOString(),
+        },
+        { priority: options.priority ?? -1 },
+      );
+      return { job, deduped: false };
+    },
+    async enqueueRoutineDispatchIfAbsent(payload, options = {}) {
+      const candidates = await db
+        .select()
+        .from(backgroundJobs)
+        .where(
+          and(
+            eq(backgroundJobs.jobType, "routine_dispatch"),
+            or(eq(backgroundJobs.status, "pending"), eq(backgroundJobs.status, "processing")),
+          ),
+        )
+        .orderBy(desc(backgroundJobs.createdAt))
+        .limit(300);
+
+      for (const candidate of candidates) {
+        const existingPayload = candidate.jobPayload as Record<string, unknown> | null;
+        if (isDuplicateRoutineDispatchPayload(existingPayload, payload)) {
+          return { job: candidate, deduped: true };
+        }
+      }
+
+      const job = await this.enqueue(
+        "routine_dispatch",
+        payload.companyId,
+        {
+          ...payload,
+          producer: options.source ?? payload.producer ?? "worker",
+          producedAt: payload.producedAt ?? new Date().toISOString(),
+        },
+        {
+          priority: options.priority,
+          maxAttempts: options.maxAttempts,
+        },
+      );
+      return { job, deduped: false };
     },
 
     async cancel(jobId) {
@@ -203,6 +325,77 @@ export function jobQueueService(db: Db): JobQueueService {
           })
           .where(eq(backgroundJobs.id, jobId));
       }
+    },
+    async getQueueHealth(companyId) {
+      const withCompanyScope = <T>(conditions: T[]) =>
+        companyId ? [eq(backgroundJobs.companyId, companyId), ...conditions] : conditions;
+      const now = Date.now();
+
+      const [pendingRows, processingRows, retryRows, failedRows, oldestPending, oldestRetry, heartbeatRows] =
+        await Promise.all([
+          db
+            .select({ id: backgroundJobs.id })
+            .from(backgroundJobs)
+            .where(and(...withCompanyScope([eq(backgroundJobs.status, "pending")]))),
+          db
+            .select({ id: backgroundJobs.id })
+            .from(backgroundJobs)
+            .where(and(...withCompanyScope([eq(backgroundJobs.status, "processing")]))),
+          db
+            .select({ id: backgroundJobs.id })
+            .from(backgroundJobs)
+            .where(
+              and(
+                ...withCompanyScope([
+                  eq(backgroundJobs.status, "pending"),
+                  lte(backgroundJobs.nextRetryAt, new Date()),
+                ]),
+              ),
+            ),
+          db
+            .select({ id: backgroundJobs.id })
+            .from(backgroundJobs)
+            .where(and(...withCompanyScope([eq(backgroundJobs.status, "failed")]))),
+          db
+            .select({ createdAt: backgroundJobs.createdAt })
+            .from(backgroundJobs)
+            .where(and(...withCompanyScope([eq(backgroundJobs.status, "pending")])))
+            .orderBy(backgroundJobs.createdAt)
+            .limit(1),
+          db
+            .select({ nextRetryAt: backgroundJobs.nextRetryAt })
+            .from(backgroundJobs)
+            .where(
+              and(
+                ...withCompanyScope([
+                  eq(backgroundJobs.status, "pending"),
+                  lte(backgroundJobs.nextRetryAt, new Date()),
+                ]),
+              ),
+            )
+            .orderBy(backgroundJobs.nextRetryAt)
+            .limit(1),
+          db
+            .select({ completedAt: backgroundJobs.completedAt, createdAt: backgroundJobs.createdAt })
+            .from(backgroundJobs)
+            .where(and(eq(backgroundJobs.jobType, "heartbeat_tick"), or(eq(backgroundJobs.status, "completed"), eq(backgroundJobs.status, "processing"), eq(backgroundJobs.status, "pending"))))
+            .orderBy(desc(backgroundJobs.updatedAt))
+            .limit(1),
+        ]);
+
+      const oldestPendingAt = oldestPending[0]?.createdAt ?? null;
+      const oldestRetryAt = oldestRetry[0]?.nextRetryAt ?? null;
+      const lastHeartbeat = heartbeatRows[0]?.completedAt ?? heartbeatRows[0]?.createdAt ?? null;
+
+      return {
+        pendingCount: pendingRows.length,
+        processingCount: processingRows.length,
+        retryBacklogCount: retryRows.length,
+        failedCount: failedRows.length,
+        oldestPendingAgeSeconds: oldestPendingAt ? Math.max(0, Math.floor((now - oldestPendingAt.getTime()) / 1000)) : null,
+        oldestRetryAgeSeconds: oldestRetryAt ? Math.max(0, Math.floor((now - oldestRetryAt.getTime()) / 1000)) : null,
+        lastHeartbeatTickAt: lastHeartbeat ? lastHeartbeat.toISOString() : null,
+      };
     },
   };
 }

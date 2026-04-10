@@ -36,22 +36,19 @@ export const heartbeatTickHandler = {
 
     for (const trigger of dueTriggers) {
       if (!trigger.nextRunAt) continue;
-      await jobQueue.enqueue("routine_dispatch", trigger.companyId, {
+      await jobQueue.enqueueRoutineDispatchIfAbsent({
         triggerId: trigger.id,
         routineId: trigger.routineId,
         companyId: trigger.companyId,
         scheduledTick: trigger.nextRunAt.toISOString(),
-      });
+        producer: "heartbeat_worker",
+      }, { source: "heartbeat_worker" });
     }
 
     // 3. Schedule next heartbeat tick
-    await jobQueue.enqueue(
-      "heartbeat_tick",
-      null,
-      {
-        tickTimestamp: new Date(Date.now() + 30000).toISOString(),
-      },
-      { priority: -1 }, // Lower priority than other jobs
+    await jobQueue.enqueueHeartbeatTick(
+      new Date(Date.now() + 30000).toISOString(),
+      { priority: -1, source: "heartbeat_worker" },
     );
 
     return { success: true };

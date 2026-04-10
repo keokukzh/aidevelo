@@ -1,12 +1,8 @@
-// Unified Vercel Cron handler for environments with limited cron jobs.
-// Handles both heartbeat ticks and job dispatching in a single invocation.
+// Unified fallback/healthkick endpoint.
+// It queues heartbeat ticks and reports queue health, without running dispatch logic inline.
 import { Router } from "express";
-import { createDb, routineTriggers } from "@aideveloai/db";
-import { and, eq, lte } from "drizzle-orm";
-import { heartbeatService } from "../../services/heartbeat.js";
+import { createDb } from "@aideveloai/db";
 import { jobQueueService } from "../../services/job-queue.js";
-import { routineService } from "../../services/routines.js";
-import type { RoutineDispatchPayload } from "../../services/job-queue.js";
 
 function verifyCronAuth(req: { headers: Headers }): boolean {
   const cronSecret = process.env.CRON_SECRET;
@@ -25,68 +21,23 @@ export function cronUnifiedRoutes() {
     }
 
     const db = createDb(process.env.DATABASE_URL!);
-    const heartbeat = heartbeatService(db);
     const jobQueue = jobQueueService(db);
-    const routines = routineService(db);
 
     try {
-      const now = new Date();
       const results: any = { ok: true, tasks: [] };
 
-      // Task 1: Heartbeat & Trigger Enqueueing
-      const tickResult = await heartbeat.tickTimers(now);
-      results.tasks.push({ type: "heartbeat_tick", enqueued: tickResult.enqueued });
+      const enqueue = await jobQueue.enqueueHeartbeatTick(new Date().toISOString(), {
+        source: "cron_unified_healthkick",
+      });
+      results.tasks.push({
+        type: "healthkick",
+        heartbeatTickScheduled: !enqueue.deduped,
+        deduped: enqueue.deduped,
+        jobId: enqueue.job.id,
+      });
 
-      const dueTriggers = await db
-        .select()
-        .from(routineTriggers)
-        .where(
-          and(
-            eq(routineTriggers.kind, "cron"),
-            eq(routineTriggers.enabled, true),
-            lte(routineTriggers.nextRunAt, now),
-          ),
-        );
-
-      for (const trigger of dueTriggers) {
-        if (!trigger.nextRunAt) continue;
-        await jobQueue.enqueue("routine_dispatch", trigger.companyId, {
-          triggerId: trigger.id,
-          routineId: trigger.routineId,
-          companyId: trigger.companyId,
-          scheduledTick: trigger.nextRunAt.toISOString(),
-        });
-      }
-      results.tasks.push({ type: "triggers_processed", count: dueTriggers.length });
-
-      await heartbeat.reapOrphanedRuns({ staleThresholdMs: 5 * 60 * 1000 });
-      await heartbeat.resumeQueuedRuns();
-
-      // Task 2: Dispatch (process up to 3 jobs per tick to stay within execution limits)
-      let processedJobs = 0;
-      for (let i = 0; i < 3; i++) {
-        const job = await jobQueue.acquireNextJob();
-        if (!job) break;
-
-        if (job.jobType === "routine_dispatch") {
-          try {
-            const payload = job.jobPayload as unknown as RoutineDispatchPayload;
-            await routines.runRoutine(payload.routineId, {
-              triggerId: payload.triggerId,
-              source: "api",
-            });
-            await jobQueue.markCompleted(job.id);
-            processedJobs++;
-          } catch (jobErr) {
-            const msg = jobErr instanceof Error ? jobErr.message : String(jobErr);
-            await jobQueue.markFailed(job.id, msg, true);
-          }
-        } else {
-          // Simply acknowledge other types to clear the queue
-          await jobQueue.markCompleted(job.id);
-        }
-      }
-      results.tasks.push({ type: "worker_dispatch", processed: processedJobs });
+      const health = await jobQueue.getQueueHealth();
+      results.tasks.push({ type: "queue_health", ...health });
 
       res.json(results);
     } catch (err) {

@@ -4,12 +4,14 @@ import type { Db } from "@aideveloai/db";
 import { approvals, heartbeatRuns, joinRequests } from "@aideveloai/db";
 import { dashboardService } from "../services/dashboard.js";
 import { issueService } from "../services/issues.js";
+import { jobQueueService } from "../services/job-queue.js";
 import { assertCompanyAccess } from "./authz.js";
 
 export function dashboardRoutes(db: Db) {
   const router = Router();
   const svc = dashboardService(db);
   const issuesSvc = issueService(db);
+  const jobQueue = jobQueueService(db);
 
   router.get("/companies/:companyId/dashboard", async (req, res) => {
     const companyId = req.params.companyId as string;
@@ -23,7 +25,7 @@ export function dashboardRoutes(db: Db) {
     assertCompanyAccess(req, companyId);
     const summary = await svc.summary(companyId);
 
-    const [actionableApprovalsRow, pendingJoinRequestsRow, failedRunRows, unreadTouchedIssues] = await Promise.all([
+    const [actionableApprovalsRow, pendingJoinRequestsRow, failedRunRows, unreadTouchedIssues, queueHealth] = await Promise.all([
       db
         .select({ count: sql<number>`count(*)` })
         .from(approvals)
@@ -52,6 +54,7 @@ export function dashboardRoutes(db: Db) {
           })
           .then((rows) => rows.length)
         : Promise.resolve(0),
+      jobQueue.getQueueHealth(companyId),
     ]);
 
     res.json({
@@ -62,6 +65,10 @@ export function dashboardRoutes(db: Db) {
       agentErrorCount: summary.agents.error,
       monthBudgetCents: summary.costs.monthBudgetCents,
       monthUtilizationPercent: summary.costs.monthUtilizationPercent,
+      workerPendingJobs: queueHealth.pendingCount,
+      workerRetryBacklog: queueHealth.retryBacklogCount,
+      workerOldestPendingAgeSeconds: queueHealth.oldestPendingAgeSeconds,
+      workerLastHeartbeatTickAt: queueHealth.lastHeartbeatTickAt,
     });
   });
 
