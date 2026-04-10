@@ -40,6 +40,14 @@ server/src/**/*.d.ts
 server/src/**/*.d.ts.map
 tmp/
 
+# pnpm workspace: ignore accidental npm lockfiles and local backups
+package-lock.json
+*.bak
+commit_msg.txt
+fix-micromark.ps1
+fix-nested-micromark.ps1
+patch-micromark.ps1
+
 # Editor / tool temp files
 *.tmp
 .vscode/
