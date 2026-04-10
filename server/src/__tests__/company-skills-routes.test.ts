@@ -15,6 +15,7 @@ const mockAccessService = vi.hoisted(() => ({
 
 const mockCompanySkillService = vi.hoisted(() => ({
   importFromSource: vi.fn(),
+  patchSkill: vi.fn(),
 }));
 
 const mockLogActivity = vi.hoisted(() => vi.fn());
@@ -44,6 +45,11 @@ describe("company skill mutation permissions", () => {
     mockCompanySkillService.importFromSource.mockResolvedValue({
       imported: [],
       warnings: [],
+    });
+    mockCompanySkillService.patchSkill.mockResolvedValue({
+      id: "skill-1",
+      bundled: false,
+      tags: ["Planung"],
     });
     mockLogActivity.mockResolvedValue(undefined);
     mockAccessService.canUser.mockResolvedValue(true);
@@ -109,5 +115,22 @@ describe("company skill mutation permissions", () => {
       "company-1",
       "https://github.com/vercel-labs/agent-browser",
     );
+  });
+
+  it("allows local board operators to PATCH company skills", async () => {
+    const res = await request(createApp({
+      type: "board",
+      userId: "local-board",
+      companyIds: ["company-1"],
+      source: "local_implicit",
+      isInstanceAdmin: false,
+    }))
+      .patch("/api/companies/company-1/skills/skill-1")
+      .send({ tags: ["Planung"] });
+
+    expect(res.status, JSON.stringify(res.body)).toBe(200);
+    expect(mockCompanySkillService.patchSkill).toHaveBeenCalledWith("company-1", "skill-1", {
+      tags: ["Planung"],
+    });
   });
 });

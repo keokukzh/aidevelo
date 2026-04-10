@@ -41,11 +41,13 @@ export {
   companySkillProjectScanConflictSchema,
   companySkillProjectScanResultSchema,
   companySkillCreateSchema,
+  companySkillPatchSchema,
   companySkillFileDetailSchema,
   companySkillFileUpdateSchema,
   type CompanySkillImport,
   type CompanySkillProjectScan,
   type CompanySkillCreate,
+  type CompanySkillPatch,
   type CompanySkillFileUpdate,
 } from "./company-skill.js";
 export {

@@ -18,6 +18,7 @@ export type {
   CompanySkillProjectScanConflict,
   CompanySkillProjectScanResult,
   CompanySkillCreateRequest,
+  CompanySkillPatchRequest,
   CompanySkillFileDetail,
   CompanySkillFileUpdateRequest,
 } from "./company-skill.js";

@@ -24,6 +24,7 @@ export interface CompanySkill {
   sourceRef: string | null;
   trustLevel: CompanySkillTrustLevel;
   compatibility: CompanySkillCompatibility;
+  enabled: boolean;
   fileInventory: CompanySkillFileInventoryEntry[];
   metadata: Record<string, unknown> | null;
   createdAt: Date;
@@ -45,6 +46,10 @@ export interface CompanySkillListItem {
   fileInventory: CompanySkillFileInventoryEntry[];
   createdAt: Date;
   updatedAt: Date;
+  enabled: boolean;
+  /** Bundled repo skills; always injected at runtime and cannot be disabled. */
+  bundled: boolean;
+  tags: string[];
   attachedAgentCount: number;
   editable: boolean;
   editableReason: string | null;
@@ -63,6 +68,8 @@ export interface CompanySkillUsageAgent {
 }
 
 export interface CompanySkillDetail extends CompanySkill {
+  bundled: boolean;
+  tags: string[];
   attachedAgentCount: number;
   usedByAgents: CompanySkillUsageAgent[];
   editable: boolean;
@@ -134,6 +141,11 @@ export interface CompanySkillCreateRequest {
   slug?: string | null;
   description?: string | null;
   markdown?: string | null;
+}
+
+export interface CompanySkillPatchRequest {
+  enabled?: boolean;
+  tags?: string[];
 }
 
 export interface CompanySkillFileDetail {

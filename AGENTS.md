@@ -168,6 +168,7 @@ A change is done when all are true:
 - **CEO Bundle Files**: `DEFAULT_AGENT_BUNDLE_FILES` in `server/src/services/default-agent-instructions.ts` is a hardcoded build-time constant — when adding new CEO bundle files to `server/src/onboarding-assets/ceo/`, this array must be updated or files will silently never load.
 - **CEO E2E Test**: `tests/e2e/onboarding.spec.ts` hardcodes the expected bundle file list — any new bundle files will cause this test to fail until the assertion is updated.
 - **tsconfig base config**: `tsconfig.base.json` must have `jsx: "react-jsx"` for React JSX support to cascade properly to workspace packages.
+- **Windows split dev (3100 + 5173)**: `npm exec -- pnpm@9.15.4 -- --filter ...` can mis-handle `--filter` on some Windows setups; for API on 3100 with Vite on 5173, use `cd server` with `SERVE_UI=false`, `PORT=3100`, and `npm exec -- tsx src/index.ts`, plus `cd ui` and `npm exec -- vite` (same pattern as `CLAUDE.md`).
 
 ## Cursor Cloud specific instructions
 

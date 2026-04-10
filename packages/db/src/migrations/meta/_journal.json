@@ -351,6 +351,13 @@
       "when": 1743292800002,
       "tag": "0049_add_chat_messages",
       "breakpoints": true
+    },
+    {
+      "idx": 50,
+      "version": "7",
+      "when": 1743292800003,
+      "tag": "0050_company_skills_enabled",
+      "breakpoints": true
     }
   ]
 }

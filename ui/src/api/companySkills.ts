@@ -5,6 +5,7 @@ import type {
   CompanySkillFileDetail,
   CompanySkillImportResult,
   CompanySkillListItem,
+  CompanySkillPatchRequest,
   CompanySkillProjectScanRequest,
   CompanySkillProjectScanResult,
   CompanySkillUpdateStatus,
@@ -35,6 +36,15 @@ export const companySkillsApi = {
     api.post<CompanySkill>(
       `/companies/${encodeURIComponent(companyId)}/skills`,
       payload,
+    ),
+  patch: (companyId: string, skillId: string, payload: CompanySkillPatchRequest) =>
+    api.patch<CompanySkillDetail>(
+      `/companies/${encodeURIComponent(companyId)}/skills/${encodeURIComponent(skillId)}`,
+      payload,
+    ),
+  remove: (companyId: string, skillId: string) =>
+    api.delete<CompanySkill>(
+      `/companies/${encodeURIComponent(companyId)}/skills/${encodeURIComponent(skillId)}`,
     ),
   importFromSource: (companyId: string, source: string) =>
     api.post<CompanySkillImportResult>(

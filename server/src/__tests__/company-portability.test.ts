@@ -187,7 +187,8 @@ describe("company portability", () => {
     issueSvc.list.mockResolvedValue([]);
     issueSvc.getById.mockResolvedValue(null);
     issueSvc.getByIdentifier.mockResolvedValue(null);
-    const companySkills = [
+    const now = new Date();
+    const companySkillsFull = [
       {
         id: "skill-1",
         companyId: "company-1",
@@ -201,6 +202,7 @@ describe("company portability", () => {
         sourceRef: "0123456789abcdef0123456789abcdef01234567",
         trustLevel: "markdown_only",
         compatibility: "compatible",
+        enabled: true,
         fileInventory: [
           { path: "SKILL.md", kind: "skill" },
           { path: "references/api.md", kind: "reference" },
@@ -213,6 +215,8 @@ describe("company portability", () => {
           trackingRef: "master",
           repoSkillDir: "skills/aidevelo",
         },
+        createdAt: now,
+        updatedAt: now,
       },
       {
         id: "skill-2",
@@ -227,6 +231,7 @@ describe("company portability", () => {
         sourceRef: null,
         trustLevel: "markdown_only",
         compatibility: "compatible",
+        enabled: true,
         fileInventory: [
           { path: "SKILL.md", kind: "skill" },
           { path: "references/checklist.md", kind: "reference" },
@@ -234,10 +239,70 @@ describe("company portability", () => {
         metadata: {
           sourceKind: "local_path",
         },
+        createdAt: now,
+        updatedAt: now,
       },
     ];
-    companySkillSvc.list.mockResolvedValue(companySkills);
-    companySkillSvc.listFull.mockResolvedValue(companySkills);
+    const companySkillsList = [
+      {
+        id: "skill-1",
+        companyId: "company-1",
+        key: aideveloKey,
+        slug: "aidevelo",
+        name: "aidevelo",
+        description: "Aidevelo coordination skill",
+        sourceType: "github",
+        sourceLocator: "https://github.com/aideveloai/aidevelo/tree/master/skills/aidevelo",
+        sourceRef: "0123456789abcdef0123456789abcdef01234567",
+        trustLevel: "markdown_only",
+        compatibility: "compatible",
+        enabled: true,
+        bundled: false,
+        tags: [] as string[],
+        fileInventory: [
+          { path: "SKILL.md", kind: "skill" },
+          { path: "references/api.md", kind: "reference" },
+        ],
+        createdAt: now,
+        updatedAt: now,
+        attachedAgentCount: 0,
+        editable: false,
+        editableReason: "Remote GitHub skills are read-only. Fork or import locally to edit them.",
+        sourceLabel: "aideveloai/aidevelo",
+        sourceBadge: "github",
+        sourcePath: null,
+      },
+      {
+        id: "skill-2",
+        companyId: "company-1",
+        key: companyPlaybookKey,
+        slug: "company-playbook",
+        name: "company-playbook",
+        description: "Internal company skill",
+        sourceType: "local_path",
+        sourceLocator: "/tmp/company-playbook",
+        sourceRef: null,
+        trustLevel: "markdown_only",
+        compatibility: "compatible",
+        enabled: true,
+        bundled: false,
+        tags: [] as string[],
+        fileInventory: [
+          { path: "SKILL.md", kind: "skill" },
+          { path: "references/checklist.md", kind: "reference" },
+        ],
+        createdAt: now,
+        updatedAt: now,
+        attachedAgentCount: 0,
+        editable: true,
+        editableReason: null,
+        sourceLabel: "/tmp/company-playbook",
+        sourceBadge: "local",
+        sourcePath: null,
+      },
+    ];
+    companySkillSvc.list.mockResolvedValue(companySkillsList);
+    companySkillSvc.listFull.mockResolvedValue(companySkillsFull);
     companySkillSvc.readFile.mockImplementation(async (_companyId: string, skillId: string, relativePath: string) => {
       if (skillId === "skill-2") {
         return {
@@ -469,6 +534,7 @@ describe("company portability", () => {
       };
     });
 
+    const dupNow = new Date();
     companySkillSvc.listFull.mockResolvedValue([
       {
         id: "skill-local",
@@ -483,10 +549,13 @@ describe("company portability", () => {
         sourceRef: null,
         trustLevel: "markdown_only",
         compatibility: "compatible",
+        enabled: true,
         fileInventory: [{ path: "SKILL.md", kind: "skill" }],
         metadata: {
           sourceKind: "local_path",
         },
+        createdAt: dupNow,
+        updatedAt: dupNow,
       },
       {
         id: "skill-aidevelo",
@@ -501,6 +570,7 @@ describe("company portability", () => {
         sourceRef: "0123456789abcdef0123456789abcdef01234567",
         trustLevel: "markdown_only",
         compatibility: "compatible",
+        enabled: true,
         fileInventory: [{ path: "SKILL.md", kind: "skill" }],
         metadata: {
           sourceKind: "aidevelo_bundled",
@@ -510,6 +580,8 @@ describe("company portability", () => {
           trackingRef: "master",
           repoSkillDir: "skills/release-changelog",
         },
+        createdAt: dupNow,
+        updatedAt: dupNow,
       },
     ]);
 

@@ -10,6 +10,12 @@ export const companySkillFileInventoryEntrySchema = z.object({
   kind: z.enum(["skill", "markdown", "reference", "script", "asset", "other"]),
 });
 
+export const companySkillTagSchema = z
+  .string()
+  .min(1)
+  .max(48)
+  .regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/);
+
 export const companySkillSchema = z.object({
   id: z.string().uuid(),
   companyId: z.string().uuid(),
@@ -23,19 +29,25 @@ export const companySkillSchema = z.object({
   sourceRef: z.string().nullable(),
   trustLevel: companySkillTrustLevelSchema,
   compatibility: companySkillCompatibilitySchema,
+  enabled: z.boolean(),
   fileInventory: z.array(companySkillFileInventoryEntrySchema).default([]),
   metadata: z.record(z.unknown()).nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
 
-export const companySkillListItemSchema = companySkillSchema.extend({
-  attachedAgentCount: z.number().int().nonnegative(),
-  editable: z.boolean(),
-  editableReason: z.string().nullable(),
-  sourceLabel: z.string().nullable(),
-  sourceBadge: companySkillSourceBadgeSchema,
-});
+export const companySkillListItemSchema = companySkillSchema
+  .omit({ markdown: true })
+  .extend({
+    bundled: z.boolean(),
+    tags: z.array(z.string()),
+    attachedAgentCount: z.number().int().nonnegative(),
+    editable: z.boolean(),
+    editableReason: z.string().nullable(),
+    sourceLabel: z.string().nullable(),
+    sourceBadge: companySkillSourceBadgeSchema,
+    sourcePath: z.string().nullable(),
+  });
 
 export const companySkillUsageAgentSchema = z.object({
   id: z.string().uuid(),
@@ -47,12 +59,15 @@ export const companySkillUsageAgentSchema = z.object({
 });
 
 export const companySkillDetailSchema = companySkillSchema.extend({
+  bundled: z.boolean(),
+  tags: z.array(z.string()),
   attachedAgentCount: z.number().int().nonnegative(),
   usedByAgents: z.array(companySkillUsageAgentSchema).default([]),
   editable: z.boolean(),
   editableReason: z.string().nullable(),
   sourceLabel: z.string().nullable(),
   sourceBadge: companySkillSourceBadgeSchema,
+  sourcePath: z.string().nullable(),
 });
 
 export const companySkillUpdateStatusSchema = z.object({
@@ -114,6 +129,15 @@ export const companySkillCreateSchema = z.object({
   markdown: z.string().nullable().optional(),
 });
 
+export const companySkillPatchSchema = z
+  .object({
+    enabled: z.boolean().optional(),
+    tags: z.array(companySkillTagSchema).max(20).optional(),
+  })
+  .refine((body) => body.enabled !== undefined || body.tags !== undefined, {
+    message: "At least one of enabled or tags is required",
+  });
+
 export const companySkillFileDetailSchema = z.object({
   skillId: z.string().uuid(),
   path: z.string().min(1),
@@ -133,3 +157,4 @@ export type CompanySkillImport = z.infer<typeof companySkillImportSchema>;
 export type CompanySkillProjectScan = z.infer<typeof companySkillProjectScanRequestSchema>;
 export type CompanySkillCreate = z.infer<typeof companySkillCreateSchema>;
 export type CompanySkillFileUpdate = z.infer<typeof companySkillFileUpdateSchema>;
+export type CompanySkillPatch = z.infer<typeof companySkillPatchSchema>;

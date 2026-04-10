@@ -4,6 +4,7 @@ import {
   companySkillCreateSchema,
   companySkillFileUpdateSchema,
   companySkillImportSchema,
+  companySkillPatchSchema,
   companySkillProjectScanRequestSchema,
 } from "@aideveloai/shared";
 import { validate } from "../middleware/validate.js";
@@ -94,6 +95,39 @@ export function companySkillRoutes(db: Db) {
     }
     res.json(result);
   });
+
+  router.patch(
+    "/companies/:companyId/skills/:skillId",
+    validate(companySkillPatchSchema),
+    async (req, res) => {
+      const companyId = req.params.companyId as string;
+      const skillId = req.params.skillId as string;
+      await assertCanMutateCompanySkills(req, companyId);
+      const result = await svc.patchSkill(companyId, skillId, req.body);
+      if (!result) {
+        res.status(404).json({ error: "Skill not found" });
+        return;
+      }
+
+      const actor = getActorInfo(req);
+      await logActivity(db, {
+        companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        runId: actor.runId,
+        action: "company.skill_updated",
+        entityType: "company_skill",
+        entityId: skillId,
+        details: {
+          enabled: req.body.enabled,
+          tags: req.body.tags,
+        },
+      });
+
+      res.json(result);
+    },
+  );
 
   router.post(
     "/companies/:companyId/skills",

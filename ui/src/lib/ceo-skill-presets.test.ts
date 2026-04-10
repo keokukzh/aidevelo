@@ -10,14 +10,20 @@ const companySkills = [
   {
     id: "1",
     key: "aideveloai/aidevelo/aidevelo",
+    bundled: true,
+    tags: [],
   } as CompanySkillListItem,
   {
     id: "2",
     key: "aideveloai/aidevelo/para-memory-files",
+    bundled: true,
+    tags: [],
   } as CompanySkillListItem,
   {
     id: "3",
     key: "company/company-1/custom-skill",
+    bundled: false,
+    tags: [],
   } as CompanySkillListItem,
 ];
 

@@ -16,6 +16,7 @@ import type {
   CompanySkillFileInventoryEntry,
   CompanySkillImportResult,
   CompanySkillListItem,
+  CompanySkillPatchRequest,
   CompanySkillProjectScanConflict,
   CompanySkillProjectScanRequest,
   CompanySkillProjectScanResult,
@@ -1101,6 +1102,7 @@ async function readUrlSkillImports(
 function toCompanySkill(row: CompanySkillRow): CompanySkill {
   return {
     ...row,
+    enabled: row.enabled !== false,
     description: row.description ?? null,
     sourceType: row.sourceType as CompanySkillSourceType,
     sourceLocator: row.sourceLocator ?? null,
@@ -1131,6 +1133,25 @@ function serializeFileInventory(
 
 function getSkillMeta(skill: CompanySkill): SkillSourceMeta {
   return isPlainRecord(skill.metadata) ? skill.metadata as SkillSourceMeta : {};
+}
+
+function isAideveloBundledSkill(skill: CompanySkill): boolean {
+  return getSkillMeta(skill).sourceKind === "aidevelo_bundled";
+}
+
+/** Whether a skill is listed for adapter runtime injection (enabled, or bundled Aidevelo). Exported for unit tests. */
+export function companySkillIncludedInRuntimeInjection(skill: CompanySkill): boolean {
+  return skill.enabled || isAideveloBundledSkill(skill);
+}
+
+function skillTagsFromMetadata(skill: CompanySkill): string[] {
+  const raw = skill.metadata?.tags;
+  if (!Array.isArray(raw)) return [];
+  const tags = raw
+    .filter((t): t is string => typeof t === "string")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+  return Array.from(new Set(tags)).sort((a, b) => a.localeCompare(b));
 }
 
 function resolveSkillReference(
@@ -1171,12 +1192,13 @@ function resolveSkillReference(
   return { skill: null, ambiguous: false };
 }
 
-function resolveRequestedSkillKeysOrThrow(
+export function resolveRequestedSkillKeysOrThrow(
   skills: CompanySkill[],
   requestedReferences: string[],
 ) {
   const missing = new Set<string>();
   const ambiguous = new Set<string>();
+  const disabled = new Set<string>();
   const resolved = new Set<string>();
 
   for (const reference of requestedReferences) {
@@ -1185,6 +1207,10 @@ function resolveRequestedSkillKeysOrThrow(
 
     const match = resolveSkillReference(skills, trimmed);
     if (match.skill) {
+      if (!match.skill.enabled && !isAideveloBundledSkill(match.skill)) {
+        disabled.add(trimmed);
+        continue;
+      }
       resolved.add(match.skill.key);
       continue;
     }
@@ -1197,13 +1223,16 @@ function resolveRequestedSkillKeysOrThrow(
     missing.add(trimmed);
   }
 
-  if (ambiguous.size > 0 || missing.size > 0) {
+  if (ambiguous.size > 0 || missing.size > 0 || disabled.size > 0) {
     const problems: string[] = [];
     if (ambiguous.size > 0) {
       problems.push(`ambiguous references: ${Array.from(ambiguous).sort().join(", ")}`);
     }
     if (missing.size > 0) {
       problems.push(`unknown references: ${Array.from(missing).sort().join(", ")}`);
+    }
+    if (disabled.size > 0) {
+      problems.push(`disabled skills: ${Array.from(disabled).sort().join(", ")}`);
     }
     throw unprocessable(`Invalid company skill selection (${problems.join("; ")}).`);
   }
@@ -1392,6 +1421,8 @@ function enrichSkill(skill: CompanySkill, attachedAgentCount: number, usedByAgen
   const source = deriveSkillSourceInfo(skill);
   return {
     ...skill,
+    bundled: isAideveloBundledSkill(skill),
+    tags: skillTagsFromMetadata(skill),
     attachedAgentCount,
     usedByAgents,
     ...source,
@@ -1412,6 +1443,9 @@ function toCompanySkillListItem(skill: CompanySkill, attachedAgentCount: number)
     sourceRef: skill.sourceRef,
     trustLevel: skill.trustLevel,
     compatibility: skill.compatibility,
+    enabled: skill.enabled,
+    bundled: isAideveloBundledSkill(skill),
+    tags: skillTagsFromMetadata(skill),
     fileInventory: skill.fileInventory,
     createdAt: skill.createdAt,
     updatedAt: skill.updatedAt,
@@ -2011,7 +2045,9 @@ export function companySkillService(db: Db) {
 
     const out: AideveloSkillEntry[] = [];
     for (const skill of skills) {
-      const sourceKind = asString(getSkillMeta(skill).sourceKind);
+      if (!companySkillIncludedInRuntimeInjection(skill)) continue;
+
+      const required = isAideveloBundledSkill(skill);
       let source = normalizeSkillDirectory(skill);
       if (!source) {
         source = options.materializeMissing === false
@@ -2020,7 +2056,6 @@ export function companySkillService(db: Db) {
       }
       if (!source) continue;
 
-      const required = sourceKind === "aidevelo_bundled";
       out.push({
         key: skill.key,
         runtimeName: buildSkillRuntimeName(skill.key, skill.slug),
@@ -2255,6 +2290,45 @@ export function companySkillService(db: Db) {
     return { imported, warnings };
   }
 
+  async function patchSkill(
+    companyId: string,
+    skillId: string,
+    patch: CompanySkillPatchRequest,
+  ): Promise<CompanySkillDetail | null> {
+    await ensureSkillInventoryCurrent(companyId);
+    const skill = await getById(skillId);
+    if (!skill || skill.companyId !== companyId) return null;
+
+    if (patch.enabled === false && isAideveloBundledSkill(skill)) {
+      throw unprocessable("Bundled Aidevelo skills cannot be disabled.");
+    }
+
+    const updates: {
+      enabled?: boolean;
+      metadata?: Record<string, unknown> | null;
+      updatedAt: Date;
+    } = { updatedAt: new Date() };
+
+    if (patch.enabled !== undefined) {
+      updates.enabled = patch.enabled;
+    }
+    if (patch.tags !== undefined) {
+      const baseMeta = skill.metadata && isPlainRecord(skill.metadata) ? { ...skill.metadata } : {};
+      baseMeta.tags = patch.tags;
+      updates.metadata = baseMeta;
+    }
+
+    const row = await db
+      .update(companySkills)
+      .set(updates)
+      .where(and(eq(companySkills.id, skillId), eq(companySkills.companyId, companyId)))
+      .returning()
+      .then((rows) => rows[0] ?? null);
+    if (!row) return null;
+
+    return detail(companyId, skillId);
+  }
+
   async function deleteSkill(companyId: string, skillId: string): Promise<CompanySkill | null> {
     const row = await db
       .select()
@@ -2311,6 +2385,7 @@ export function companySkillService(db: Db) {
     readFile,
     updateFile,
     createLocalSkill,
+    patchSkill,
     deleteSkill,
     importFromSource,
     scanProjectWorkspaces,

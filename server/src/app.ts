@@ -159,6 +159,10 @@ export async function createApp(
       companyDeletionEnabled: opts.companyDeletionEnabled,
     }),
   );
+  // Register before `/companies` mount so paths like `/companies/:id/inbox-summary` match here.
+  // Otherwise the `/companies` sub-router runs first and can yield 404 for multi-segment paths.
+  api.use(dashboardRoutes(db));
+  api.use(sidebarBadgeRoutes(db));
   api.use("/companies", companyRoutes(db, opts.storageService));
   api.use(companySkillRoutes(db));
   api.use(agentRoutes(db));
@@ -172,8 +176,6 @@ export async function createApp(
   api.use(secretRoutes(db));
   api.use(costRoutes(db));
   api.use(activityRoutes(db));
-  api.use(dashboardRoutes(db));
-  api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
   api.use(billingRoutes(db));
   api.use(chatRoutes(db));
