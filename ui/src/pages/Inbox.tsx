@@ -352,6 +352,11 @@ export function Inbox() {
     queryFn: () => dashboardApi.summary(selectedCompanyId!),
     enabled: !!selectedCompanyId,
   });
+  const { data: inboxSummary, isLoading: isInboxSummaryLoading } = useQuery({
+    queryKey: queryKeys.inboxSummary(selectedCompanyId!),
+    queryFn: () => dashboardApi.inboxSummary(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+  });
 
   const { data: issues, isLoading: isIssuesLoading } = useQuery({
     queryKey: queryKeys.issues.list(selectedCompanyId!),
@@ -594,15 +599,17 @@ export function Inbox() {
     return <EmptyState icon={InboxIcon} message="Select a company to view inbox." />;
   }
 
-  const hasRunFailures = failedRuns.length > 0;
-  const showAggregateAgentError = !!dashboard && dashboard.agents.error > 0 && !hasRunFailures && !dismissed.has("alert:agent-errors");
+  const hasRunFailures = (inboxSummary?.failedRuns ?? failedRuns.length) > 0;
+  const showAggregateAgentError =
+    (inboxSummary?.agentErrorCount ?? dashboard?.agents.error ?? 0) > 0 &&
+    !hasRunFailures &&
+    !dismissed.has("alert:agent-errors");
   const showBudgetAlert =
-    !!dashboard &&
-    dashboard.costs.monthBudgetCents > 0 &&
-    dashboard.costs.monthUtilizationPercent >= 80 &&
+    (inboxSummary?.monthBudgetCents ?? dashboard?.costs.monthBudgetCents ?? 0) > 0 &&
+    (inboxSummary?.monthUtilizationPercent ?? dashboard?.costs.monthUtilizationPercent ?? 0) >= 80 &&
     !dismissed.has("alert:budget");
   const hasAlerts = showAggregateAgentError || showBudgetAlert;
-  const hasJoinRequests = joinRequests.length > 0;
+  const hasJoinRequests = (inboxSummary?.pendingJoinRequests ?? joinRequests.length) > 0;
   const showWorkItemsSection = workItemsToRender.length > 0;
   const showJoinRequestsSection =
     tab === "all" ? showJoinRequestsCategory && hasJoinRequests : tab === "unread" && hasJoinRequests;
@@ -624,6 +631,7 @@ export function Inbox() {
     !isJoinRequestsLoading &&
     !isApprovalsLoading &&
     !isDashboardLoading &&
+    !isInboxSummaryLoading &&
     !isIssuesLoading &&
     !isTouchedIssuesLoading &&
     !isRunsLoading;
@@ -880,8 +888,8 @@ export function Inbox() {
                   >
                     <AlertTriangle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400" />
                     <span className="text-sm">
-                      <span className="font-medium">{dashboard!.agents.error}</span>{" "}
-                      {dashboard!.agents.error === 1 ? "agent has" : "agents have"} errors
+                      <span className="font-medium">{inboxSummary?.agentErrorCount ?? dashboard?.agents.error ?? 0}</span>{" "}
+                      {(inboxSummary?.agentErrorCount ?? dashboard?.agents.error ?? 0) === 1 ? "agent has" : "agents have"} errors
                     </span>
                   </Link>
                   <button
@@ -903,7 +911,7 @@ export function Inbox() {
                     <AlertTriangle className="h-4 w-4 shrink-0 text-yellow-400" />
                     <span className="text-sm">
                       Budget at{" "}
-                      <span className="font-medium">{dashboard!.costs.monthUtilizationPercent}%</span>{" "}
+                      <span className="font-medium">{inboxSummary?.monthUtilizationPercent ?? dashboard?.costs.monthUtilizationPercent ?? 0}%</span>{" "}
                       utilization this month
                     </span>
                   </Link>

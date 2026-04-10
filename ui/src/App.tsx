@@ -4,13 +4,13 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Layout } from "./components/Layout";
 import { OnboardingWizard } from "./components/OnboardingWizard";
-import { authApi } from "./api/auth";
 import { healthApi } from "./api/health";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
 import { loadLastInboxTab } from "./lib/inbox";
 import { shouldRedirectCompanylessRouteToOnboarding } from "./lib/onboarding-route";
+import { useAuthSession } from "./hooks/useAuthSession";
 
 // --- Eagerly loaded (small / always needed) ---
 import { Dashboard } from "./pages/Dashboard";
@@ -93,12 +93,7 @@ function CloudAccessGate() {
   });
 
   const isAuthenticatedMode = healthQuery.data?.deploymentMode === "authenticated";
-  const sessionQuery = useQuery({
-    queryKey: queryKeys.auth.session,
-    queryFn: () => authApi.getSession(),
-    enabled: isAuthenticatedMode,
-    retry: false,
-  });
+  const sessionQuery = useAuthSession(isAuthenticatedMode);
 
   if (healthQuery.isLoading || (isAuthenticatedMode && sessionQuery.isLoading)) {
     return <div className="mx-auto max-w-xl py-10 text-sm text-muted-foreground">Loading...</div>;

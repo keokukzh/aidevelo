@@ -1,7 +1,5 @@
 import {
-  createHash,
   generateKeyPairSync,
-  randomBytes,
   timingSafeEqual
 } from "node:crypto";
 import fs from "node:fs";
@@ -49,29 +47,9 @@ import {
   claimBoardOwnership,
   inspectBoardClaimChallenge
 } from "../board-claim.js";
-
-function hashToken(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
-const INVITE_TOKEN_PREFIX = "pcp_invite_";
-const INVITE_TOKEN_ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789";
-const INVITE_TOKEN_SUFFIX_LENGTH = 8;
+import { createClaimSecret, createInviteToken, hashInviteToken } from "../services/invite-token.js";
 const INVITE_TOKEN_MAX_RETRIES = 5;
 const COMPANY_INVITE_TTL_MS = 10 * 60 * 1000;
-
-function createInviteToken() {
-  const bytes = randomBytes(INVITE_TOKEN_SUFFIX_LENGTH);
-  let suffix = "";
-  for (let idx = 0; idx < INVITE_TOKEN_SUFFIX_LENGTH; idx += 1) {
-    suffix += INVITE_TOKEN_ALPHABET[bytes[idx]! % INVITE_TOKEN_ALPHABET.length];
-  }
-  return `${INVITE_TOKEN_PREFIX}${suffix}`;
-}
-
-function createClaimSecret() {
-  return `pcp_claim_${randomBytes(24).toString("hex")}`;
-}
 
 export function companyInviteExpiresAt(nowMs: number = Date.now()) {
   return new Date(nowMs + COMPANY_INVITE_TTL_MS);
@@ -552,7 +530,7 @@ function summarizeSecretForLog(
   return {
     present: true,
     length: trimmed.length,
-    sha256Prefix: hashToken(trimmed).slice(0, 12)
+    sha256Prefix: hashInviteToken(trimmed).slice(0, 12)
   };
 }
 
@@ -1675,7 +1653,7 @@ export function accessRoutes(
           .insert(invites)
           .values({
             ...insertValues,
-            tokenHash: hashToken(candidateToken)
+            tokenHash: hashInviteToken(candidateToken)
           })
           .returning()
           .then((rows) => rows[0]);
@@ -1818,7 +1796,7 @@ export function accessRoutes(
     const invite = await db
       .select()
       .from(invites)
-      .where(eq(invites.tokenHash, hashToken(token)))
+      .where(eq(invites.tokenHash, hashInviteToken(token)))
       .then((rows) => rows[0] ?? null);
     if (
       !invite ||
@@ -1838,7 +1816,7 @@ export function accessRoutes(
     const invite = await db
       .select()
       .from(invites)
-      .where(eq(invites.tokenHash, hashToken(token)))
+      .where(eq(invites.tokenHash, hashInviteToken(token)))
       .then((rows) => rows[0] ?? null);
     if (!invite || invite.revokedAt || inviteExpired(invite)) {
       throw notFound("Invite not found");
@@ -1853,7 +1831,7 @@ export function accessRoutes(
     const invite = await db
       .select()
       .from(invites)
-      .where(eq(invites.tokenHash, hashToken(token)))
+      .where(eq(invites.tokenHash, hashInviteToken(token)))
       .then((rows) => rows[0] ?? null);
     if (!invite || invite.revokedAt || inviteExpired(invite)) {
       throw notFound("Invite not found");
@@ -1870,7 +1848,7 @@ export function accessRoutes(
     const invite = await db
       .select()
       .from(invites)
-      .where(eq(invites.tokenHash, hashToken(token)))
+      .where(eq(invites.tokenHash, hashInviteToken(token)))
       .then((rows) => rows[0] ?? null);
     if (!invite || invite.revokedAt || inviteExpired(invite)) {
       throw notFound("Invite not found");
@@ -1916,7 +1894,7 @@ export function accessRoutes(
       const invite = await db
         .select()
         .from(invites)
-        .where(eq(invites.tokenHash, hashToken(token)))
+        .where(eq(invites.tokenHash, hashInviteToken(token)))
         .then((rows) => rows[0] ?? null);
       if (!invite || invite.revokedAt || inviteExpired(invite)) {
         throw notFound("Invite not found");
@@ -2070,7 +2048,7 @@ export function accessRoutes(
         requestType === "agent" && !inviteAlreadyAccepted
           ? createClaimSecret()
           : null;
-      const claimSecretHash = claimSecret ? hashToken(claimSecret) : null;
+      const claimSecretHash = claimSecret ? hashInviteToken(claimSecret) : null;
       const claimSecretExpiresAt = claimSecret
         ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
         : null;
@@ -2562,7 +2540,7 @@ export function accessRoutes(
     validate(claimJoinRequestApiKeySchema),
     async (req, res) => {
       const requestId = req.params.requestId as string;
-      const presentedClaimSecretHash = hashToken(req.body.claimSecret);
+      const presentedClaimSecretHash = hashInviteToken(req.body.claimSecret);
       const joinRequest = await db
         .select()
         .from(joinRequests)

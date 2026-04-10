@@ -6,6 +6,7 @@ import {
   principalPermissionGrants,
 } from "@aideveloai/db";
 import type { PermissionKey, PrincipalType } from "@aideveloai/shared";
+import { invalidateCachedBoardActor, invalidateCachedBoardActors } from "./user-auth-cache.js";
 
 type MembershipRow = typeof companyMemberships.$inferSelect;
 type GrantInput = {
@@ -75,6 +76,35 @@ export function accessService(db: Db) {
     return hasPermission(companyId, "user", userId, permissionKey);
   }
 
+  async function userPermissions(
+    companyId: string,
+    userId: string | null | undefined,
+    permissionKeys: PermissionKey[],
+  ): Promise<Record<PermissionKey, boolean>> {
+    const uniquePermissionKeys = Array.from(new Set(permissionKeys));
+    const result = Object.fromEntries(uniquePermissionKeys.map((key) => [key, false])) as Record<PermissionKey, boolean>;
+    if (!userId || uniquePermissionKeys.length === 0) return result;
+    if (await isInstanceAdmin(userId)) {
+      for (const key of uniquePermissionKeys) result[key] = true;
+      return result;
+    }
+    const membership = await getMembership(companyId, "user", userId);
+    if (!membership || membership.status !== "active") return result;
+    const grants = await db
+      .select({ permissionKey: principalPermissionGrants.permissionKey })
+      .from(principalPermissionGrants)
+      .where(
+        and(
+          eq(principalPermissionGrants.companyId, companyId),
+          eq(principalPermissionGrants.principalType, "user"),
+          eq(principalPermissionGrants.principalId, userId),
+          inArray(principalPermissionGrants.permissionKey, uniquePermissionKeys),
+        ),
+      );
+    for (const grant of grants) result[grant.permissionKey as PermissionKey] = true;
+    return result;
+  }
+
   async function listMembers(companyId: string) {
     return db
       .select()
@@ -136,6 +166,10 @@ export function accessService(db: Db) {
       }
     });
 
+    if (member.principalType === "user") {
+      invalidateCachedBoardActor(member.principalId);
+    }
+
     return member;
   }
 
@@ -146,7 +180,7 @@ export function accessService(db: Db) {
       .where(and(eq(instanceUserRoles.userId, userId), eq(instanceUserRoles.role, "instance_admin")))
       .then((rows) => rows[0] ?? null);
     if (existing) return existing;
-    return db
+    const row = await db
       .insert(instanceUserRoles)
       .values({
         userId,
@@ -154,14 +188,18 @@ export function accessService(db: Db) {
       })
       .returning()
       .then((rows) => rows[0]);
+    invalidateCachedBoardActor(userId);
+    return row;
   }
 
   async function demoteInstanceAdmin(userId: string) {
-    return db
+    const row = await db
       .delete(instanceUserRoles)
       .where(and(eq(instanceUserRoles.userId, userId), eq(instanceUserRoles.role, "instance_admin")))
       .returning()
       .then((rows) => rows[0] ?? null);
+    invalidateCachedBoardActor(userId);
+    return row;
   }
 
   async function listUserCompanyAccess(userId: string) {
@@ -195,6 +233,7 @@ export function accessService(db: Db) {
       }
     });
 
+    invalidateCachedBoardActor(userId);
     return listUserCompanyAccess(userId);
   }
 
@@ -214,12 +253,12 @@ export function accessService(db: Db) {
           .where(eq(companyMemberships.id, existing.id))
           .returning()
           .then((rows) => rows[0] ?? null);
+        if (principalType === "user") invalidateCachedBoardActor(principalId);
         return updated ?? existing;
       }
       return existing;
     }
-
-    return db
+    const row = await db
       .insert(companyMemberships)
       .values({
         companyId,
@@ -230,6 +269,8 @@ export function accessService(db: Db) {
       })
       .returning()
       .then((rows) => rows[0]);
+    if (principalType === "user") invalidateCachedBoardActor(principalId);
+    return row;
   }
 
   async function setPrincipalGrants(
@@ -263,6 +304,7 @@ export function accessService(db: Db) {
         })),
       );
     });
+    if (principalType === "user") invalidateCachedBoardActor(principalId);
   }
 
   async function copyActiveUserMemberships(sourceCompanyId: string, targetCompanyId: string) {
@@ -276,6 +318,7 @@ export function accessService(db: Db) {
         "active",
       );
     }
+    invalidateCachedBoardActors(sourceMemberships.map((membership) => membership.principalId));
     return sourceMemberships;
   }
 
@@ -317,6 +360,7 @@ export function accessService(db: Db) {
             eq(principalPermissionGrants.permissionKey, permissionKey),
           ),
         );
+      if (principalType === "user") invalidateCachedBoardActor(principalId);
       return;
     }
 
@@ -344,6 +388,7 @@ export function accessService(db: Db) {
           updatedAt: new Date(),
         })
         .where(eq(principalPermissionGrants.id, existing.id));
+      if (principalType === "user") invalidateCachedBoardActor(principalId);
       return;
     }
 
@@ -357,11 +402,13 @@ export function accessService(db: Db) {
       createdAt: new Date(),
       updatedAt: new Date(),
     });
+    if (principalType === "user") invalidateCachedBoardActor(principalId);
   }
 
   return {
     isInstanceAdmin,
     canUser,
+    userPermissions,
     hasPermission,
     getMembership,
     ensureMembership,

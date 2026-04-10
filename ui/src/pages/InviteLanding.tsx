@@ -5,6 +5,7 @@ import { accessApi } from "../api/access";
 import { authApi } from "../api/auth";
 import { healthApi } from "../api/health";
 import { queryKeys } from "../lib/queryKeys";
+import { useAuthSession } from "../hooks/useAuthSession";
 import { Button } from "@/components/ui/button";
 import { AGENT_ADAPTER_TYPES } from "@aideveloai/shared";
 import type { AgentAdapterType, JoinRequest } from "@aideveloai/shared";
@@ -54,11 +55,7 @@ export function InviteLandingPage() {
     queryFn: () => healthApi.get(),
     retry: false,
   });
-  const sessionQuery = useQuery({
-    queryKey: queryKeys.auth.session,
-    queryFn: () => authApi.getSession(),
-    retry: false,
-  });
+  const sessionQuery = useAuthSession();
   const inviteQuery = useQuery({
     queryKey: queryKeys.access.invite(token),
     queryFn: () => accessApi.getInvite(token),

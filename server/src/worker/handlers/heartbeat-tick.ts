@@ -28,7 +28,7 @@ export const heartbeatTickHandler = {
       .from(routineTriggers)
       .where(
         and(
-          eq(routineTriggers.kind, "cron"),
+          eq(routineTriggers.kind, "schedule"),
           eq(routineTriggers.enabled, true),
           lte(routineTriggers.nextRunAt, new Date()),
         ),
